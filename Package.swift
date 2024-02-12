@@ -3,6 +3,7 @@
 
 import PackageDescription
 
+
 let package = Package(
     name: "SwiftTranslate",
     platforms: [
@@ -10,7 +11,11 @@ let package = Package(
     ],
     products: [
         .plugin(
-            name: "SwiftTranslate",
+            name: "SwiftTranslatePlugin",
+            targets: ["SwiftTranslatePlugin"]
+        ),
+        .executable(
+            name: "swift-translate",
             targets: ["SwiftTranslate"]
         ),
         .library(
@@ -19,6 +24,7 @@ let package = Package(
         )
     ],
     dependencies: [
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
         .package(url: "https://github.com/MacPaw/OpenAI.git", .upToNextMajor(from: "0.2.5"))
     ],
     targets: [
@@ -26,14 +32,31 @@ let package = Package(
         // Main Plugin
         
         .plugin(
-            name: "SwiftTranslate",
-            capability: .command(intent: .custom(
-                verb: "SwiftTranslate",
-                description: "Translates project String Catalogs using OpenAI's GPT 3.5 model"
-            ))
+            name: "SwiftTranslatePlugin",
+            capability: .command(
+                intent: .custom(
+                    verb: "Swift Translate",
+                    description: "Translates project String Catalogs using OpenAI's GPT 3.5 model"
+                ),
+                permissions: [
+                    .allowNetworkConnections(scope: .all(), reason: "Boop"),
+                    .writeToPackageDirectory(reason: "Boop"),
+                ]
+            ),
+            dependencies: [
+                .target(name: "SwiftTranslate")
+            ]
         ),
         
         // Libraries
+        
+        .executableTarget(
+            name: "SwiftTranslate",
+            dependencies: [
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "OpenAI", package: "OpenAI")
+            ]
+        ),
         
         .target(
             name: "SwiftStringCatalog"

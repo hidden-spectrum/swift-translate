@@ -15,6 +15,8 @@ struct StringUnit: Codable {
     // MARK: Public
     
     enum State: String, Codable {
+        case new
+        case stale
         case translated
     }
     

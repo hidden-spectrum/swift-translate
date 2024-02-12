@@ -12,5 +12,5 @@ struct StringTranslations: Codable {
     
     let extractionState: ExtractionState
     
-    var localizations: [String: StringUnitContainer]
+    var localizations: [StringLiteralType: StringUnitContainer]
 }

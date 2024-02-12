@@ -1,10 +1,14 @@
+//
+//  Copyright © 2024 Hidden Spectrum, LLC.
+//
+
 import PackagePlugin
 
+
 @main
-struct SwiftTranslate: CommandPlugin {
-    // Entry point for command plugins applied to Swift Packages.
+struct SwiftTranslatePlugin: CommandPlugin {
+    
     func performCommand(context: PluginContext, arguments: [String]) async throws {
-        print("Hello, World!")
     }
 }
 

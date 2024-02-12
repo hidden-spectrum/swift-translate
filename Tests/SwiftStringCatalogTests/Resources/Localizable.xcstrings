@@ -1,5 +1,9 @@
 {
   "sourceLanguage" : "en",
-  "strings" : {},
+  "strings" : {
+    "test" : {
+      "extractionState" : "manual"
+    }
+  },
   "version" : "1.0"
 }
