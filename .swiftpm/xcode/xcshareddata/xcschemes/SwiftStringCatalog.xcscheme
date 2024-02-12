@@ -29,7 +29,8 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:Tests/SwiftStringCatalogTests/SwiftStringCatalog.xctestplan">
+            reference = "container:Tests/SwiftStringCatalogTests/SwiftStringCatalog.xctestplan"
+            default = "YES">
          </TestPlanReference>
       </TestPlans>
    </TestAction>
