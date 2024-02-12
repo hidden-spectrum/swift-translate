@@ -21,6 +21,8 @@ public struct StringCatalog: Codable {
     
     var strings: [StringLiteralType: StringTranslations]
     
+    // MARK: Private
+    
     // MARK: Lifecycle
     
     public init(sourceLanguage: Language, version: String = "1.0") {
@@ -32,6 +34,7 @@ public struct StringCatalog: Codable {
     public static func load(from url: URL) throws -> StringCatalog {
         let data = try Data(contentsOf: url)
         let decoder = JSONDecoder()
+        decoder.allowsJSON5 = true
         return try decoder.decode(Self.self, from: data)
     }
     
@@ -39,14 +42,21 @@ public struct StringCatalog: Codable {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
         let data = try encoder.encode(self)
-        try data.write(to: url)
+        
+        let fileManager = FileManager.default
+        try? fileManager.removeItem(at: url)
+        fileManager.createFile(atPath: url.path, contents: data)
     }
     
     // MARK: Accessors
     
+    public var keys: [StringLiteralType] {
+        return Array(strings.keys)
+    }
+    
     public func extractionState(for key: StringLiteralType) throws -> ExtractionState {
         let translations = try getTranslations(for: key)
-        return translations.extractionState
+        return translations.extractionState ?? .unknown
     }
     
     public func sourceLanguageValue(for key: StringLiteralType) throws -> StringLiteralType {
@@ -57,19 +67,19 @@ public struct StringCatalog: Codable {
         let language = language
         let translations = try getTranslations(for: key)
         
-        guard let value = translations.localizations[language.rawValue]?.stringUnit.value else {
+        guard let value = translations.localizations[language.rawValue]?.stringUnit?.value else {
             throw Error.localizedValueNotFoundForLanguage(language)
         }
         
         return value
     }
     
-    mutating func set(translation: StringLiteralType, for key: StringLiteralType, in language: Language) throws {
+    mutating public func set(_ translation: StringLiteralType, for key: StringLiteralType, in language: Language) throws {
         var translations = try getTranslations(for: key)
         var localizations = translations.localizations
         if var stringUnitContainer = localizations[language.rawValue] {
-            stringUnitContainer.stringUnit.value = translation
-            stringUnitContainer.stringUnit.state = .translated
+            stringUnitContainer.stringUnit?.value = translation
+            stringUnitContainer.stringUnit?.state = .translated
             localizations[language.rawValue] = stringUnitContainer
         } else {
             localizations[language.rawValue] = .init(stringUnit: .init(state: .translated, value: translation))

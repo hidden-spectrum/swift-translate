@@ -10,7 +10,7 @@ struct StringTranslations: Codable {
 
     // MARK: Internal
     
-    let extractionState: ExtractionState
+    let extractionState: ExtractionState?
     
-    var localizations: [StringLiteralType: StringUnitContainer]
+    var localizations: [StringLiteralType: Localization]
 }

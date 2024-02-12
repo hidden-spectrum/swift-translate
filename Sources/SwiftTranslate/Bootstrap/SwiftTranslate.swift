@@ -23,7 +23,13 @@ struct SwiftTranslate: AsyncParsableCommand {
         name: [.long, .short],
         help: "Text to translate"
     )
-    private var text: String
+    private var text: String?
+    
+    @Option(
+        name: [.customLong("catalog"), .customShort("c")],
+        help: "String catalog to translate"
+    )
+    private var stringCatalogPath: String?
     
     @Option(
         name: [.customLong("lang"), .short],
@@ -35,6 +41,13 @@ struct SwiftTranslate: AsyncParsableCommand {
     
     func run() async throws {
         let translator = OpenAITranslator(with: apiToken)
-        try await translator.translate(text: text, targetLanguage: language)
+        
+        if let text {
+            try await translator.translate(text: text, to: language)
+        } else if let stringCatalogPath {
+            try await translator.translateStringCatalog(at: URL(fileURLWithPath: stringCatalogPath), to: language)
+        } else {
+            throw ValidationError("No text or string catalog path provided")
+        }
     }
 }
