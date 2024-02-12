@@ -68,6 +68,7 @@ let package = Package(
         .testTarget(
             name: "SwiftStringCatalogTests",
             dependencies: ["SwiftStringCatalog"],
+            exclude: ["SwiftStringCatalog.xctestplan"],
             resources: [.process("Resources")]
         )
     ]
