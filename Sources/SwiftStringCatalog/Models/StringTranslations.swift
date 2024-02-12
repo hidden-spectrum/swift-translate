@@ -6,17 +6,11 @@ import Foundation
 import os.log
 
 
-public struct StringTranslations: Codable {
-    
-    // MARK: Public
-    
-    public let extractionState: ExtractionState
-    
+struct StringTranslations: Codable {
+
     // MARK: Internal
     
-    let localizations: [String: StringUnitContainer]
+    let extractionState: ExtractionState
     
-    // MARK: Private
-    
-//    private let log = Logger(subsystem: "io.hiddenspectrum.swiftstringcatalog", category: "Localizations")
+    var localizations: [String: StringUnitContainer]
 }

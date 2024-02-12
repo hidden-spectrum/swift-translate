@@ -5,19 +5,19 @@
 import Foundation
 
 
-public struct StringUnitContainer: Codable {
-    let stringUnit: StringUnit
+struct StringUnitContainer: Codable {
+    var stringUnit: StringUnit
 }
 
 
-public struct StringUnit: Codable {
+struct StringUnit: Codable {
 
     // MARK: Public
     
-    public enum State: String, Codable {
+    enum State: String, Codable {
         case translated
     }
     
-    public let state: State
-    public let value: String
+    var state: State
+    var value: String
 }
