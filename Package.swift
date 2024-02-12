@@ -54,7 +54,8 @@ let package = Package(
             name: "SwiftTranslate",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                .product(name: "OpenAI", package: "OpenAI")
+                .product(name: "OpenAI", package: "OpenAI"),
+                "SwiftStringCatalog"
             ]
         ),
         

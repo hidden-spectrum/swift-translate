@@ -4,6 +4,7 @@
 
 import Foundation
 import OpenAI
+import SwiftStringCatalog
 
 
 struct OpenAITranslator {
@@ -14,23 +15,30 @@ struct OpenAITranslator {
     
     // MARK: Lifecycle
     
-    public init(apiToken: String) {
+    public init(with apiToken: String) {
         self.openAI = OpenAI(apiToken: apiToken)
     }
     
     // MARK: Translate
     
-    public func translate(text: String, targetLanguage: String) async throws {
+    public func translate(text: String, targetLanguage: Language) async throws {
+        let startDate = Date()
+        print("Translating...\n")
         let result = try await openAI.completions(
-            query: completionQuery(for: text)
+            query: completionQuery(for: text, targetLanguage: targetLanguage)
         )
-        print(result)
+        guard let translatedText = result.choices.first?.text else {
+            throw SwiftTranslateError.noTranslationReturned
+        }
+        print(translatedText.trimmingCharacters(in: .whitespacesAndNewlines))
+        
+        print("\nFinished in \(startDate.timeIntervalSinceNow * -1) seconds.")
     }
     
-    private func completionQuery(for text: String) -> CompletionsQuery {
+    private func completionQuery(for translatableText: String, targetLanguage: Language) -> CompletionsQuery {
         return CompletionsQuery(
-            model: .textCurie,
-            prompt: text,
+            model: "gpt-3.5-turbo-instruct",
+            prompt: "Translate the following into \(targetLanguage.rawValue): \(translatableText)",
             temperature: 0.7,
             maxTokens: 1024,
             frequencyPenalty: 0,

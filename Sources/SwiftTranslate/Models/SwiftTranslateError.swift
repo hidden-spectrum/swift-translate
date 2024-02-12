@@ -6,6 +6,5 @@ import Foundation
 
 
 enum SwiftTranslateError: Error {
-    case noAPIKeyProvided
-    case invalidAPIKey
+    case noTranslationReturned
 }
