@@ -6,7 +6,7 @@ import Foundation
 import os.log
 
 
-struct StringTranslations: Codable {
+struct Translations: Codable {
 
     // MARK: Internal
     

@@ -5,22 +5,8 @@
 import Foundation
 
 
-struct Localization: Codable {
-    var stringUnit: StringUnit?
-    var variations: Variations?
-}
-
-
-struct Variations: Codable {
-    var stringUnit: StringUnit?
-    var plural: Plural?
-}
-
-struct Plural: Codable {
-    let one: StringUnit?
-    let other: StringUnit?
-    let few: StringUnit?
-    let many: StringUnit?
+struct StringUnitWrapper: Codable {
+    let stringUnit: StringUnit
 }
 
 
@@ -35,6 +21,6 @@ struct StringUnit: Codable {
         case translated
     }
     
-    var state: State?
-    var value: String?
+    var state: State
+    var value: String
 }

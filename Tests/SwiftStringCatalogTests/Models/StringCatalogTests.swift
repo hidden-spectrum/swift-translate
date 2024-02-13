@@ -16,7 +16,7 @@ class StringCatalogTests: XCTestCase {
         
         let stringCatalog = try StringCatalog.load(from: testCatalogURL)
         
-        let value = try stringCatalog.translation(for: "error.login.noAccount", in: .english)
-        XCTAssertEqual(value, "No account with the email address was found.")
+        let value = try stringCatalog.translation(for: "- or -", in: .chineseHongKong)
+        XCTAssertEqual(value, "- 或 -")
     }
 }

@@ -19,7 +19,7 @@ public struct StringCatalog: Codable {
     
     // MARK: Internal
     
-    var strings: [StringLiteralType: StringTranslations]
+    var strings: [StringLiteralType: Translations]
     
     // MARK: Private
     
@@ -90,7 +90,7 @@ public struct StringCatalog: Codable {
     
     // MARK: Helpers
     
-    private func getTranslations(for key: StringLiteralType) throws -> StringTranslations {
+    private func getTranslations(for key: StringLiteralType) throws -> Translations {
         guard let translations = strings[key] else {
             throw Error.localizedStringKeyNotFound(key)
         }
