@@ -19,7 +19,7 @@ public struct StringCatalog: Codable {
     
     // MARK: Internal
     
-    var strings: [StringLiteralType: Translations]
+    var strings: [StringLiteralType: CatalogEntry]
     
     // MARK: Private
     
@@ -67,7 +67,7 @@ public struct StringCatalog: Codable {
         let language = language
         let translations = try getTranslations(for: key)
         
-        guard let value = translations.localizations[language.rawValue]?.stringUnit?.value else {
+        guard let value = translations.localizations[language]?.stringUnit?.value else {
             throw Error.localizedValueNotFoundForLanguage(language)
         }
         
@@ -77,12 +77,12 @@ public struct StringCatalog: Codable {
     mutating public func set(_ translation: StringLiteralType, for key: StringLiteralType, in language: Language) throws {
         var translations = try getTranslations(for: key)
         var localizations = translations.localizations
-        if var stringUnitContainer = localizations[language.rawValue] {
+        if var stringUnitContainer = localizations[language] {
             stringUnitContainer.stringUnit?.value = translation
             stringUnitContainer.stringUnit?.state = .translated
-            localizations[language.rawValue] = stringUnitContainer
+            localizations[language] = stringUnitContainer
         } else {
-            localizations[language.rawValue] = .init(stringUnit: .init(state: .translated, value: translation))
+            localizations[language] = .init(stringUnit: .init(state: .translated, value: translation))
         }
         translations.localizations = localizations
         strings[key] = translations
@@ -90,7 +90,7 @@ public struct StringCatalog: Codable {
     
     // MARK: Helpers
     
-    private func getTranslations(for key: StringLiteralType) throws -> Translations {
+    private func getTranslations(for key: StringLiteralType) throws -> CatalogEntry {
         guard let translations = strings[key] else {
             throw Error.localizedStringKeyNotFound(key)
         }

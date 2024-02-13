@@ -8,5 +8,6 @@ import Foundation
 public enum ExtractionState: String, Codable {
     case extractedWithValue = "extracted_with_value"
     case manual
+    case migrated
     case unknown
 }

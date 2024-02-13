@@ -5,11 +5,6 @@
 import Foundation
 
 
-struct StringUnitWrapper: Codable {
-    let stringUnit: StringUnit
-}
-
-
 struct StringUnit: Codable {
 
     // MARK: Public

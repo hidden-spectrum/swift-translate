@@ -6,11 +6,12 @@ import Foundation
 import os.log
 
 
-struct Translations: Codable {
+struct CatalogEntry: Codable {
 
     // MARK: Internal
     
+    let comment: String?
     let extractionState: ExtractionState?
     
-    var localizations: [StringLiteralType: Localization]
+    var localizations: TypedCodableDictionary<Language, Localization>
 }
