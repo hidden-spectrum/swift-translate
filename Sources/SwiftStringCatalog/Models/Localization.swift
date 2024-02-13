@@ -7,5 +7,6 @@ import Foundation
 
 struct Localization: Codable {
     var stringUnit: StringUnit?
+    var substitutions: [StringLiteralType: Substitution]?
     var variations: Variations?
 }

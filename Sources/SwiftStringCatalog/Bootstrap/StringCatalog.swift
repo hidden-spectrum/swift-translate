@@ -64,7 +64,6 @@ public struct StringCatalog: Codable {
     }
     
     public func translation(for key: StringLiteralType, in language: Language) throws -> StringLiteralType {
-        let language = language
         let entry = try getEntry(for: key)
         
         guard let value = entry.localizations[language]?.stringUnit?.value else {
