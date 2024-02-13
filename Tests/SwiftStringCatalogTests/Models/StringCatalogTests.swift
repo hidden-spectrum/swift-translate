@@ -9,9 +9,7 @@ import XCTest
 
 class StringCatalogTests: XCTestCase {
     
-    let decoder = JSONDecoder()
-
-    func testDecodable() throws {
+    func testLoad() throws {
         let testCatalogURL = Bundle.module.url(forResource: "TestCatalog", withExtension: "json")!
         
         let stringCatalog = try StringCatalog.load(from: testCatalogURL)

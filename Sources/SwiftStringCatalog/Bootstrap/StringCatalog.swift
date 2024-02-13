@@ -19,7 +19,7 @@ public struct StringCatalog: Codable {
     
     // MARK: Internal
     
-    var strings: [StringLiteralType: CatalogEntry]
+    var strings: [StringLiteralType: Entry]
     
     // MARK: Private
     
@@ -55,8 +55,8 @@ public struct StringCatalog: Codable {
     }
     
     public func extractionState(for key: StringLiteralType) throws -> ExtractionState {
-        let translations = try getTranslations(for: key)
-        return translations.extractionState ?? .unknown
+        let entry = try getEntry(for: key)
+        return entry.extractionState ?? .unknown
     }
     
     public func sourceLanguageValue(for key: StringLiteralType) throws -> StringLiteralType {
@@ -65,9 +65,9 @@ public struct StringCatalog: Codable {
     
     public func translation(for key: StringLiteralType, in language: Language) throws -> StringLiteralType {
         let language = language
-        let translations = try getTranslations(for: key)
+        let entry = try getEntry(for: key)
         
-        guard let value = translations.localizations[language]?.stringUnit?.value else {
+        guard let value = entry.localizations[language]?.stringUnit?.value else {
             throw Error.localizedValueNotFoundForLanguage(language)
         }
         
@@ -75,22 +75,22 @@ public struct StringCatalog: Codable {
     }
     
     mutating public func set(_ translation: StringLiteralType, for key: StringLiteralType, in language: Language) throws {
-        var translations = try getTranslations(for: key)
-        var localizations = translations.localizations
-        if var stringUnitContainer = localizations[language] {
-            stringUnitContainer.stringUnit?.value = translation
-            stringUnitContainer.stringUnit?.state = .translated
-            localizations[language] = stringUnitContainer
+        var entry = try getEntry(for: key)
+        var localizations = entry.localizations
+        if var localization = localizations[language] {
+            localization.stringUnit?.value = translation
+            localization.stringUnit?.state = .translated
+            localizations[language] = localization
         } else {
             localizations[language] = .init(stringUnit: .init(state: .translated, value: translation))
         }
-        translations.localizations = localizations
-        strings[key] = translations
+        entry.localizations = localizations
+        strings[key] = entry
     }
     
     // MARK: Helpers
     
-    private func getTranslations(for key: StringLiteralType) throws -> CatalogEntry {
+    private func getEntry(for key: StringLiteralType) throws -> Entry {
         guard let translations = strings[key] else {
             throw Error.localizedStringKeyNotFound(key)
         }

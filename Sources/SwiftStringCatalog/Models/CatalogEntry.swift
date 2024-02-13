@@ -6,12 +6,27 @@ import Foundation
 import os.log
 
 
-struct CatalogEntry: Codable {
-
-    // MARK: Internal
+extension StringCatalog {
     
-    let comment: String?
-    let extractionState: ExtractionState?
-    
-    var localizations: TypedCodableDictionary<Language, Localization>
+    struct Entry: Codable {
+        
+        // MARK: Internal
+        
+        let comment: String?
+        let extractionState: ExtractionState?
+        
+        var localizations: TypedCodableDictionary<Language, Localization>
+        
+        // MARK: Lifecycle
+        
+        init(
+            comment: String? = nil,
+            extractionState: ExtractionState? = .manual,
+            localizations: TypedCodableDictionary<Language, Localization>
+        ) {
+            self.comment = comment
+            self.extractionState = extractionState
+            self.localizations = localizations
+        }
+    }
 }
