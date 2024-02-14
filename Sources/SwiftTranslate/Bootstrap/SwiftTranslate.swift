@@ -50,17 +50,17 @@ struct SwiftTranslate: AsyncParsableCommand {
 
         if let targetLanguage = language {
             if let text {
-                try await translator.translate(text: text, to: targetLanguage)
+                try await translator.translate(text: text, to: [targetLanguage])
             } else if let stringCatalogPath {
                 try await translator.translateStringCatalog(at: URL(fileURLWithPath: stringCatalogPath), to: [targetLanguage])
             } else {
                 throw ValidationError("No text or string catalog path provided")
             }
         } else if translateToAllLanguages {
-            if text != nil {
-                throw ValidationError("Text option not supported with --all-languages flag")
+            if let text {
+                try await translator.translate(text: text, to: Language.allCases)
             } else if let stringCatalogPath {
-                try await translator.translateToAllLanguagesStringCatalog(at: URL(fileURLWithPath: stringCatalogPath))
+                try await translator.translateStringCatalog(at: URL(fileURLWithPath: stringCatalogPath), to: Language.allCases)
             } else {
                 throw ValidationError("No text or string catalog path provided")
             }

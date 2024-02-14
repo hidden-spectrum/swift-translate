@@ -21,10 +21,6 @@ struct OpenAITranslator {
     
     // MARK: Translate
     
-    func translateToAllLanguagesStringCatalog(at url: URL) async throws {
-        try await translateStringCatalog(at: url, to: Language.allCases)
-    }
-    
     func translateStringCatalog(at url: URL, to targetLanguages: [Language]) async throws {
         let startDate = Date()
         
@@ -34,11 +30,12 @@ struct OpenAITranslator {
         print("Done")
         
         for key in catalog.allKeys {
-            print("\nTranslating `\(key.truncated(to: 64))`...")
+            print("\nTranslating key `\(key.truncated(to: 64))`...")
             let localizableStrings = try catalog.localizableStrings(for: key)
             for localizableString in localizableStrings {
+                let targetLangCode = localizableString.targetLanguage.rawValue
                 if localizableString.state == .translated {
-                    print("\t\(localizableString.targetLanguage): Already translated")
+                    print("\t\(targetLangCode): [Already translated]")
                     continue
                 }
                 do {
@@ -47,9 +44,9 @@ struct OpenAITranslator {
                         to: localizableString.targetLanguage
                     )
 //                    string.setTranslation(translatedValue)
-                    print("\t\(localizableString.targetLanguage): \(translatedString.truncated(to: 64))")
+                    print("\t\(targetLangCode): \(translatedString.truncated(to: 64))")
                 } catch {
-                    print("\t\(localizableString.targetLanguage): Error -- \(error)")
+                    print("\t\(targetLangCode): [Error: \(error.localizedDescription)]")
                 }
             }
         }
@@ -65,12 +62,14 @@ struct OpenAITranslator {
         print("\nFinished in \(startDate.timeIntervalSinceNow * -1) seconds.")
     }
     
-    func translate(text: String, to targetLanguage: Language) async throws {
+    func translate(text: String, to targetLanguages: [Language]) async throws {
         let startDate = Date()
         print("Translating...\n")
         
-        let result = try await _translate(text: text, to: targetLanguage)
-        print(result)
+        for targetLanguage in targetLanguages {
+            let result = try await _translate(text: text, to: targetLanguage)
+            print("\(targetLanguage.rawValue): \(result)")
+        }
         
         print("\nFinished in \(startDate.timeIntervalSinceNow * -1) seconds.")
     }
