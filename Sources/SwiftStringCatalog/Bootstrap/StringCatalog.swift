@@ -10,8 +10,10 @@ public struct StringCatalog: Codable {
     // MARK: Public
     
     public enum Error: Swift.Error {
-        case localizedStringKeyNotFound(String)
-        case localizedValueNotFoundForLanguage(Language)
+        case noEntryFor(key: String)
+        case noSourceLanguageEntryFor(key: String)
+        case corruptedEntry
+        case substitionsNotYetSupported
     }
     
     public let sourceLanguage: Language
@@ -19,16 +21,20 @@ public struct StringCatalog: Codable {
     
     // MARK: Internal
     
-    var strings: [StringLiteralType: _Entry]
+    
     
     // MARK: Private
     
+    private var strings: [StringLiteralType: _Entry]
+    private var targetLangauges: [Language] = []
+    
     // MARK: Lifecycle
     
-    public init(sourceLanguage: Language, version: String = "1.0") {
+    public init(sourceLanguage: Language, targetLanguages: [Language] = [], version: String = "1.0") {
         self.sourceLanguage = sourceLanguage
-        self.version = version
         self.strings = [:]
+        self.targetLangauges = targetLanguages
+        self.version = version
     }
     
     public static func load(from url: URL) throws -> StringCatalog {
@@ -47,14 +53,51 @@ public struct StringCatalog: Codable {
         fileManager.createFile(atPath: url.path, contents: data)
     }
     
+    // MARK: Lifecycle
+    
+    mutating func setTargetLanguages(_ languages: [Language]) {
+        targetLangauges = languages
+    }
+    
     // MARK: Accessors
     
+    public var allKeys: Set<StringLiteralType> {
+        return Set(strings.keys)
+    }
+    
+    public func localizableStrings(for key: StringLiteralType) throws -> [LocalizableString] {
+        let entry = try entry(for: key)
+        let sourceLocalizableString = try sourceLocalizableStrings(in: entry, for: key)
+        
+        var localizableStrings = [LocalizableString]()
+        
+        for (language, localizations) in entry.localizations {
+            
+        }
+        
+        return []
+    }
+    
+    // MARK: Private Accessors
+    
+    private func entry(for key: StringLiteralType) throws -> _Entry {
+        guard let entry = strings[key] else {
+            throw Error.noEntryFor(key: key)
+        }
+        return entry
+    }
+    
+    private func sourceLocalizableStrings(in entry: _Entry, for key: StringLiteralType) throws -> [LocalizableString] {
+        guard let localization = entry.localizations[sourceLanguage] else {
+            throw Error.noSourceLanguageEntryFor(key: key)
+        }
+        return try localization.constructLocalizableStrings(context: .isSource, targetLanguage: sourceLanguage)
+    }
     
     
-//    public var keys: [StringLiteralType] {
-//        return Array(strings.keys)
-//    }
-//    
+    
+    
+//
 //    public func extractionState(for key: StringLiteralType) throws -> ExtractionState {
 //        let entry = try getEntry(for: key)
 //        return entry.extractionState ?? .unknown

@@ -14,7 +14,30 @@ struct _Variations: Codable {
     let plural: CodableKeyDictionary<PluralQualifier, _Variation>?
 }
 
-
-
-
-
+extension _Variations: LocalizableStringConstructor {
+    func constructLocalizableStrings(context: LocalizableStringConstructionContext, targetLanguage: Language) throws -> [LocalizableString] {
+        if let deviceVariations = device {
+            return deviceVariations.map { deviceCategory, variation in
+                LocalizableString(
+                    kind: .variation(.device(deviceCategory)),
+                    sourceKey: context.embeddedSourceKey(or: variation.stringUnit.value),
+                    targetLanguage: targetLanguage,
+                    translatedValue: variation.stringUnit.value,
+                    state: variation.stringUnit.state
+                )
+            }
+        } else if let pluralVariations = plural {
+            return pluralVariations.map { qualifier, variation in
+                LocalizableString(
+                    kind: .variation(.plural(qualifier)),
+                    sourceKey: context.embeddedSourceKey(or: variation.stringUnit.value),
+                    targetLanguage: targetLanguage,
+                    translatedValue: variation.stringUnit.value,
+                    state: variation.stringUnit.state
+                )
+            }
+        } else {
+            return []
+        }
+    }
+}
