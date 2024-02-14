@@ -29,7 +29,7 @@ extension _Localization: LocalizableStringConstructor {
         } else if let substitutions {
             throw StringCatalog.Error.substitionsNotYetSupported
         } else if let variations {
-            return []
+            return try variations.constructLocalizableStrings(context: context, targetLanguage: targetLanguage)
         } else {
             return []
         }

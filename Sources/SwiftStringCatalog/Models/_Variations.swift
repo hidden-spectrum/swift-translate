@@ -18,7 +18,7 @@ extension _Variations: LocalizableStringConstructor {
     func constructLocalizableStrings(context: LocalizableStringConstructionContext, targetLanguage: Language) throws -> [LocalizableString] {
         if let deviceVariations = device {
             return deviceVariations.map { deviceCategory, variation in
-                LocalizableString(
+                return LocalizableString(
                     kind: .variation(.device(deviceCategory)),
                     sourceKey: context.embeddedSourceKey(or: variation.stringUnit.value),
                     targetLanguage: targetLanguage,
@@ -28,7 +28,7 @@ extension _Variations: LocalizableStringConstructor {
             }
         } else if let pluralVariations = plural {
             return pluralVariations.map { qualifier, variation in
-                LocalizableString(
+                return LocalizableString(
                     kind: .variation(.plural(qualifier)),
                     sourceKey: context.embeddedSourceKey(or: variation.stringUnit.value),
                     targetLanguage: targetLanguage,

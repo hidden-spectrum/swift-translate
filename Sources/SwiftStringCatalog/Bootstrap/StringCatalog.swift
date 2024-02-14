@@ -25,6 +25,12 @@ public struct StringCatalog: Codable {
     
     // MARK: Private
     
+    private enum CodingKeys: String, CodingKey {
+        case sourceLanguage
+        case version
+        case strings
+    }
+    
     private var strings: [StringLiteralType: _Entry]
     private var targetLangauges: [Language] = []
     
@@ -78,16 +84,16 @@ public struct StringCatalog: Codable {
         return []
     }
     
-    // MARK: Private Accessors
+    // MARK: Internal Accessors
     
-    private func entry(for key: StringLiteralType) throws -> _Entry {
+    func entry(for key: StringLiteralType) throws -> _Entry {
         guard let entry = strings[key] else {
             throw Error.noEntryFor(key: key)
         }
         return entry
     }
     
-    private func sourceLocalizableStrings(in entry: _Entry, for key: StringLiteralType) throws -> [LocalizableString] {
+    func sourceLocalizableStrings(in entry: _Entry, for key: StringLiteralType) throws -> [LocalizableString] {
         guard let localization = entry.localizations[sourceLanguage] else {
             throw Error.noSourceLanguageEntryFor(key: key)
         }

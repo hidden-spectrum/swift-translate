@@ -51,8 +51,33 @@ public extension LocalizableString {
         case variation(VariationKind)
     }
     
-    enum VariationKind {
+    enum VariationKind: CustomDebugStringConvertible {
         case device(DeviceCategory)
         case plural(PluralQualifier)
+        
+        public var debugDescription: String {
+            switch self {
+            case .device(let deviceCategory):
+                return ".device(.\(deviceCategory))"
+            case .plural(let pluralQualifier):
+                return ".plural(.\(pluralQualifier))"
+            }
+        }
+    }
+}
+
+extension LocalizableString: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        return
+            """
+            LocalizableString(
+                kind: .\(kind),
+                sourceKey: `\(sourceKey)`,
+                targetLanguage: \(targetLanguage.rawValue),
+                comment: \(comment ?? "nil"),
+                translatedValue: `\(translatedValue ?? "nil")`,
+                state: ..\(state)
+            )
+            """
     }
 }
