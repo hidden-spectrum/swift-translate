@@ -20,13 +20,13 @@ extension _Localization: LocalizableStringConstructor {
             return [
                 LocalizableString(
                     kind: .standalone,
-                    sourceKey: context.embeddedSourceKey(or: stringUnit.value),
+                    sourceKey: try context.embeddedSourceKey(matching: .standalone, or: stringUnit.value),
                     targetLanguage: targetLanguage,
                     translatedValue: stringUnit.value,
                     state: stringUnit.state
                 )
             ]
-        } else if let substitutions {
+        } else if substitutions != nil {
             throw StringCatalog.Error.substitionsNotYetSupported
         } else if let variations {
             return try variations.constructLocalizableStrings(context: context, targetLanguage: targetLanguage)
@@ -39,14 +39,14 @@ extension _Localization: LocalizableStringConstructor {
 
 enum LocalizableStringConstructionContext {
     case isSource
-    case needTranslationFrom(sourceKey: StringLiteralType)
+    case needTranslationFromKeyIn(sourceLocalizableStrings: [LocalizableString])
     
-    func embeddedSourceKey(or givenSourceKey: StringLiteralType) -> StringLiteralType {
+    func embeddedSourceKey(matching kind: LocalizableString.Kind, or givenSourceKey: StringLiteralType) throws -> StringLiteralType {
         switch self {
         case .isSource:
             return givenSourceKey
-        case .needTranslationFrom(let sourceKey):
-            return sourceKey
+        case .needTranslationFromKeyIn(let sourceLocalizableStrings):
+            return try sourceLocalizableStrings.sourceKeyLookup(matchingKind: kind)
         }
     }
 }

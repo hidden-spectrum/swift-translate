@@ -5,7 +5,7 @@
 import Foundation
 
 
-public struct LocalizableString {
+public struct LocalizableString: Equatable {
     
     // MARK: Public
     
@@ -38,46 +38,33 @@ public struct LocalizableString {
     
     // MARK: Mutation
     
-    mutating func setTranslation(_ translation: StringLiteralType) {
+    public mutating func setTranslation(_ translation: StringLiteralType) {
         translatedValue = translation
         state = .translated
+    }
+    
+    // MARK: Helpers
+    
+    func emptyCopy(for targetLanguage: Language) -> LocalizableString {
+        return LocalizableString(
+            kind: kind,
+            sourceKey: sourceKey,
+            targetLanguage: targetLanguage,
+            translatedValue: nil,
+            state: .new
+        )
     }
 }
 
 public extension LocalizableString {
-    enum Kind {
+    enum Kind: Equatable {
         case standalone
         case replacement
         case variation(VariationKind)
     }
     
-    enum VariationKind: CustomDebugStringConvertible {
+    enum VariationKind: Equatable {
         case device(DeviceCategory)
         case plural(PluralQualifier)
-        
-        public var debugDescription: String {
-            switch self {
-            case .device(let deviceCategory):
-                return ".device(.\(deviceCategory))"
-            case .plural(let pluralQualifier):
-                return ".plural(.\(pluralQualifier))"
-            }
-        }
-    }
-}
-
-extension LocalizableString: CustomDebugStringConvertible {
-    public var debugDescription: String {
-        return
-            """
-            LocalizableString(
-                kind: .\(kind),
-                sourceKey: `\(sourceKey)`,
-                targetLanguage: \(targetLanguage.rawValue),
-                comment: \(comment ?? "nil"),
-                translatedValue: `\(translatedValue ?? "nil")`,
-                state: ..\(state)
-            )
-            """
     }
 }

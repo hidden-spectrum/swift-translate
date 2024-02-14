@@ -21,32 +21,46 @@ struct OpenAITranslator {
     
     // MARK: Translate
     
-    func translateStringCatalog(at url: URL, to targetLanguage: Language) async throws {
+    func translateToAllLanguagesStringCatalog(at url: URL) async throws {
+        try await translateStringCatalog(at: url, to: Language.allCases)
+    }
+    
+    func translateStringCatalog(at url: URL, to targetLanguages: [Language]) async throws {
         let startDate = Date()
         
         print("Loading catalog \(url.lastPathComponent)...")
-        var stringCatalog = try StringCatalog.load(from: url)
+        var catalog = try StringCatalog.load(from: url)
+        catalog.setTargetLanguages(targetLanguages)
         print("Done")
         
-        print("\nTranslating...")
-        
-        for key in stringCatalog.keys {
-            if (try? stringCatalog.translation(for: key, in: targetLanguage)) != nil {
-                print("Skipping translated key: `\(key)`")
-                continue
+        for key in catalog.allKeys {
+            print("\nTranslating `\(key.truncated(to: 64))`...")
+            let localizableStrings = try catalog.localizableStrings(for: key)
+            for localizableString in localizableStrings {
+                if localizableString.state == .translated {
+                    print("\t\(localizableString.targetLanguage): Already translated")
+                    continue
+                }
+                do {
+                    let translatedString = try await _translate(
+                        text: localizableString.sourceKey,
+                        to: localizableString.targetLanguage
+                    )
+//                    string.setTranslation(translatedValue)
+                    print("\t\(localizableString.targetLanguage): \(translatedString.truncated(to: 64))")
+                } catch {
+                    print("\t\(localizableString.targetLanguage): Error -- \(error)")
+                }
             }
-            let sourceLanguageValue = (try? stringCatalog.sourceLanguageValue(for: key)) ?? key
-            let translation = try await _translate(text: sourceLanguageValue, to: targetLanguage)
-            print("Translating key to \(targetLanguage.rawValue):\t `\(key)`")
-            try stringCatalog.set(translation, for: key, in: targetLanguage)
         }
         
         print("Done")
         
-        let url = URL(fileURLWithPath: "TestCatalogResult.xcstrings")
-        print("Writing to file \(url.path)...")
-        try stringCatalog.write(to: url)
-        print("Done")
+//        let url = URL(fileURLWithPath: "TestCatalogResult.xcstrings")
+        print("TODO: Write to file")
+//        print("Write to file \(url.path)...")
+//        try catalog.write(to: url)
+//        print("Done")
         
         print("\nFinished in \(startDate.timeIntervalSinceNow * -1) seconds.")
     }
@@ -80,5 +94,14 @@ struct OpenAITranslator {
             frequencyPenalty: 0,
             presencePenalty: 0
         )
+    }
+}
+
+extension String {
+    func truncated(to length: Int) -> String {
+        guard count > length else {
+            return self
+        }
+        return String(prefix(length) + "...")
     }
 }

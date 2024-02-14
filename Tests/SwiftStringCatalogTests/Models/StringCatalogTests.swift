@@ -14,20 +14,39 @@ class StringCatalogTests: XCTestCase {
         
         let stringCatalog = try StringCatalog.load(from: testCatalogURL)
         
-//        let value = try stringCatalog.translation(for: "- or -", in: .chineseHongKong)
-//        XCTAssertEqual(value, "- 或 -")
+        XCTAssertEqual(stringCatalog.sourceLanguage, .english)
     }
     
     func testSourceLocalizableStrings() throws {
         let testCatalogURL = Bundle.module.url(forResource: "TestCatalog", withExtension: "json")!
         
         let stringCatalog = try StringCatalog.load(from: testCatalogURL)
-        let entry = try stringCatalog.entry(for: "%lld additional files not shown")
+        let key = "- or -"
+        let entry = try stringCatalog.entry(for: key)
         
-        let localizableStrings = try stringCatalog.sourceLocalizableStrings(in: entry, for: "%lld additional files not shown")
+        let localizableStrings = try stringCatalog.sourceLocalizableStrings(in: entry, for: key)
         
-        print(localizableStrings)
+        XCTAssertEqual(
+            localizableStrings.first,
+            LocalizableString(
+                kind: .standalone,
+                sourceKey: key,
+                targetLanguage: .english,
+                translatedValue: key,
+                state: .translated
+            )
+        )
+    }
+    
+    func testLocalizableStrings() throws {
+        let testCatalogURL = Bundle.module.url(forResource: "TestCatalog", withExtension: "json")!
         
-        XCTAssertEqual(localizableStrings.count, 2)
+        var stringCatalog = try StringCatalog.load(from: testCatalogURL)
+        stringCatalog.setTargetLanguages([.arabic, .chineseHongKong, .english, .french, .german, .italian, .japanese, .korean, .russian, .spanish])
+        let key = "audioConverterQueue.supportedFileFormats"
+        
+        let localizableStrings = try stringCatalog.localizableStrings(for: key)
+        
+        XCTAssertEqual(localizableStrings.count, 10)
     }
 }

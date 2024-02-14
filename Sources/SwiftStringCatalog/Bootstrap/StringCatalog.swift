@@ -61,7 +61,7 @@ public struct StringCatalog: Codable {
     
     // MARK: Lifecycle
     
-    mutating func setTargetLanguages(_ languages: [Language]) {
+    public mutating func setTargetLanguages(_ languages: [Language]) {
         targetLangauges = languages
     }
     
@@ -73,15 +73,23 @@ public struct StringCatalog: Codable {
     
     public func localizableStrings(for key: StringLiteralType) throws -> [LocalizableString] {
         let entry = try entry(for: key)
-        let sourceLocalizableString = try sourceLocalizableStrings(in: entry, for: key)
-        
+        let sourceLocalizableStrings = try sourceLocalizableStrings(in: entry, for: key)
         var localizableStrings = [LocalizableString]()
         
-        for (language, localizations) in entry.localizations {
-            
+        for language in targetLangauges {
+            if let localization = entry.localizations[language] {
+                localizableStrings += try localization.constructLocalizableStrings(
+                    context: .needTranslationFromKeyIn(sourceLocalizableStrings: sourceLocalizableStrings),
+                    targetLanguage: language
+                )
+            } else {
+                localizableStrings += sourceLocalizableStrings.map {
+                    $0.emptyCopy(for: language)
+                }
+            }
         }
         
-        return []
+        return localizableStrings
     }
     
     // MARK: Internal Accessors
@@ -94,55 +102,21 @@ public struct StringCatalog: Codable {
     }
     
     func sourceLocalizableStrings(in entry: _Entry, for key: StringLiteralType) throws -> [LocalizableString] {
-        guard let localization = entry.localizations[sourceLanguage] else {
-            throw Error.noSourceLanguageEntryFor(key: key)
+        if let localization = entry.localizations[sourceLanguage] {
+            return try localization.constructLocalizableStrings(
+                context: .isSource,
+                targetLanguage: sourceLanguage
+            )
+        } else {
+            return [
+                LocalizableString(
+                    kind: .standalone,
+                    sourceKey: key,
+                    targetLanguage: sourceLanguage,
+                    translatedValue: key,
+                    state: .translated
+                )
+            ]
         }
-        return try localization.constructLocalizableStrings(context: .isSource, targetLanguage: sourceLanguage)
     }
-    
-    
-    
-    
-//
-//    public func extractionState(for key: StringLiteralType) throws -> ExtractionState {
-//        let entry = try getEntry(for: key)
-//        return entry.extractionState ?? .unknown
-//    }
-//    
-//    public func sourceLanguageValue(for key: StringLiteralType) throws -> StringLiteralType {
-//        return try translation(for: key, in: sourceLanguage)
-//    }
-//    
-//    public func translation(for key: StringLiteralType, in language: Language) throws -> StringLiteralType {
-//        let entry = try getEntry(for: key)
-//        
-//        guard let value = entry.localizations[language]?.stringUnit?.value else {
-//            throw Error.localizedValueNotFoundForLanguage(language)
-//        }
-//        
-//        return value
-//    }
-//    
-//    mutating public func set(_ translation: StringLiteralType, for key: StringLiteralType, in language: Language) throws {
-//        var entry = try getEntry(for: key)
-//        var localizations = entry.localizations
-//        if var localization = localizations[language] {
-//            localization.stringUnit?.value = translation
-//            localization.stringUnit?.state = .translated
-//            localizations[language] = localization
-//        } else {
-//            localizations[language] = .init(stringUnit: .init(state: .translated, value: translation))
-//        }
-//        entry.localizations = localizations
-//        strings[key] = entry
-//    }
-//    
-//    // MARK: Helpers
-//    
-//    private func getEntry(for key: StringLiteralType) throws -> Entry {
-//        guard let translations = strings[key] else {
-//            throw Error.localizedStringKeyNotFound(key)
-//        }
-//        return translations
-//    }
 }
