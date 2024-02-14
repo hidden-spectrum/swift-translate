@@ -19,7 +19,7 @@ public struct StringCatalog: Codable {
     
     // MARK: Internal
     
-    var strings: [StringLiteralType: Entry]
+    var strings: [StringLiteralType: _Entry]
     
     // MARK: Private
     
@@ -34,7 +34,6 @@ public struct StringCatalog: Codable {
     public static func load(from url: URL) throws -> StringCatalog {
         let data = try Data(contentsOf: url)
         let decoder = JSONDecoder()
-        decoder.allowsJSON5 = true
         return try decoder.decode(Self.self, from: data)
     }
     
@@ -50,49 +49,51 @@ public struct StringCatalog: Codable {
     
     // MARK: Accessors
     
-    public var keys: [StringLiteralType] {
-        return Array(strings.keys)
-    }
     
-    public func extractionState(for key: StringLiteralType) throws -> ExtractionState {
-        let entry = try getEntry(for: key)
-        return entry.extractionState ?? .unknown
-    }
     
-    public func sourceLanguageValue(for key: StringLiteralType) throws -> StringLiteralType {
-        return try translation(for: key, in: sourceLanguage)
-    }
-    
-    public func translation(for key: StringLiteralType, in language: Language) throws -> StringLiteralType {
-        let entry = try getEntry(for: key)
-        
-        guard let value = entry.localizations[language]?.stringUnit?.value else {
-            throw Error.localizedValueNotFoundForLanguage(language)
-        }
-        
-        return value
-    }
-    
-    mutating public func set(_ translation: StringLiteralType, for key: StringLiteralType, in language: Language) throws {
-        var entry = try getEntry(for: key)
-        var localizations = entry.localizations
-        if var localization = localizations[language] {
-            localization.stringUnit?.value = translation
-            localization.stringUnit?.state = .translated
-            localizations[language] = localization
-        } else {
-            localizations[language] = .init(stringUnit: .init(state: .translated, value: translation))
-        }
-        entry.localizations = localizations
-        strings[key] = entry
-    }
-    
-    // MARK: Helpers
-    
-    private func getEntry(for key: StringLiteralType) throws -> Entry {
-        guard let translations = strings[key] else {
-            throw Error.localizedStringKeyNotFound(key)
-        }
-        return translations
-    }
+//    public var keys: [StringLiteralType] {
+//        return Array(strings.keys)
+//    }
+//    
+//    public func extractionState(for key: StringLiteralType) throws -> ExtractionState {
+//        let entry = try getEntry(for: key)
+//        return entry.extractionState ?? .unknown
+//    }
+//    
+//    public func sourceLanguageValue(for key: StringLiteralType) throws -> StringLiteralType {
+//        return try translation(for: key, in: sourceLanguage)
+//    }
+//    
+//    public func translation(for key: StringLiteralType, in language: Language) throws -> StringLiteralType {
+//        let entry = try getEntry(for: key)
+//        
+//        guard let value = entry.localizations[language]?.stringUnit?.value else {
+//            throw Error.localizedValueNotFoundForLanguage(language)
+//        }
+//        
+//        return value
+//    }
+//    
+//    mutating public func set(_ translation: StringLiteralType, for key: StringLiteralType, in language: Language) throws {
+//        var entry = try getEntry(for: key)
+//        var localizations = entry.localizations
+//        if var localization = localizations[language] {
+//            localization.stringUnit?.value = translation
+//            localization.stringUnit?.state = .translated
+//            localizations[language] = localization
+//        } else {
+//            localizations[language] = .init(stringUnit: .init(state: .translated, value: translation))
+//        }
+//        entry.localizations = localizations
+//        strings[key] = entry
+//    }
+//    
+//    // MARK: Helpers
+//    
+//    private func getEntry(for key: StringLiteralType) throws -> Entry {
+//        guard let translations = strings[key] else {
+//            throw Error.localizedStringKeyNotFound(key)
+//        }
+//        return translations
+//    }
 }

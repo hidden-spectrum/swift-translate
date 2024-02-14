@@ -6,7 +6,7 @@ import Foundation
 // Workaround for https://forums.swift.org/t/using-rawrepresentable-string-and-int-keys-for-codable-dictionaries/26899
 // Cannot be a property wrapper due to https://forums.swift.org/t/using-property-wrappers-with-codable/29804
 // Assumes `Key.RawValue.init(rawValue:)` is non-failable
-public struct TypedCodableDictionary<Key: Hashable & RawRepresentable, Value> where Key.RawValue: Hashable {
+public struct CodableKeyDictionary<Key: Hashable & RawRepresentable, Value> where Key.RawValue: Hashable {
     public typealias WrappedValue = Dictionary<Key.RawValue, Value>
 
     public var wrappedValue: WrappedValue
@@ -18,7 +18,7 @@ public struct TypedCodableDictionary<Key: Hashable & RawRepresentable, Value> wh
 
 // MARK: - Subscripting
 
-extension TypedCodableDictionary {
+extension CodableKeyDictionary {
     public subscript(_ key: Key) -> Value? {
         get {
             wrappedValue[key.rawValue]
@@ -40,7 +40,7 @@ extension TypedCodableDictionary {
 
 // MARK: - ExpressibleByDictionaryLiteral
 
-extension TypedCodableDictionary: ExpressibleByDictionaryLiteral {
+extension CodableKeyDictionary: ExpressibleByDictionaryLiteral {
     public init(dictionaryLiteral elements: (Key, Value)...) {
         self.init(
             wrappedValue: Dictionary(
@@ -52,14 +52,14 @@ extension TypedCodableDictionary: ExpressibleByDictionaryLiteral {
 
 // MARK: - Codable
 
-extension TypedCodableDictionary: Decodable where Key.RawValue: Decodable, Value: Decodable {
+extension CodableKeyDictionary: Decodable where Key.RawValue: Decodable, Value: Decodable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         self.init(wrappedValue: try container.decode(WrappedValue.self))
     }
 }
 
-extension TypedCodableDictionary: Encodable where Key.RawValue: Encodable, Value: Encodable {
+extension CodableKeyDictionary: Encodable where Key.RawValue: Encodable, Value: Encodable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(wrappedValue)
@@ -68,23 +68,23 @@ extension TypedCodableDictionary: Encodable where Key.RawValue: Encodable, Value
 
 // MARK: - Equatable
 
-extension TypedCodableDictionary: Equatable where Self.WrappedValue: Equatable {
+extension CodableKeyDictionary: Equatable where Self.WrappedValue: Equatable {
 }
 
 // MARK: - Hashable
 
-extension TypedCodableDictionary: Hashable where Self.WrappedValue: Hashable {
+extension CodableKeyDictionary: Hashable where Self.WrappedValue: Hashable {
 }
 
 // MARK: - Sequence
 
-extension TypedCodableDictionary: Sequence {
+extension CodableKeyDictionary: Sequence {
     public typealias Element = (key: Key, value: Value)
 
     public struct Iterator: IteratorProtocol {
         public var base: WrappedValue.Iterator
 
-        public mutating func next() -> TypedCodableDictionary<Key, Value>.Element? {
+        public mutating func next() -> CodableKeyDictionary<Key, Value>.Element? {
             if let next = base.next() {
                 return (key: Key(rawValue: next.key)!, value: next.value)
             } else {
@@ -100,7 +100,7 @@ extension TypedCodableDictionary: Sequence {
 
 // MARK: - Values
 
-extension TypedCodableDictionary {
+extension CodableKeyDictionary {
     public typealias Values = WrappedValue.Values
 
     public var values: Values {

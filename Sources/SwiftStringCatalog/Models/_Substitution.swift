@@ -5,8 +5,8 @@
 import Foundation
 
 
-struct Substitution: Codable {
+struct _Substitution: Codable {
     let argNum: Int
     let formatSpecifier: String
-    let variations: Variations?
+    let variations: _Variations?
 }

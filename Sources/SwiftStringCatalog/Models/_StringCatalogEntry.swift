@@ -8,21 +8,21 @@ import os.log
 
 extension StringCatalog {
     
-    struct Entry: Codable {
+    struct _Entry: Codable {
         
         // MARK: Internal
         
         let comment: String?
         let extractionState: ExtractionState?
         
-        var localizations: TypedCodableDictionary<Language, Localization>
+        var localizations: CodableKeyDictionary<Language, _Localization>
         
         // MARK: Lifecycle
         
         init(
             comment: String? = nil,
             extractionState: ExtractionState? = .manual,
-            localizations: TypedCodableDictionary<Language, Localization>
+            localizations: CodableKeyDictionary<Language, _Localization>
         ) {
             self.comment = comment
             self.extractionState = extractionState
