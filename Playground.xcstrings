@@ -1,0 +1,42 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "testKey" : {
+      "comment" : "asdfdsaf",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "There is a single piggy"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "There are %i piggies"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "This is a test" : {
+      "comment" : "This ia comment",
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TESTING EN ESPANOLS"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

@@ -5,13 +5,14 @@
 import ArgumentParser
 import Foundation
 import OpenAI
+import Logging
 import SwiftStringCatalog
 
 
 @main
 struct SwiftTranslate: AsyncParsableCommand {
-
-    // MARK: Public
+    
+    // MARK: Command Line Options
 
     @Option(
         name: [.customLong("api-key"), .customShort("k")],
@@ -65,7 +66,7 @@ struct SwiftTranslate: AsyncParsableCommand {
                 throw ValidationError("No text or string catalog path provided")
             }
         } else {
-            throw ValidationError("No target language(s) provided")
+            throw ValidationError("No target language(s) provided".red)
         }
     }
 }
