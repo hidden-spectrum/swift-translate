@@ -73,7 +73,7 @@ public final class StringCatalog {
             let sourceLanguageStrings = try sourceLanguageStrings(in: entry, for: key)
             self.sourceLanguageStrings[key] = sourceLanguageStrings
             
-            let localizableStrings = try localizableStrings(for: entry, in: key, referencing: sourceLanguageStrings)
+            let localizableStrings = try localizableStrings(in: entry, for: key, referencing: sourceLanguageStrings)
             localizableStringsCount += localizableStrings.count
             self.localizableStrings[key] = localizableStrings
         }
@@ -99,8 +99,8 @@ public final class StringCatalog {
     }
     
     private func localizableStrings(
-        for entry: _CatalogEntry,
-        in key: StringLiteralType,
+        in entry: _CatalogEntry,
+        for key: StringLiteralType,
         referencing sourceLanguageStrings: [LocalizableString]
     ) throws -> [LocalizableString] {
         var localizableStrings = [LocalizableString]()
@@ -108,7 +108,7 @@ public final class StringCatalog {
         for language in targetLanguages {
             if let localization = entry.localizations[language] {
                 localizableStrings += try localization.constructLocalizableStrings(
-                    context: .needTranslationFromKeyIn(sourceLocalizableStrings: sourceLanguageStrings),
+                    context: .needTranslationFromKeyIn(sourceLanguageStrings: sourceLanguageStrings),
                     targetLanguage: language
                 )
             } else {

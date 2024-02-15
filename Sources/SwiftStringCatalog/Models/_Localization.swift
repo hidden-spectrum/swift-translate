@@ -39,14 +39,14 @@ extension _Localization: LocalizableStringConstructor {
 
 enum LocalizableStringConstructionContext {
     case isSource
-    case needTranslationFromKeyIn(sourceLocalizableStrings: [LocalizableString])
+    case needTranslationFromKeyIn(sourceLanguageStrings: [LocalizableString])
     
     func embeddedSourceKey(matching kind: LocalizableString.Kind, or givenSourceKey: StringLiteralType) throws -> StringLiteralType {
         switch self {
         case .isSource:
             return givenSourceKey
-        case .needTranslationFromKeyIn(let sourceLocalizableStrings):
-            return try sourceLocalizableStrings.sourceKeyLookup(matchingKind: kind)
+        case .needTranslationFromKeyIn(let sourceLanguageStrings):
+            return try sourceLanguageStrings.sourceKeyLookup(matchingKind: kind)
         }
     }
 }

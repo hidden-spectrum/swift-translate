@@ -46,6 +46,6 @@ class StringCatalogTests: XCTestCase {
         
         let localizableStrings = stringCatalog.localizableStrings(for: key)
         
-        XCTAssertEqual(localizableStrings.count, 10)
+        XCTAssertEqual(localizableStrings.count, 13)
     }
 }

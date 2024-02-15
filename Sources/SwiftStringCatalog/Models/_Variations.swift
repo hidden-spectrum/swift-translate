@@ -29,12 +29,15 @@ extension _Variations: LocalizableStringConstructor {
                 )
             }
         } else if let pluralVariations = plural {
-            return try pluralVariations.map { qualifier, variation in
+            return pluralVariations.compactMap { qualifier, variation in
                 let kind = LocalizableString.Kind.variation(.plural(qualifier))
                 let stringUnit = variation.stringUnit
+                guard let sourceKey = try? context.embeddedSourceKey(matching: kind, or: stringUnit.value) else {
+                    return nil
+                }
                 return LocalizableString(
                     kind: .variation(.plural(qualifier)),
-                    sourceKey: try context.embeddedSourceKey(matching: kind, or: stringUnit.value),
+                    sourceKey: sourceKey,
                     targetLanguage: targetLanguage,
                     translatedValue: variation.stringUnit.value,
                     state: variation.stringUnit.state
