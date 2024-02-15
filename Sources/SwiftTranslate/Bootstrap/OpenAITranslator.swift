@@ -30,12 +30,11 @@ struct OpenAITranslator {
         
         print("Loading catalog \(url.lastPathComponent) into memory...")
         let catalog = try StringCatalog(url: url)
-        catalog.setTargetLanguages(targetLanguages)
         print("✅ Done".green, "(Found \(catalog.allKeys.count) keys with \(catalog.localizableStringsCount) localizable strings)")
         
         for key in catalog.allKeys {
             print("\nTranslating key `\(key.truncatedRemovingNewlines(to: 64))`:")
-            let localizableStrings = try catalog.localizableStrings(for: key)
+            let localizableStrings = catalog.localizableStrings(for: key)
             for localizableString in localizableStrings {
                 let targetLangCode = localizableString.targetLanguage.rawValue
                 if localizableString.state == .translated {

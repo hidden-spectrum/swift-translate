@@ -85,8 +85,8 @@ extension CodableKeyDictionary: Sequence {
         public var base: WrappedValue.Iterator
 
         public mutating func next() -> CodableKeyDictionary<Key, Value>.Element? {
-            if let next = base.next() {
-                return (key: Key(rawValue: next.key)!, value: next.value)
+            if let next = base.next(), let key = Key(rawValue: next.key) {
+                return (key: key, value: next.value)
             } else {
                 return nil
             }

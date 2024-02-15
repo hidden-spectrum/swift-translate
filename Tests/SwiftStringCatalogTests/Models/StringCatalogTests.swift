@@ -12,7 +12,7 @@ class StringCatalogTests: XCTestCase {
     func testLoad() throws {
         let testCatalogURL = Bundle.module.url(forResource: "TestCatalog", withExtension: "json")!
         
-        let stringCatalog = try StringCatalog.load(from: testCatalogURL)
+        let stringCatalog = try StringCatalog(url: testCatalogURL)
         
         XCTAssertEqual(stringCatalog.sourceLanguage, .english)
     }
@@ -20,14 +20,13 @@ class StringCatalogTests: XCTestCase {
     func testSourceLocalizableStrings() throws {
         let testCatalogURL = Bundle.module.url(forResource: "TestCatalog", withExtension: "json")!
         
-        let stringCatalog = try StringCatalog.load(from: testCatalogURL)
+        let stringCatalog = try StringCatalog(url: testCatalogURL)
         let key = "- or -"
-        let entry = try stringCatalog.entry(for: key)
         
-        let localizableStrings = try stringCatalog.sourceLocalizableStrings(in: entry, for: key)
+        let localizableStrings = stringCatalog.sourceLanguageStrings[key]
         
         XCTAssertEqual(
-            localizableStrings.first,
+            localizableStrings?.first,
             LocalizableString(
                 kind: .standalone,
                 sourceKey: key,
@@ -41,11 +40,11 @@ class StringCatalogTests: XCTestCase {
     func testLocalizableStrings() throws {
         let testCatalogURL = Bundle.module.url(forResource: "TestCatalog", withExtension: "json")!
         
-        var stringCatalog = try StringCatalog.load(from: testCatalogURL)
+        let stringCatalog = try StringCatalog(url: testCatalogURL)
         stringCatalog.setTargetLanguages([.arabic, .chineseHongKong, .english, .french, .german, .italian, .japanese, .korean, .russian, .spanish])
         let key = "audioConverterQueue.supportedFileFormats"
         
-        let localizableStrings = try stringCatalog.localizableStrings(for: key)
+        let localizableStrings = stringCatalog.localizableStrings(for: key)
         
         XCTAssertEqual(localizableStrings.count, 10)
     }

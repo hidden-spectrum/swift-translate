@@ -20,16 +20,18 @@ public final class StringCatalog {
     public let sourceLanguage: Language
     public let version = "1.0" // Only version 1.0 supported for now
     
-    // MARK: Public private(set)
-    
-    public private(set) var localizableStrings: [String: [LocalizableString]] = [:]
-    public private(set) var localizableStringsCount: Int = 0
-    
-    public private(set) var targetLanguages: Set<Language> = []
+    public private(set) var allKeys = [StringLiteralType]()
     
     // MARK: Internal
     
-    // MARK: Private
+    var sourceLanguageStrings = [StringLiteralType: [LocalizableString]]()
+    
+    // MARK: Public private(set)
+    
+    public private(set) var localizableStrings: [StringLiteralType: [LocalizableString]] = [:]
+    public private(set) var localizableStringsCount: Int = 0
+    
+    public private(set) var targetLanguages: Set<Language> = []
     
     // MARK: Lifecycle
     
@@ -40,8 +42,11 @@ public final class StringCatalog {
         if catalog.version != version {
             throw Error.catalogVersionNotSupported(catalog.version)
         }
+        
+        self.allKeys = Array(catalog.strings.keys)
         self.sourceLanguage = catalog.sourceLanguage
         self.targetLanguages = detectedTargetLanguages(in: catalog)
+        
         try loadAllLocalizableStrings(from: catalog)
     }
     
@@ -65,33 +70,16 @@ public final class StringCatalog {
     private func loadAllLocalizableStrings(from catalog: _StringCatalog) throws {
         localizableStringsCount = 0
         for (key, entry) in catalog.strings {
-            let localizableStrings = try localizableStrings(for: entry, in: key)
+            let sourceLanguageStrings = try sourceLanguageStrings(in: entry, for: key)
+            self.sourceLanguageStrings[key] = sourceLanguageStrings
+            
+            let localizableStrings = try localizableStrings(for: entry, in: key, referencing: sourceLanguageStrings)
             localizableStringsCount += localizableStrings.count
             self.localizableStrings[key] = localizableStrings
         }
     }
     
-    private func localizableStrings(for entry: _CatalogEntry, in key: StringLiteralType) throws -> [LocalizableString] {
-        let sourceLocalizableStrings = try sourceLocalizableStrings(in: entry, for: key)
-        var localizableStrings = [LocalizableString]()
-        
-        for language in targetLanguages {
-            if let localization = entry.localizations[language] {
-                localizableStrings += try localization.constructLocalizableStrings(
-                    context: .needTranslationFromKeyIn(sourceLocalizableStrings: sourceLocalizableStrings),
-                    targetLanguage: language
-                )
-            } else {
-                localizableStrings += sourceLocalizableStrings.map {
-                    $0.emptyCopy(for: language)
-                }
-            }
-        }
-        
-        return localizableStrings
-    }
-    
-    func sourceLocalizableStrings(in entry: _CatalogEntry, for key: StringLiteralType) throws -> [LocalizableString] {
+    private func sourceLanguageStrings(in entry: _CatalogEntry, for key: StringLiteralType) throws -> [LocalizableString] {
         if let localization = entry.localizations[sourceLanguage] {
             return try localization.constructLocalizableStrings(
                 context: .isSource,
@@ -110,7 +98,31 @@ public final class StringCatalog {
         }
     }
     
-    // MARK: Configuration
+    private func localizableStrings(
+        for entry: _CatalogEntry,
+        in key: StringLiteralType,
+        referencing sourceLanguageStrings: [LocalizableString]
+    ) throws -> [LocalizableString] {
+        var localizableStrings = [LocalizableString]()
+        
+        for language in targetLanguages {
+            if let localization = entry.localizations[language] {
+                localizableStrings += try localization.constructLocalizableStrings(
+                    context: .needTranslationFromKeyIn(sourceLocalizableStrings: sourceLanguageStrings),
+                    targetLanguage: language
+                )
+            } else {
+                localizableStrings += sourceLanguageStrings.map {
+                    $0.emptyCopy(for: language)
+                }
+            }
+        }
+        
+        return localizableStrings
+    }
+    
+    
+    // MARK: - Configuration
     
     public func targetAllLanguages() {
         targetLanguages = Set(Language.allCases)
@@ -120,7 +132,13 @@ public final class StringCatalog {
         targetLanguages = Set(languages)
     }
     
-    // MARK: Read/write
+    // MARK: - Accessors
+    
+    public func localizableStrings(for key: StringLiteralType) -> [LocalizableString] {
+        return localizableStrings[key] ?? []
+    }
+    
+    // MARK: - Read/write
     
     public func write(to url: URL) throws {
         //        let encoder = JSONEncoder()
