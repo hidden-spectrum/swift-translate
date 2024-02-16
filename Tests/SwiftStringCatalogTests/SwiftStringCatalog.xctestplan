@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "4F669705-A630-4491-91FC-793F216D3B3A",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SwiftStringCatalogTests",
+        "name" : "SwiftStringCatalogTests"
+      }
+    }
+  ],
+  "version" : 1
+}
