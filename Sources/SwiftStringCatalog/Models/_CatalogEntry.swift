@@ -39,6 +39,10 @@ extension _CatalogEntry {
             let language = localizableString.targetLanguage
             var localization = _Localization()
             
+            defer {
+                localizations[language] = localization
+            }
+            
             switch localizableString.kind {
             case .standalone:
                 localization.stringUnit = _StringUnit(state: localizableString.state, value: translatedValue)
@@ -48,8 +52,6 @@ extension _CatalogEntry {
             case .variation:
                 localization.addVariations(from: localizableString)
             }
-            
-            localizations[language] = localization
         }
         self.init(extractionState: .extractedWithValue, localizations: localizations)
     }
