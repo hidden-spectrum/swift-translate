@@ -77,7 +77,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-c /Users/andrewtheis/Repositories/hspec/swift-translate/Tests/SwiftStringCatalogTests/Resources/TestCatalog.json"
+            argument = "-c /Users/andrewtheis/Repositories/hspec/swift-translate/Tests/SwiftStringCatalogTests/Resources/BasicCatalog.xcstrings"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

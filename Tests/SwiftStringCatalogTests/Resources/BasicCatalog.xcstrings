@@ -1,0 +1,12 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "I really like tests!" : {
+      "extractionState" : "manual"
+    },
+    "This is a test" : {
+      "extractionState" : "manual"
+    }
+  },
+  "version" : "1.0"
+}

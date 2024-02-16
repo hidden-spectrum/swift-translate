@@ -40,8 +40,8 @@ class StringCatalogTests: XCTestCase {
     func testLocalizableStrings() throws {
         let testCatalogURL = Bundle.module.url(forResource: "TestCatalog", withExtension: "json")!
         
-        let stringCatalog = try StringCatalog(url: testCatalogURL)
-        stringCatalog.setTargetLanguages([.arabic, .chineseHongKong, .english, .french, .german, .italian, .japanese, .korean, .russian, .spanish])
+        let targetLanguages: Set<Language> = [.arabic, .chineseHongKong, .english, .french, .german, .italian, .japanese, .korean, .russian, .spanish]
+        let stringCatalog = try StringCatalog(url: testCatalogURL, configureWith: targetLanguages)
         let key = "audioConverterQueue.supportedFileFormats"
         
         let localizableStrings = stringCatalog.localizableStrings(for: key)

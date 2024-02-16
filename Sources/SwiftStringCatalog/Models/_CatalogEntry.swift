@@ -13,7 +13,7 @@ struct _CatalogEntry: Codable {
     let comment: String?
     let extractionState: ExtractionState?
     
-    var localizations: CodableKeyDictionary<Language, _Localization>
+    var localizations: CodableKeyDictionary<Language, _Localization>?
     
     // MARK: Lifecycle
     

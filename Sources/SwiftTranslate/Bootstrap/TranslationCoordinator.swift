@@ -39,7 +39,7 @@ struct TranslationCoordinator {
         case .text(let string):
             try await translate(string)
         }
-        print("✅ Done (\(startDate.timeIntervalSinceNow * -1) seconds)".green, "\n")
+        print("\n✅ Done (\(startDate.timeIntervalSinceNow * -1) seconds)".green, "\n")
     }
     
     func translate(_ string: String) async throws {
@@ -52,14 +52,14 @@ struct TranslationCoordinator {
         
     func translateStringCatalog(_ catalogUrl: URL) async throws {
         let catalog = try loadStringCatalog(from: catalogUrl)
-        try verifyLargeTranslation(of: catalog.localizableStringsCount, to: targetLanguages.count)
+        try verifyLargeTranslation(of: catalog.allKeys.count, to: targetLanguages.count)
         
         for key in catalog.allKeys {
             try await translate(key: key, in: catalog)
         }
         
-        let newPath = catalogUrl.deletingPathExtension().absoluteString + "-translated.xcstrings"
-        try catalog.write(to: URL(fileURLWithPath: newPath))
+        let newUrl = catalogUrl.deletingPathExtension().appendingPathExtension("loc.xcstrings")
+        try catalog.write(to: newUrl)
     }
     
     // MARK: Input
@@ -68,7 +68,7 @@ struct TranslationCoordinator {
         guard stringsCount * languageCount > 200 else {
             return
         }
-        print("\n?".yellow, "Are you sure you wish to translate \(stringsCount) strings into \(languageCount) languages? Y/n")
+        print("\n?".yellow, "Are you sure you wish to translate \(stringsCount) keys into \(languageCount) languages? Y/n")
         let yesNo = readLine()
         guard yesNo == "Y" else {
             print("Translation canceled 🫡".yellow)
@@ -80,7 +80,7 @@ struct TranslationCoordinator {
     
     private func loadStringCatalog(from url: URL) throws -> StringCatalog {
         print("\nLoading catalog \(url.lastPathComponent) into memory...")
-        let catalog = try StringCatalog(url: url)
+        let catalog = try StringCatalog(url: url, configureWith: Set(targetLanguages))
         print("✅ Done".green, "(Found \(catalog.allKeys.count) keys with \(catalog.localizableStringsCount) localizable strings)")
         return catalog
     }

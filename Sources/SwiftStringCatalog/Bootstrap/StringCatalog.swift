@@ -36,7 +36,7 @@ public final class StringCatalog {
     
     // MARK: Lifecycle
     
-    public init(url: URL) throws {
+    public init(url: URL, configureWith targetLanguages: Set<Language>? = nil) throws {
         let data = try Data(contentsOf: url)
         let decoder = JSONDecoder()
         let catalog = try decoder.decode(_StringCatalog.self, from: data)
@@ -46,7 +46,13 @@ public final class StringCatalog {
         
         self.allKeys = Array(catalog.strings.keys)
         self.sourceLanguage = catalog.sourceLanguage
-        self.targetLanguages = detectedTargetLanguages(in: catalog)
+        self.targetLanguages = {
+            if let targetLanguages {
+                targetLanguages
+            } else {
+                detectedTargetLanguages(in: catalog)
+            }
+        }()
         
         try loadAllLocalizableStrings(from: catalog)
     }
@@ -61,7 +67,10 @@ public final class StringCatalog {
     private func detectedTargetLanguages(in catalog: _StringCatalog) -> Set<Language> {
         var targetLanguages = Set<Language>()
         for (_, entry) in catalog.strings {
-            for (language, _) in entry.localizations {
+            guard let localizations = entry.localizations else {
+                continue
+            }
+            for (language, _) in localizations {
                 targetLanguages.insert(language)
             }
         }
@@ -81,7 +90,7 @@ public final class StringCatalog {
     }
     
     private func sourceLanguageStrings(in entry: _CatalogEntry, for key: String) throws -> [LocalizableString] {
-        if let localization = entry.localizations[sourceLanguage] {
+        if let localization = entry.localizations?[sourceLanguage] {
             return try localization.constructLocalizableStrings(
                 context: .isSource,
                 targetLanguage: sourceLanguage
@@ -107,7 +116,7 @@ public final class StringCatalog {
         var localizableStrings = [LocalizableString]()
         
         for language in targetLanguages {
-            if let localization = entry.localizations[language] {
+            if let localization = entry.localizations?[language] {
                 localizableStrings += try localization.constructLocalizableStrings(
                     context: .needTranslationFromKeyIn(sourceLanguageStrings: sourceLanguageStrings),
                     targetLanguage: language
@@ -120,16 +129,6 @@ public final class StringCatalog {
         }
         
         return localizableStrings
-    }
-    
-    // MARK: - Configuration
-    
-    public func targetAllLanguages() {
-        targetLanguages = Set(Language.allCases)
-    }
-    
-    public func setTargetLanguages(_ languages: [Language]) {
-        targetLanguages = Set(languages)
     }
     
     // MARK: - Accessors
@@ -149,11 +148,11 @@ public final class StringCatalog {
         let encoder = JSONEncoder()
         let data = try encoder.encode(catalog)
         
-        if FileManager.default.fileExists(atPath: url.path) {
-            try FileManager.default.removeItem(at: url)
+        let fileManager = FileManager.default
+        if fileManager.fileExists(atPath: url.path) {
+            try fileManager.removeItem(at: url)
         }
-        
-        try data.write(to: url)
+        fileManager.createFile(atPath: url.path, contents: data)
     }
     
     func buildCatalogEntries() throws -> [StringLiteralType: _CatalogEntry] {
