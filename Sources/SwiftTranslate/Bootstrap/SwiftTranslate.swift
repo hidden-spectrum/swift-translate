@@ -5,7 +5,6 @@
 import ArgumentParser
 import Foundation
 import OpenAI
-import Logging
 import SwiftStringCatalog
 
 

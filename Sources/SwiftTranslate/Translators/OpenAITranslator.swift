@@ -4,7 +4,6 @@
 
 import Foundation
 import OpenAI
-import Logging
 import Rainbow
 import SwiftStringCatalog
 

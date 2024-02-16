@@ -9,43 +9,42 @@ import XCTest
 
 class StringCatalogTests: XCTestCase {
     
-    func testLoad() throws {
-        let testCatalogURL = Bundle.module.url(forResource: "TestCatalog", withExtension: "json")!
-        
-        let stringCatalog = try StringCatalog(url: testCatalogURL)
+    // MARK: Private
+    
+    let basicTestCatalog = Bundle.module.url(forResource: "BasicCatalog", withExtension: "json")!
+    let basicTestKey = "This is a test"
+    
+    // MARK: Basic Tests
+    
+    func testLoad_Basic() throws {
+        let stringCatalog = try StringCatalog(url: basicTestCatalog)
         
         XCTAssertEqual(stringCatalog.sourceLanguage, .english)
     }
     
-    func testSourceLocalizableStrings() throws {
-        let testCatalogURL = Bundle.module.url(forResource: "TestCatalog", withExtension: "json")!
+    func testSourceLocalizableStrings_Basic() throws {
+        let stringCatalog = try StringCatalog(url: basicTestCatalog)
         
-        let stringCatalog = try StringCatalog(url: testCatalogURL)
-        let key = "- or -"
-        
-        let localizableStrings = stringCatalog.sourceLanguageStrings[key]
+        let localizableStrings = stringCatalog.sourceLanguageStrings[basicTestKey]
         
         XCTAssertEqual(
             localizableStrings?.first,
             LocalizableString(
                 kind: .standalone,
-                sourceKey: key,
+                sourceKey: basicTestKey,
                 targetLanguage: .english,
-                translatedValue: key,
+                translatedValue: basicTestKey,
                 state: .translated
             )
         )
     }
     
-    func testLocalizableStrings() throws {
-        let testCatalogURL = Bundle.module.url(forResource: "TestCatalog", withExtension: "json")!
+    func testLocalizableStrings_Basic() throws {
+        let targetLanguages: Set<Language> = [.english, .french, .german, .italian]
+        let stringCatalog = try StringCatalog(url: basicTestCatalog, configureWith: targetLanguages)
         
-        let targetLanguages: Set<Language> = [.arabic, .chineseHongKong, .english, .french, .german, .italian, .japanese, .korean, .russian, .spanish]
-        let stringCatalog = try StringCatalog(url: testCatalogURL, configureWith: targetLanguages)
-        let key = "audioConverterQueue.supportedFileFormats"
+        let localizableStrings = stringCatalog.localizableStrings(for: basicTestKey)
         
-        let localizableStrings = stringCatalog.localizableStrings(for: key)
-        
-        XCTAssertEqual(localizableStrings.count, 13)
+        XCTAssertEqual(localizableStrings.count, 4)
     }
 }
