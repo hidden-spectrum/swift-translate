@@ -11,11 +11,7 @@ public final class StringCatalog {
     
     public enum Error: Swift.Error {
         case catalogVersionNotSupported(String)
-        case corruptedEntry
-        case noEntryFor(key: String)
-        case noSourceLanguageEntryFor(key: String)
         case substitionsNotYetSupported
-        case variationsNotYetSupported
     }
     
     public let sourceLanguage: Language

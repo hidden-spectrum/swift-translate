@@ -25,7 +25,6 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
-        .package(url: "https://github.com/apple/swift-log", from: "1.5.0"),
         .package(url: "https://github.com/MacPaw/OpenAI.git", .upToNextMajor(from: "0.2.5")),
         .package(url: "https://github.com/onevcat/Rainbow.git", .upToNextMajor(from: "4.0.0")),
     ],
@@ -57,7 +56,6 @@ let package = Package(
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "OpenAI", package: "OpenAI"),
-                .product(name: "Logging", package: "swift-log"),
                 .product(name: "Rainbow", package: "Rainbow"),
                 "SwiftStringCatalog"
             ]
