@@ -39,14 +39,14 @@ struct TranslationCoordinator {
         case .text(let string):
             try await translate(string)
         }
-        print("✅ Done (\(startDate.timeIntervalSinceNow * -1) seconds)".green)
+        print("✅ Done (\(startDate.timeIntervalSinceNow * -1) seconds)".green, "\n")
     }
     
     func translate(_ string: String) async throws {
-        print("Translating `\(string)`:")
+        print("\nTranslating `\(string)`:")
         for language in targetLanguages {
             let translation = try await translator.translate(string, to: language)
-            print(String(format: "- %-15s: %@", language.rawValue, translation))
+            logTranslationResult(to: language, result: translation, isSource: false)
         }
     }
         
@@ -62,20 +62,21 @@ struct TranslationCoordinator {
     // MARK: Input
     
     private func verifyLargeTranslation(of stringsCount: Int, to languageCount: Int) throws {
-        guard stringsCount * languageCount < 200 else {
+        guard stringsCount * languageCount > 200 else {
             return
         }
-        print("➡".yellow, "Are you sure you wish to translate \(stringsCount) strings into \(languageCount) languages? Y/n")
+        print("\n?".yellow, "Are you sure you wish to translate \(stringsCount) strings into \(languageCount) languages? Y/n")
         let yesNo = readLine()
         guard yesNo == "Y" else {
-            throw ValidationError("🫡 Translation canceled".yellow)
+            print("Translation canceled 🫡".yellow)
+            exit(0)
         }
     }
     
     // MARK: String Catalog
     
     private func loadStringCatalog(from url: URL) throws -> StringCatalog {
-        print("Loading catalog \(url.lastPathComponent) into memory...")
+        print("\nLoading catalog \(url.lastPathComponent) into memory...")
         let catalog = try StringCatalog(url: url)
         print("✅ Done".green, "(Found \(catalog.allKeys.count) keys with \(catalog.localizableStringsCount) localizable strings)")
         return catalog
@@ -84,19 +85,31 @@ struct TranslationCoordinator {
     private func translate(key: String, in catalog: StringCatalog) async throws {
         print("\nTranslating key `\(key.truncatedRemovingNewlines(to: 64))`:")
         let localizableStrings = catalog.localizableStrings(for: key)
+        
+        
         for localizableString in localizableStrings {
+            let isSource = catalog.sourceLanguage == localizableString.targetLanguage
             let targetLanguage = localizableString.targetLanguage
-            let languageCodePrintLn = String(format: "- %-15s: ", targetLanguage.rawValue)
+            
             if localizableString.state == .translated {
-                print(languageCodePrintLn, "[Already translated]".dim)
+                let result = isSource ? localizableString.sourceKey : "[Already translated]".dim
+                logTranslationResult(to: targetLanguage, result: result, isSource: isSource)
                 continue
             }
             do {
                 let translatedString = try await translator.translate(localizableString.sourceKey, to: targetLanguage)
-                print(languageCodePrintLn, translatedString.truncatedRemovingNewlines(to: 64))
+                logTranslationResult(to: targetLanguage, result: translatedString.truncatedRemovingNewlines(to: 64), isSource: isSource)
             } catch {
-                print(languageCodePrintLn, "[Error: \(error.localizedDescription)]".red)
+                logTranslationResult(to: targetLanguage, result: "[Error: \(error.localizedDescription)]".red, isSource: isSource)
             }
         }
+    }
+    
+    // MARK: Utilities
+    
+    private func logTranslationResult(to language: Language, result: String, isSource: Bool) {
+        let languageCode = (language.rawValue + ":" as NSString).utf8String!
+        let logString = String(format: "- %-8s %@", languageCode, result)
+        print(isSource ? logString.dim : logString)
     }
 }
