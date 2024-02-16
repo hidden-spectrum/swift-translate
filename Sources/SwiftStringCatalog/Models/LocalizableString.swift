@@ -5,7 +5,7 @@
 import Foundation
 
 
-public struct LocalizableString: Equatable {
+public final class LocalizableString {
     
     // MARK: Public
     
@@ -38,7 +38,7 @@ public struct LocalizableString: Equatable {
     
     // MARK: Mutation
     
-    public mutating func setTranslation(_ translation: String) {
+    public func setTranslation(_ translation: String) {
         translatedValue = translation
         state = .translated
     }
@@ -66,5 +66,16 @@ public extension LocalizableString {
     enum VariationKind: Equatable {
         case device(DeviceCategory)
         case plural(PluralQualifier)
+    }
+}
+
+extension LocalizableString: Equatable {
+    public static func == (lhs: LocalizableString, rhs: LocalizableString) -> Bool {
+        return lhs.kind == rhs.kind
+            && lhs.sourceKey == rhs.sourceKey
+            && lhs.targetLanguage == rhs.targetLanguage
+            && lhs.comment == rhs.comment
+            && lhs.translatedValue == rhs.translatedValue
+            && lhs.state == rhs.state
     }
 }

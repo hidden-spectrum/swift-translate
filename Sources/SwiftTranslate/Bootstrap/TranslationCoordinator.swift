@@ -89,7 +89,6 @@ struct TranslationCoordinator {
         print("\nTranslating key `\(key.truncatedRemovingNewlines(to: 64))`:")
         let localizableStrings = catalog.localizableStrings(for: key)
         
-        
         for localizableString in localizableStrings {
             let isSource = catalog.sourceLanguage == localizableString.targetLanguage
             let targetLanguage = localizableString.targetLanguage
@@ -101,6 +100,7 @@ struct TranslationCoordinator {
             }
             do {
                 let translatedString = try await translator.translate(localizableString.sourceKey, to: targetLanguage)
+                localizableString.setTranslation(translatedString)
                 logTranslationResult(to: targetLanguage, result: translatedString.truncatedRemovingNewlines(to: 64), isSource: isSource)
             } catch {
                 logTranslationResult(to: targetLanguage, result: "[Error: \(error.localizedDescription)]".red, isSource: isSource)
