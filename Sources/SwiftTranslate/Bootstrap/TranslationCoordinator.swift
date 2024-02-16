@@ -13,20 +13,18 @@ struct TranslationCoordinator {
     // MARK: Internal
     
     enum Mode {
-        case stringCatalog(URL)
-        case text(String)
+        case stringCatalog(URL, Set<Language>?)
+        case text(String, Set<Language>)
     }
 
     let mode: Mode
-    let targetLanguages: [Language]
     let translator: Translator
 
     // MARK: Lifecycle
 
-    init(mode: Mode, translator: Translator, targetLanguages: Set<Language>) {
+    init(mode: Mode, translator: Translator) {
         self.mode = mode
         self.translator = translator
-        self.targetLanguages = Array(targetLanguages).sorted(by: { $0.rawValue < $1.rawValue })
     }
     
     // MARK: Translation
@@ -34,15 +32,15 @@ struct TranslationCoordinator {
     func translate() async throws {
         let startDate = Date()
         switch mode {
-        case .stringCatalog(let catalog):
-            try await translateStringCatalog(catalog)
-        case .text(let string):
-            try await translate(string)
+        case .stringCatalog(let catalog, let targetLanguages):
+            try await translateStringCatalog(catalog, to: targetLanguages)
+        case .text(let string, let targetLanguages):
+            try await translate(string, to: targetLanguages)
         }
         print("\n✅ Done (\(startDate.timeIntervalSinceNow * -1) seconds)".green, "\n")
     }
     
-    func translate(_ string: String) async throws {
+    func translate(_ string: String, to targetLanguages: Set<Language>) async throws {
         print("\nTranslating `\(string)`:")
         for language in targetLanguages {
             let translation = try await translator.translate(string, to: language)
@@ -50,9 +48,9 @@ struct TranslationCoordinator {
         }
     }
         
-    func translateStringCatalog(_ catalogUrl: URL) async throws {
-        let catalog = try loadStringCatalog(from: catalogUrl)
-        try verifyLargeTranslation(of: catalog.allKeys.count, to: targetLanguages.count)
+    func translateStringCatalog(_ catalogUrl: URL, to targetLanguages: Set<Language>?) async throws {
+        let catalog = try loadStringCatalog(from: catalogUrl, configureWith: targetLanguages)
+        try verifyLargeTranslation(of: catalog.allKeys.count, to: catalog.targetLanguages.count)
         
         for key in catalog.allKeys {
             try await translate(key: key, in: catalog)
@@ -78,10 +76,10 @@ struct TranslationCoordinator {
     
     // MARK: String Catalog
     
-    private func loadStringCatalog(from url: URL) throws -> StringCatalog {
+    private func loadStringCatalog(from url: URL, configureWith targetLanguages: Set<Language>?) throws -> StringCatalog {
         print("\nLoading catalog \(url.lastPathComponent) into memory...")
-        let catalog = try StringCatalog(url: url, configureWith: Set(targetLanguages))
-        print("✅ Done".green, "(Found \(catalog.allKeys.count) keys with \(catalog.localizableStringsCount) localizable strings)")
+        let catalog = try StringCatalog(url: url, configureWith: targetLanguages)
+        print("✅ Done".green, "(Found \(catalog.allKeys.count) keys targeting \(catalog.targetLanguages.count) languages for a total of \(catalog.localizableStringsCount) localized strings)")
         return catalog
     }
     

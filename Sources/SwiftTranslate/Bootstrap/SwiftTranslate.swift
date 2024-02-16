@@ -49,25 +49,26 @@ struct SwiftTranslate: AsyncParsableCommand {
     func run() async throws {
         let translator = OpenAITranslator(with: apiToken)
         
-        var mode: TranslationCoordinator.Mode
-        if let text {
-            mode = .text(text)
-        } else if let stringCatalogPath {
-            mode = .stringCatalog(URL(fileURLWithPath: stringCatalogPath))
-        } else {
-            throw ValidationError("No text or string catalog path provided")
-        }
-        
-        var targetLanguages: Set<Language>
+        var targetLanguages: Set<Language>?
         if let language {
             targetLanguages = Set([language])
         } else if translateToAllLanguages {
             targetLanguages = Set(Language.allCases)
+        }
+        
+        var mode: TranslationCoordinator.Mode
+        if let text {
+            guard let targetLanguages else {
+                throw ValidationError("Target language(s) is required for text translation")
+            }
+            mode = .text(text, targetLanguages)
+        } else if let stringCatalogPath {
+            mode = .stringCatalog(URL(fileURLWithPath: stringCatalogPath), targetLanguages)
         } else {
             throw ValidationError("No target language(s) provided".red)
         }
         
-        let coordinator = TranslationCoordinator(mode: mode, translator: translator, targetLanguages: targetLanguages)
+        let coordinator = TranslationCoordinator(mode: mode, translator: translator)
         try await coordinator.translate()
     }
 }
