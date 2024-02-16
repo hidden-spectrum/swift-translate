@@ -37,15 +37,11 @@ extension _Localization: LocalizableStringConstructor {
 }
 
 extension _Localization {
-    init(from localizableString: LocalizableString) throws {
-        switch localizableString.kind {
-        case .standalone:
-            self.stringUnit = _StringUnit(state: localizableString.state, value: localizableString.translatedValue ?? "TODO")
-        case .replacement:
-            throw StringCatalog.Error.substitionsNotYetSupported
-        case .variation:
-            throw StringCatalog.Error.variationsNotYetSupported
+    mutating func addVariations(from localizedString: LocalizableString) {
+        if variations == nil {
+            variations = _Variations()
         }
+        variations?.addVariation(from: localizedString)
     }
 }
 

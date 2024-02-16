@@ -9,6 +9,6 @@ struct _StringUnit: Codable {
 
     // MARK: Internal
     
-    var state: TranslationState
-    var value: String
+    let state: TranslationState
+    let value: String
 }

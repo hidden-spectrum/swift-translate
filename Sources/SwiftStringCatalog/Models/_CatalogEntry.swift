@@ -32,8 +32,23 @@ extension _CatalogEntry {
     init(from localizableStrings: [LocalizableString]) throws {
         var localizations = CodableKeyDictionary<Language, _Localization>()
         for localizableString in localizableStrings {
+            guard let translatedValue = localizableString.translatedValue else {
+                continue
+            }
+            
             let language = localizableString.targetLanguage
-            let localization = try _Localization(from: localizableString)
+            var localization = _Localization()
+            
+            switch localizableString.kind {
+            case .standalone:
+                localization.stringUnit = _StringUnit(state: localizableString.state, value: translatedValue)
+                continue
+            case .replacement:
+                throw StringCatalog.Error.substitionsNotYetSupported
+            case .variation:
+                localization.addVariations(from: localizableString)
+            }
+            
             localizations[language] = localization
         }
         self.init(extractionState: .extractedWithValue, localizations: localizations)

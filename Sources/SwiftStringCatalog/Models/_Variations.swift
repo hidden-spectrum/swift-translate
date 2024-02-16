@@ -7,11 +7,22 @@ import Foundation
 
 struct _Variation: Codable {
     let stringUnit: _StringUnit
+    
+    enum Error: Swift.Error {
+        case translatedValueMissing
+    }
+    
+    init?(state: TranslationState, translatedValue: String?) {
+        guard let translatedValue else {
+            return nil
+        }
+        self.stringUnit = _StringUnit(state: state, value: translatedValue)
+    }
 }
 
 struct _Variations: Codable {
-    let device: CodableKeyDictionary<DeviceCategory, _Variation>?
-    let plural: CodableKeyDictionary<PluralQualifier, _Variation>?
+    var device: CodableKeyDictionary<DeviceCategory, _Variation>?
+    var plural: CodableKeyDictionary<PluralQualifier, _Variation>?
 }
 
 extension _Variations: LocalizableStringConstructor {
@@ -45,6 +56,25 @@ extension _Variations: LocalizableStringConstructor {
             }
         } else {
             return []
+        }
+    }
+    
+    mutating func addVariation(from localizedString: LocalizableString) {
+        guard case .variation(let variation) = localizedString.kind else {
+            return
+        }
+        
+        switch variation {
+        case .device(let category):
+            if device == nil {
+                device = CodableKeyDictionary()
+            }
+            device?[category] = _Variation(state: localizedString.state, translatedValue: localizedString.translatedValue)
+        case .plural(let qualifier):
+            if plural == nil {
+                plural = CodableKeyDictionary()
+            }
+            plural?[qualifier] = _Variation(state: localizedString.state, translatedValue: localizedString.translatedValue)
         }
     }
 }

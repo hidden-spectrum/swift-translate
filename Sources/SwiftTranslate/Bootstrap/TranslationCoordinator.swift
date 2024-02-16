@@ -79,7 +79,7 @@ struct TranslationCoordinator {
     private func loadStringCatalog(from url: URL, configureWith targetLanguages: Set<Language>?) throws -> StringCatalog {
         print("\nLoading catalog \(url.lastPathComponent) into memory...")
         let catalog = try StringCatalog(url: url, configureWith: targetLanguages)
-        print("✅ Done".green, "(Found \(catalog.allKeys.count) keys targeting \(catalog.targetLanguages.count) languages for a total of \(catalog.localizableStringsCount) localized strings)")
+        print("✅ Done".green, "(Found \(catalog.allKeys.count) keys targeting \(catalog.targetLanguages.count) languages for a total of \(catalog.localizableStringsCount) localizable strings)")
         return catalog
     }
     
