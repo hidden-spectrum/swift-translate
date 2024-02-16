@@ -27,3 +27,15 @@ struct _CatalogEntry: Codable {
         self.localizations = localizations
     }
 }
+
+extension _CatalogEntry {
+    init(from localizableStrings: [LocalizableString]) throws {
+        var localizations = CodableKeyDictionary<Language, _Localization>()
+        for localizableString in localizableStrings {
+            let language = localizableString.targetLanguage
+            let localization = try _Localization(from: localizableString)
+            localizations[language] = localization
+        }
+        self.init(extractionState: .extractedWithValue, localizations: localizations)
+    }
+}

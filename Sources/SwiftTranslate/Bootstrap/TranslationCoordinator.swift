@@ -57,6 +57,9 @@ struct TranslationCoordinator {
         for key in catalog.allKeys {
             try await translate(key: key, in: catalog)
         }
+        
+        let newPath = catalogUrl.deletingPathExtension().absoluteString + "-translated.xcstrings"
+        try catalog.write(to: URL(fileURLWithPath: newPath))
     }
     
     // MARK: Input

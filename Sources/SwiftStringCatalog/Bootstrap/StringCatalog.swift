@@ -10,11 +10,12 @@ public final class StringCatalog {
     // MARK: Public
     
     public enum Error: Swift.Error {
+        case catalogVersionNotSupported(String)
+        case corruptedEntry
         case noEntryFor(key: String)
         case noSourceLanguageEntryFor(key: String)
-        case corruptedEntry
         case substitionsNotYetSupported
-        case catalogVersionNotSupported(String)
+        case variationsNotYetSupported
     }
     
     public let sourceLanguage: Language
@@ -147,14 +148,19 @@ public final class StringCatalog {
         )
         let encoder = JSONEncoder()
         let data = try encoder.encode(catalog)
+        
+        if FileManager.default.fileExists(atPath: url.path) {
+            try FileManager.default.removeItem(at: url)
+        }
+        
         try data.write(to: url)
     }
     
     func buildCatalogEntries() throws -> [StringLiteralType: _CatalogEntry] {
-        let entries = [StringLiteralType: _CatalogEntry]()
-//        for (key, localizableStrings) in localizableStrings {
-////            entries[key] =
-//        }
+        var entries = [StringLiteralType: _CatalogEntry]()
+        for (key, localizableStrings) in localizableStrings {
+            entries[key] = try _CatalogEntry(from: localizableStrings)
+        }
         return entries
     }
 }
