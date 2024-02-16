@@ -10,6 +10,14 @@ struct _StringCatalog: Codable {
     // MARK: Internal
     
     let sourceLanguage: Language
-    let strings: [StringLiteralType: _CatalogEntry]
+    let strings: [String: _CatalogEntry]
     let version: String
+    
+    // MARK: Lifecycle
+    
+    init(sourceLanguage: Language, strings: [String: _CatalogEntry]) {
+        self.sourceLanguage = sourceLanguage
+        self.strings = strings
+        self.version = "1.0" // Only 1.0 supported
+    }
 }

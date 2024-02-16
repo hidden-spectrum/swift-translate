@@ -10,7 +10,7 @@ public struct LocalizableString: Equatable {
     // MARK: Public
     
     public let kind: Kind
-    public let sourceKey: StringLiteralType
+    public let sourceKey: String
     public let targetLanguage: Language
     
     // MARK: Public private(set)
@@ -23,7 +23,7 @@ public struct LocalizableString: Equatable {
     
     init(
         kind: Kind,
-        sourceKey: StringLiteralType,
+        sourceKey: String,
         targetLanguage: Language,
         translatedValue: String?,
         state: TranslationState
@@ -38,7 +38,7 @@ public struct LocalizableString: Equatable {
     
     // MARK: Mutation
     
-    public mutating func setTranslation(_ translation: StringLiteralType) {
+    public mutating func setTranslation(_ translation: String) {
         translatedValue = translation
         state = .translated
     }

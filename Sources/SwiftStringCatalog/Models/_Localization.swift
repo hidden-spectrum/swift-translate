@@ -10,7 +10,7 @@ struct _Localization: Codable {
     // MARK: Internal
     
     var stringUnit: _StringUnit?
-    var substitutions: [StringLiteralType: _Substitution]?
+    var substitutions: [String: _Substitution]?
     var variations: _Variations?
 }
 
@@ -41,7 +41,7 @@ enum LocalizableStringConstructionContext {
     case isSource
     case needTranslationFromKeyIn(sourceLanguageStrings: [LocalizableString])
     
-    func embeddedSourceKey(matching kind: LocalizableString.Kind, or givenSourceKey: StringLiteralType) throws -> StringLiteralType {
+    func embeddedSourceKey(matching kind: LocalizableString.Kind, or givenSourceKey: String) throws -> String {
         switch self {
         case .isSource:
             return givenSourceKey
