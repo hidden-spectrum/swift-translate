@@ -52,7 +52,7 @@ struct SwiftTranslate: AsyncParsableCommand {
         if let language {
             targetLanguages = Set([language])
         } else if translateToAllLanguages {
-            targetLanguages = Set(Language.allCases)
+            targetLanguages = Set(Language.allCommon)
         }
         
         var mode: TranslationCoordinator.Mode

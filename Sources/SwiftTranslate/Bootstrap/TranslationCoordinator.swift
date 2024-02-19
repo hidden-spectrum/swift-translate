@@ -43,7 +43,7 @@ struct TranslationCoordinator {
     func translate(_ string: String, to targetLanguages: Set<Language>) async throws {
         print("\nTranslating `\(string)`:")
         for language in targetLanguages {
-            let translation = try await translator.translate(string, to: language)
+            let translation = try await translator.translate(string, to: language, comment: nil)
             logTranslationResult(to: language, result: translation, isSource: false)
         }
     }
@@ -97,7 +97,7 @@ struct TranslationCoordinator {
                 continue
             }
             do {
-                let translatedString = try await translator.translate(localizableString.sourceKey, to: targetLanguage)
+                let translatedString = try await translator.translate(localizableString.sourceKey, to: targetLanguage, comment: localizableString.comment)
                 localizableString.setTranslation(translatedString)
                 logTranslationResult(to: targetLanguage, result: translatedString.truncatedRemovingNewlines(to: 64), isSource: isSource)
             } catch {

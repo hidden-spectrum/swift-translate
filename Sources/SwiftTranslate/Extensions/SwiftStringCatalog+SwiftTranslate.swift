@@ -9,6 +9,6 @@ import SwiftStringCatalog
 
 extension Language: ExpressibleByArgument {
     public static var allValueStrings: [String] {
-        Self.allCases.map { $0.rawValue }
+        Self.allCommon.map { $0.rawValue }
     }
 }
