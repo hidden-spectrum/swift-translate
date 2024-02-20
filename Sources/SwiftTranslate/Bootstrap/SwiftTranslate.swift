@@ -43,6 +43,12 @@ struct SwiftTranslate: AsyncParsableCommand {
     )
     private var translateToAllLanguages: Bool = false
     
+    @Flag(
+        name: [.customLong("overwrite")],
+        help: "Overwrite the string catalog file instead of creating a new file"
+    )
+    private var overwriteExistingCatalog: Bool = false
+    
     // MARK: Lifecycle
     
     func run() async throws {
@@ -52,7 +58,7 @@ struct SwiftTranslate: AsyncParsableCommand {
         if let language {
             targetLanguages = Set([language])
         } else if translateToAllLanguages {
-            targetLanguages = Set(Language.allCases)
+            targetLanguages = Set(Language.allCommon)
         }
         
         var mode: TranslationCoordinator.Mode
@@ -62,7 +68,7 @@ struct SwiftTranslate: AsyncParsableCommand {
             }
             mode = .text(text, targetLanguages)
         } else if let stringCatalogPath {
-            mode = .stringCatalog(URL(fileURLWithPath: stringCatalogPath), targetLanguages)
+            mode = .stringCatalog(URL(fileURLWithPath: stringCatalogPath), targetLanguages, overwrite: overwriteExistingCatalog)
         } else {
             throw ValidationError("No target language(s) provided".red)
         }

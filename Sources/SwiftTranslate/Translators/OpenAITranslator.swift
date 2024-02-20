@@ -13,19 +13,37 @@ struct OpenAITranslator {
     // MARK: Private
     
     private let openAI: OpenAI
+    private let model: OpenAIModel
     
     // MARK: Lifecycle
     
-    init(with apiToken: String) {
+    init(with apiToken: String, model: OpenAIModel = .gpt3_5TurboInstruct) {
         self.openAI = OpenAI(apiToken: apiToken)
+        self.model = model
     }
     
     // MARK: Helpers
     
-    private func completionQuery(for translatableText: String, targetLanguage: Language) -> CompletionsQuery {
+    private func completionQuery(for translatableText: String, targetLanguage: Language, comment: String?) -> CompletionsQuery {
+        var prompt =
+            """
+            Translate the text between the backticks (```) from English to the language with ISO code \(targetLanguage.rawValue).
+            DO NOT translate the prompt or any other text that does not fall within the backticks (```).
+            DO NOT include the backticks in your response.
+            """
+        if let comment {
+            prompt += "\nIMPORTANT: Take into account the following context when translating: \(comment)\n"
+        }
+        prompt += 
+            """
+            ```
+            \(translatableText)
+            ```
+            """
+        
         return CompletionsQuery(
-            model: "gpt-3.5-turbo-instruct",
-            prompt: "Translate the following into the language with ISO code '\(targetLanguage.rawValue)': \(translatableText)",
+            model: model.rawValue,
+            prompt: prompt,
             temperature: 0.7,
             maxTokens: 1024,
             frequencyPenalty: 0,
@@ -38,9 +56,9 @@ extension OpenAITranslator: Translator {
     
     // MARK: Translate
     
-    func translate(_ string: String, to targetLanguage: Language) async throws -> String {
+    func translate(_ string: String, to targetLanguage: Language, comment: String?) async throws -> String {
         let result = try await openAI.completions(
-            query: completionQuery(for: string, targetLanguage: targetLanguage)
+            query: completionQuery(for: string, targetLanguage: targetLanguage, comment: comment)
         )
         guard let translatedText = result.choices.first?.text else {
             throw SwiftTranslateError.noTranslationReturned

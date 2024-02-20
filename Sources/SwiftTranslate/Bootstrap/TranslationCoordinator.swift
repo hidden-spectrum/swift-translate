@@ -13,7 +13,7 @@ struct TranslationCoordinator {
     // MARK: Internal
     
     enum Mode {
-        case stringCatalog(URL, Set<Language>?)
+        case stringCatalog(URL, Set<Language>?, overwrite: Bool)
         case text(String, Set<Language>)
     }
 
@@ -32,8 +32,8 @@ struct TranslationCoordinator {
     func translate() async throws {
         let startDate = Date()
         switch mode {
-        case .stringCatalog(let catalog, let targetLanguages):
-            try await translateStringCatalog(catalog, to: targetLanguages)
+        case .stringCatalog(let catalog, let targetLanguages, let overwrite):
+            try await translateStringCatalog(catalog, to: targetLanguages, overwrite: overwrite)
         case .text(let string, let targetLanguages):
             try await translate(string, to: targetLanguages)
         }
@@ -43,12 +43,12 @@ struct TranslationCoordinator {
     func translate(_ string: String, to targetLanguages: Set<Language>) async throws {
         print("\nTranslating `\(string)`:")
         for language in targetLanguages {
-            let translation = try await translator.translate(string, to: language)
+            let translation = try await translator.translate(string, to: language, comment: nil)
             logTranslationResult(to: language, result: translation, isSource: false)
         }
     }
-        
-    func translateStringCatalog(_ catalogUrl: URL, to targetLanguages: Set<Language>?) async throws {
+    
+    func translateStringCatalog(_ catalogUrl: URL, to targetLanguages: Set<Language>?, overwrite: Bool) async throws {
         let catalog = try loadStringCatalog(from: catalogUrl, configureWith: targetLanguages)
         try verifyLargeTranslation(of: catalog.allKeys.count, to: catalog.targetLanguages.count)
         
@@ -56,8 +56,11 @@ struct TranslationCoordinator {
             try await translate(key: key, in: catalog)
         }
         
-        let newUrl = catalogUrl.deletingPathExtension().appendingPathExtension("loc.xcstrings")
-        try catalog.write(to: newUrl)
+        var targetUrl = catalogUrl
+        if !overwrite {
+            targetUrl = targetUrl.deletingPathExtension().appendingPathExtension("loc.xcstrings")
+        }
+        try catalog.write(to: targetUrl)
     }
     
     // MARK: Input
@@ -91,13 +94,13 @@ struct TranslationCoordinator {
             let isSource = catalog.sourceLanguage == localizableString.targetLanguage
             let targetLanguage = localizableString.targetLanguage
             
-            if localizableString.state == .translated {
+            if localizableString.state == .translated || isSource {
                 let result = isSource ? localizableString.sourceKey : "[Already translated]".dim
                 logTranslationResult(to: targetLanguage, result: result, isSource: isSource)
                 continue
             }
             do {
-                let translatedString = try await translator.translate(localizableString.sourceKey, to: targetLanguage)
+                let translatedString = try await translator.translate(localizableString.sourceKey, to: targetLanguage, comment: localizableString.comment)
                 localizableString.setTranslation(translatedString)
                 logTranslationResult(to: targetLanguage, result: translatedString.truncatedRemovingNewlines(to: 64), isSource: isSource)
             } catch {
