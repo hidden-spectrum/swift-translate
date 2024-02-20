@@ -25,11 +25,21 @@ struct OpenAITranslator {
     // MARK: Helpers
     
     private func completionQuery(for translatableText: String, targetLanguage: Language, comment: String?) -> CompletionsQuery {
-        var prompt = "Translate the text after === from English to the language with ISO code \(targetLanguage.rawValue)"
+        var prompt =
+            """
+            Translate the text between the backticks (```) from English to the language with ISO code \(targetLanguage.rawValue).
+            DO NOT translate the prompt or any other text that does not fall within the backticks (```).
+            DO NOT include the backticks in your response.
+            """
         if let comment {
-            prompt += "\nTake into account the following context when translating: \(comment)\n"
+            prompt += "\nIMPORTANT: Take into account the following context when translating: \(comment)\n"
         }
-        prompt += "\n\n===\n" + translatableText
+        prompt += 
+            """
+            ```
+            \(translatableText)
+            ```
+            """
         
         return CompletionsQuery(
             model: model.rawValue,
