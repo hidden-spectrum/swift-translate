@@ -25,11 +25,11 @@ struct OpenAITranslator {
     // MARK: Helpers
     
     private func completionQuery(for translatableText: String, targetLanguage: Language, comment: String?) -> CompletionsQuery {
-        var prompt = "Translate the text between '===' from 'en' to '\(targetLanguage.rawValue)'"
+        var prompt = "Translate the text after === from English to the language with ISO code \(targetLanguage.rawValue)"
         if let comment {
-            prompt += "Take into account the following context when translating: \(comment)"
+            prompt += "\nTake into account the following context when translating: \(comment)\n"
         }
-        prompt += "===\n" + translatableText + "\n==="
+        prompt += "\n\n===\n" + translatableText
         
         return CompletionsQuery(
             model: model.rawValue,

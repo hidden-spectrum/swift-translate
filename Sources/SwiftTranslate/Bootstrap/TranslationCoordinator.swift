@@ -91,7 +91,7 @@ struct TranslationCoordinator {
             let isSource = catalog.sourceLanguage == localizableString.targetLanguage
             let targetLanguage = localizableString.targetLanguage
             
-            if localizableString.state == .translated {
+            if localizableString.state == .translated || isSource {
                 let result = isSource ? localizableString.sourceKey : "[Already translated]".dim
                 logTranslationResult(to: targetLanguage, result: result, isSource: isSource)
                 continue
