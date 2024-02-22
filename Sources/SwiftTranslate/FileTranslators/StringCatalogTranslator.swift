@@ -52,7 +52,8 @@ struct StringCatalogTranslator: FileTranslator {
     }
     
     private func translate(key: String, in catalog: StringCatalog) async throws {
-        print("\nTranslating key `\(key.truncatedRemovingNewlines(to: 64))`")
+        let newline = verbose ? "\n" : ""
+        print(newline + "Translating key `\(key.truncatedRemovingNewlines(to: 64))`")
         let localizableStrings = catalog.localizableStrings(for: key)
         
         for localizableString in localizableStrings {
