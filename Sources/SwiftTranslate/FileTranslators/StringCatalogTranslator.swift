@@ -60,8 +60,10 @@ struct StringCatalogTranslator: FileTranslator {
             let targetLanguage = localizableString.targetLanguage
             
             if localizableString.state == .translated || isSource {
-                let result = isSource ? localizableString.sourceKey : "[Already translated]".dim
-                logTranslationResult(to: targetLanguage, result: result, isSource: isSource)
+                if verbose {
+                    let result = isSource ? localizableString.sourceKey : "[Already translated]".dim
+                    logTranslationResult(to: targetLanguage, result: result, isSource: isSource)
+                }
                 continue
             }
             do {
