@@ -14,14 +14,16 @@ struct StringCatalogTranslator: FileTranslator {
     let skipConfirmations: Bool
     let targetLanguages: Set<Language>?
     let translator: Translator
+    let verbose: Bool
     
     // MARK: Lifecycle
     
-    init(with translator: Translator, targetLanguages: Set<Language>?, overwrite: Bool, skipConfirmations: Bool) {
+    init(with translator: Translator, targetLanguages: Set<Language>?, overwrite: Bool, skipConfirmations: Bool, verbose: Bool) {
         self.skipConfirmations = skipConfirmations
         self.overwrite = overwrite
         self.targetLanguages = targetLanguages
         self.translator = translator
+        self.verbose = verbose
     }
     
     func translate(fileAt fileUrl: URL) async throws {
@@ -65,7 +67,9 @@ struct StringCatalogTranslator: FileTranslator {
             do {
                 let translatedString = try await translator.translate(localizableString.sourceKey, to: targetLanguage, comment: localizableString.comment)
                 localizableString.setTranslation(translatedString)
-                logTranslationResult(to: targetLanguage, result: translatedString.truncatedRemovingNewlines(to: 64), isSource: isSource)
+                if verbose {
+                    logTranslationResult(to: targetLanguage, result: translatedString.truncatedRemovingNewlines(to: 64), isSource: isSource)
+                }
             } catch {
                 logTranslationResult(to: targetLanguage, result: "[Error: \(error.localizedDescription)]".red, isSource: isSource)
             }

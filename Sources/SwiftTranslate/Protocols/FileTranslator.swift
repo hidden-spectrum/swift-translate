@@ -11,6 +11,7 @@ protocol FileTranslator {
     var targetLanguages: Set<Language>? { get }
     var overwrite: Bool { get }
     var skipConfirmations: Bool { get }
+    var verbose: Bool { get }
     
     func translate(fileAt fileUrl: URL) async throws
 }
