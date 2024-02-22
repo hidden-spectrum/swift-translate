@@ -12,39 +12,40 @@ struct SwiftTranslatePlugin: CommandPlugin {
     func performCommand(context: PluginContext, arguments: [String]) async throws {
         let swiftTranslate = try context.tool(named: "swift-translate")
         let swiftTranslateUrl = URL(fileURLWithPath: swiftTranslate.path.string)
+        let targets = context.package.targets
         
-        var argExtractor = ArgumentExtractor(arguments)
-        let targetNames = argExtractor.extractOption(named: "target")
-        let targets = targetNames.isEmpty
-            ? context.package.targets
-            : try context.package.targets(named: targetNames)
-        
-        // Iterate over the targets we've been asked to format.
         for target in targets {
             guard let target = target.sourceModule else {
                 continue
             }
             let stringCatalogs = target.sourceFiles(withSuffix: "xcstrings")
-            
             if stringCatalogs.underestimatedCount == 0 {
                 print("No string catalogs found in target (\(target.name)), skipping")
                 continue
             }
             
-            for stringCatalog in stringCatalogs {
-                let swiftTranslateArgs = ["--skip-confirmation", "--catalog", stringCatalog.path.string]
-                let process = try Process.run(swiftTranslateUrl, arguments: swiftTranslateArgs)
-                process.waitUntilExit()
-                if process.terminationReason == .exit && process.terminationStatus == 0 {
-                    print("Translated string catalogs for \(target.name)")
-                } else {
-                    let problem = "\(process.terminationReason):\(process.terminationStatus)"
-                    Diagnostics.error("Translating catalog failed: \(problem)")
-                }
-            }
+            try _performCommand(
+                toolUrl: swiftTranslateUrl,
+                targetName: target.name,
+                catalogPaths: stringCatalogs.map { $0.path.string }
+            )
         }
         
         print("Done!")
+    }
+    
+    func _performCommand(toolUrl: URL, targetName: String, catalogPaths: [String]) throws {
+        for catalogPath in catalogPaths {
+            let swiftTranslateArgs = ["--skip-confirmation", "--catalog", catalogPath]
+            let process = try Process.run(toolUrl, arguments: swiftTranslateArgs)
+            process.waitUntilExit()
+            if process.terminationReason == .exit && process.terminationStatus == 0 {
+                print("Translated string catalogs for \(targetName)")
+            } else {
+                let problem = "\(process.terminationReason):\(process.terminationStatus)"
+                Diagnostics.error("Translating catalog failed: \(problem)")
+            }
+        }
     }
 }
 
@@ -53,7 +54,13 @@ import XcodeProjectPlugin
 
 extension SwiftTranslatePlugin: XcodeCommandPlugin {
     func performCommand(context: XcodePluginContext, arguments: [String]) throws {
-//        try SwiftTranslatePlugin().performCommand(context: context, arguments: arguments)
+        let swiftTranslate = try context.tool(named: "swift-translate")
+        let swiftTranslateUrl = URL(fileURLWithPath: swiftTranslate.path.string)
+        let catalogPaths = context.xcodeProject.filePaths
+            .map { $0.string }
+            .filter { $0.hasSuffix(".xcstrings") }
+        
+        try _performCommand(toolUrl: swiftTranslateUrl, targetName: context.xcodeProject.displayName, catalogPaths: catalogPaths)
     }
 }
 
