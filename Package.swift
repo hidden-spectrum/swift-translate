@@ -41,6 +41,7 @@ let package = Package(
                 ),
                 permissions: [
                     .writeToPackageDirectory(reason: "Translates string catalogs in your project"),
+                    .allowNetworkConnections(scope: .all(ports: []), reason: "Needs access to OpenAI servers")
                 ]
             ),
             dependencies: [

@@ -9,8 +9,10 @@ import PackagePlugin
 @main
 struct SwiftTranslatePlugin: CommandPlugin {
     
+    let fileManager = FileManager.default
+    
     func performCommand(context: PluginContext, arguments: [String]) async throws {
-        try preflightCheck(for: arguments)
+        let apiKey = try preflight(with: arguments)
         
         let swiftTranslate = try context.tool(named: "swift-translate")
         let swiftTranslateUrl = URL(fileURLWithPath: swiftTranslate.path.string)
@@ -20,31 +22,54 @@ struct SwiftTranslatePlugin: CommandPlugin {
             guard let target = target.sourceModule else {
                 continue
             }
-            let stringCatalogs = target.sourceFiles(withSuffix: "xcstrings")
-            if stringCatalogs.underestimatedCount == 0 {
+            let targetDirectoryPath =  target.directory.string
+            let targetDirectoryUrl: URL = .init(filePath: targetDirectoryPath)
+            guard let fileEnumerator = fileManager.enumerator(
+                at: targetDirectoryUrl,
+                includingPropertiesForKeys: nil,
+                options: .skipsHiddenFiles
+            ) else {
+                print("Could not get enumerator for path \(targetDirectoryPath)")
+                continue
+            }
+            
+            var stringCatalogs: [URL] = []
+            for case let fileURL as URL in fileEnumerator {
+                if fileURL.pathExtension == "xcstrings" {
+                    stringCatalogs.append(fileURL)
+                }
+            }
+            
+            if stringCatalogs.count == 0 {
                 print("No string catalogs found in target (\(target.name)), skipping")
                 continue
+            } else {
+                print("Found \(stringCatalogs.count) string catalogs in target (\(target.name))")
             }
             
             try _performCommand(
                 toolUrl: swiftTranslateUrl,
+                apiKey: apiKey,
                 targetName: target.name,
-                catalogPaths: stringCatalogs.map { $0.path.string }
+                catalogPaths: stringCatalogs.map { $0.path }
             )
         }
         
         print("Done!")
     }
     
-    private func preflightCheck(for arguments: [String]) throws {
-        guard arguments.contains("--api-key") else {
+    private func preflight(with arguments: [String]) throws -> String {
+        var argumentExtractor = ArgumentExtractor(arguments)
+        guard let apiKey = argumentExtractor.extractOption(named: "api-key").last else {
             throw SwiftTranslatePluginError.apiKeyMissing
         }
+        print("Translating string catalogs...")
+        return apiKey
     }
     
-    private func _performCommand(toolUrl: URL, targetName: String, catalogPaths: [String]) throws {
+    private func _performCommand(toolUrl: URL, apiKey: String, targetName: String, catalogPaths: [String]) throws {
         for catalogPath in catalogPaths {
-            let swiftTranslateArgs = ["--skip-confirmation", "--catalog", catalogPath]
+            let swiftTranslateArgs = ["--api-key", apiKey, "--skip-confirmation", "--catalog", catalogPath]
             let process = try Process.run(toolUrl, arguments: swiftTranslateArgs)
             process.waitUntilExit()
             if process.terminationReason == .exit && process.terminationStatus == 0 {
@@ -62,7 +87,7 @@ import XcodeProjectPlugin
 
 extension SwiftTranslatePlugin: XcodeCommandPlugin {
     func performCommand(context: XcodePluginContext, arguments: [String]) throws {
-        try preflightCheck(for: arguments)
+        let apiKey = try preflight(with: arguments)
         
         let swiftTranslate = try context.tool(named: "swift-translate")
         let swiftTranslateUrl = URL(fileURLWithPath: swiftTranslate.path.string)
@@ -70,7 +95,12 @@ extension SwiftTranslatePlugin: XcodeCommandPlugin {
             .map { $0.string }
             .filter { $0.hasSuffix(".xcstrings") }
         
-        try _performCommand(toolUrl: swiftTranslateUrl, targetName: context.xcodeProject.displayName, catalogPaths: catalogPaths)
+        try _performCommand(
+            toolUrl: swiftTranslateUrl,
+            apiKey: apiKey,
+            targetName: context.xcodeProject.displayName,
+            catalogPaths: catalogPaths
+        )
     }
 }
 
