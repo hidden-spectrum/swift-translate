@@ -12,12 +12,12 @@ let package = Package(
     products: [
         .plugin(
             name: "SwiftTranslate",
-            targets: ["SwiftTranslate"]
+            targets: ["SwiftTranslatePlugin"]
         ),
-//        .executable(
-//            name: "swift-translate",
-//            targets: ["SwiftTranslate"]
-//        ),
+        .executable(
+            name: "swift-translate",
+            targets: ["SwiftTranslateCLI"]
+        ),
         .library(
             name: "SwiftStringCatalog",
             targets: ["SwiftStringCatalog"]
@@ -33,7 +33,7 @@ let package = Package(
         // Main Plugin
         
         .plugin(
-            name: "SwiftTranslate",
+            name: "SwiftTranslatePlugin",
             capability: .command(
                 intent: .custom(
                     verb: "swift-translate",
@@ -44,14 +44,14 @@ let package = Package(
                 ]
             ),
             dependencies: [
-                .target(name: "swift-translate")
+                .target(name: "SwiftTranslateCLI")
             ]
         ),
         
         // Libraries
         
         .executableTarget(
-            name: "swift-translate",
+            name: "SwiftTranslateCLI",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "OpenAI", package: "OpenAI"),
