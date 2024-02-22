@@ -32,6 +32,12 @@ struct SwiftTranslate: AsyncParsableCommand {
     private var stringCatalogPath: String?
     
     @Option(
+        name: [.customLong("--skip-confirmation"), .customShort("y")],
+        help: "Skips confirmation for translating large string files"
+    )
+    private var skipConfirmation: Bool = false
+    
+    @Option(
         name: [.customLong("lang"), .short],
         help: "Target language"
     )
@@ -68,7 +74,12 @@ struct SwiftTranslate: AsyncParsableCommand {
             }
             mode = .text(text, targetLanguages)
         } else if let stringCatalogPath {
-            mode = .stringCatalog(URL(fileURLWithPath: stringCatalogPath), targetLanguages, overwrite: overwriteExistingCatalog)
+            mode = .stringCatalog(
+                URL(fileURLWithPath: stringCatalogPath), 
+                targetLanguages,
+                overwrite: overwriteExistingCatalog, 
+                skipConfirmation: skipConfirmation
+            )
         } else {
             throw ValidationError("No target language(s) provided".red)
         }

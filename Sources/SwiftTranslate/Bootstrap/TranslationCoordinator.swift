@@ -13,7 +13,7 @@ struct TranslationCoordinator {
     // MARK: Internal
     
     enum Mode {
-        case stringCatalog(URL, Set<Language>?, overwrite: Bool)
+        case stringCatalog(URL, Set<Language>?, overwrite: Bool, skipConfirmation: Bool)
         case text(String, Set<Language>)
     }
 
@@ -32,8 +32,8 @@ struct TranslationCoordinator {
     func translate() async throws {
         let startDate = Date()
         switch mode {
-        case .stringCatalog(let catalog, let targetLanguages, let overwrite):
-            try await translateStringCatalog(catalog, to: targetLanguages, overwrite: overwrite)
+        case .stringCatalog(let catalog, let targetLanguages, let overwrite, let skipConfirmation):
+            try await translateStringCatalog(catalog, to: targetLanguages, overwrite: overwrite, skipConfirmation: skipConfirmation)
         case .text(let string, let targetLanguages):
             try await translate(string, to: targetLanguages)
         }
@@ -48,9 +48,12 @@ struct TranslationCoordinator {
         }
     }
     
-    func translateStringCatalog(_ catalogUrl: URL, to targetLanguages: Set<Language>?, overwrite: Bool) async throws {
+    func translateStringCatalog(_ catalogUrl: URL, to targetLanguages: Set<Language>?, overwrite: Bool, skipConfirmation: Bool) async throws {
         let catalog = try loadStringCatalog(from: catalogUrl, configureWith: targetLanguages)
-        try verifyLargeTranslation(of: catalog.allKeys.count, to: catalog.targetLanguages.count)
+        
+        if !skipConfirmation {
+            verifyLargeTranslation(of: catalog.allKeys.count, to: catalog.targetLanguages.count)
+        }
         
         for key in catalog.allKeys {
             try await translate(key: key, in: catalog)
@@ -65,7 +68,7 @@ struct TranslationCoordinator {
     
     // MARK: Input
     
-    private func verifyLargeTranslation(of stringsCount: Int, to languageCount: Int) throws {
+    private func verifyLargeTranslation(of stringsCount: Int, to languageCount: Int) {
         guard stringsCount * languageCount > 200 else {
             return
         }

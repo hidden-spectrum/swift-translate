@@ -36,13 +36,14 @@ let package = Package(
             name: "SwiftTranslatePlugin",
             capability: .command(
                 intent: .custom(
-                    verb: "Swift Translate",
+                    verb: "swift-translate",
                     description: "Translates project String Catalogs using OpenAI's GPT 3.5 model"
-                ),
-                permissions: [
-                    .allowNetworkConnections(scope: .all(), reason: "Boop"),
-                    .writeToPackageDirectory(reason: "Boop"),
-                ]
+                )
+//                ),
+//                permissions: [
+////                    .allowNetworkConnections(scope: .all(), reason: "Boop"),
+////                    .writeToPackageDirectory(reason: "Boop"),
+//                ]
             ),
             dependencies: [
                 .target(name: "SwiftTranslate")
