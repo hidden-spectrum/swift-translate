@@ -10,6 +10,8 @@ import PackagePlugin
 struct SwiftTranslatePlugin: CommandPlugin {
     
     func performCommand(context: PluginContext, arguments: [String]) async throws {
+        try preflightCheck(for: arguments)
+        
         let swiftTranslate = try context.tool(named: "swift-translate")
         let swiftTranslateUrl = URL(fileURLWithPath: swiftTranslate.path.string)
         let targets = context.package.targets
@@ -34,7 +36,13 @@ struct SwiftTranslatePlugin: CommandPlugin {
         print("Done!")
     }
     
-    func _performCommand(toolUrl: URL, targetName: String, catalogPaths: [String]) throws {
+    private func preflightCheck(for arguments: [String]) throws {
+        guard arguments.contains("--api-key") else {
+            throw SwiftTranslatePluginError.apiKeyMissing
+        }
+    }
+    
+    private func _performCommand(toolUrl: URL, targetName: String, catalogPaths: [String]) throws {
         for catalogPath in catalogPaths {
             let swiftTranslateArgs = ["--skip-confirmation", "--catalog", catalogPath]
             let process = try Process.run(toolUrl, arguments: swiftTranslateArgs)
@@ -54,6 +62,8 @@ import XcodeProjectPlugin
 
 extension SwiftTranslatePlugin: XcodeCommandPlugin {
     func performCommand(context: XcodePluginContext, arguments: [String]) throws {
+        try preflightCheck(for: arguments)
+        
         let swiftTranslate = try context.tool(named: "swift-translate")
         let swiftTranslateUrl = URL(fileURLWithPath: swiftTranslate.path.string)
         let catalogPaths = context.xcodeProject.filePaths

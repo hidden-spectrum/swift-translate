@@ -12,7 +12,7 @@ let package = Package(
     products: [
         .plugin(
             name: "SwiftTranslate",
-            targets: ["SwiftTranslatePlugin"]
+            targets: ["SwiftTranslate"]
         ),
         .executable(
             name: "swift-translate",
@@ -33,7 +33,7 @@ let package = Package(
         // Main Plugin
         
         .plugin(
-            name: "SwiftTranslatePlugin",
+            name: "SwiftTranslate",
             capability: .command(
                 intent: .custom(
                     verb: "swift-translate",
