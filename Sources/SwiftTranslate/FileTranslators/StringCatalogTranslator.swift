@@ -61,7 +61,9 @@ struct StringCatalogTranslator: FileTranslator {
             
             if localizableString.state == .translated || isSource {
                 if verbose {
-                    let result = isSource ? localizableString.sourceKey : "[Already translated]"
+                    let result = isSource 
+                        ? localizableString.sourceKey.truncatedRemovingNewlines(to: 64)
+                        : "[Already translated]".dim
                     logTranslationResult(to: targetLanguage, result: result, isSource: isSource)
                 }
                 continue
@@ -94,7 +96,7 @@ struct StringCatalogTranslator: FileTranslator {
     
     private func logTranslationResult(to language: Language, result: String, isSource: Bool) {
         Log.structured(
-            level: isSource ? .info : .unimportant,
+            level: isSource ? .unimportant : .info,
             .init(width: 8, language.rawValue + ":"),
             .init(result)
         )

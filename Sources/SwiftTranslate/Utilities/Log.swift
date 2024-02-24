@@ -33,7 +33,7 @@ struct Log {
     }
     
     static func info(newline: Bool = false, _ message: String...) {
-        _log(newline, .error, message.joined())
+        _log(newline, .info, message.joined())
     }
     
     static func warning(newline: Bool = false, _ message: String...) {
@@ -71,7 +71,7 @@ struct Log {
     }
     
     static func timedResult(newline: Bool = false, level: Level = .info, startDate: Date, _ message: String...) {
-        let timeString = "(" + String(format: "%.3f", startDate.timeIntervalSinceNow * -1) + ")"
+        let timeString = " (" + String(format: "%.3f seconds", startDate.timeIntervalSinceNow * -1) + ")"
         _log(newline, level, message.joined() + timeString)
     }
     
@@ -93,16 +93,17 @@ struct Log {
     }
     
     static func structured(level: Level = .info, _ columns: Column...) {
-        let format = columns
-            .map {
-                if let width = $0.width {
-                    "%-\(width)s"
-                } else {
-                    "%@"
-                }
+        var formattedMessage = ""
+        for column in columns {
+            let message = column.message
+            if let width = column.width {
+                let padding = String(repeating: " ", count: max(0, width - message.count))
+                formattedMessage += message + padding
+            } else {
+                formattedMessage += message
             }
-            .joined(separator: " ")
-        let message = String(format: format, columns.map { ($0.message as NSString).utf8String! })
-        _log(false, level, message)
+            formattedMessage += " " // add space between columns
+        }
+        _log(false, level, formattedMessage.trimmingCharacters(in: .whitespaces))
     }
 }
