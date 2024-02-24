@@ -45,7 +45,7 @@ struct OpenAITranslator {
             model: model.rawValue,
             prompt: prompt,
             temperature: 0.7,
-            maxTokens: 1024,
+            maxTokens: 2048,
             frequencyPenalty: 0,
             presencePenalty: 0
         )
