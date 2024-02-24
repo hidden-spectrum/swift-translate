@@ -18,13 +18,13 @@ struct TranslationCoordinator {
     }
 
     let mode: Mode
-    let translator: Translator
+    let translator: TranslationService
     let skipConfirmation: Bool
     let verbose: Bool
 
     // MARK: Lifecycle
-
-    init(mode: Mode, translator: Translator, skipConfirmation: Bool, verbose: Bool) {
+    
+    init(mode: Mode, translator: TranslationService, skipConfirmation: Bool, verbose: Bool) {
         self.mode = mode
         self.translator = translator
         self.skipConfirmation = skipConfirmation
@@ -41,16 +41,19 @@ struct TranslationCoordinator {
         case .text(let string, let targetLanguages):
             try await translate(string, to: targetLanguages)
         }
-        print("\n✅ Done (\(startDate.timeIntervalSinceNow * -1) seconds)".green, "\n")
+        Log.success(newline: true, startDate: startDate, "Done")
     }
     
     // MARK: Translate Text
     
     private func translate(_ string: String, to targetLanguages: Set<Language>) async throws {
-        print("\nTranslating `\(string)`:")
+        Log.info(newline: true, "Translating `", string, "`:")
         for language in targetLanguages {
             let translation = try await translator.translate(string, to: language, comment: nil)
-            logTranslationResult(to: language, result: translation, isSource: false)
+            Log.structured(
+                .init(width: 8, language.rawValue + ":"),
+                .init(translation)
+            )
         }
     }
     
@@ -69,13 +72,5 @@ struct TranslationCoordinator {
         for file in translatableFiles {
             try await fileTranslator.translate(fileAt: file)
         }
-    }
-    
-    // MARK: Utilities
-    
-    private func logTranslationResult(to language: Language, result: String, isSource: Bool) {
-        let languageCode = (language.rawValue + ":" as NSString).utf8String!
-        let logString = String(format: "- %-8s %@", languageCode, result)
-        print(isSource ? logString.dim : logString)
     }
 }

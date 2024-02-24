@@ -7,7 +7,7 @@ import SwiftStringCatalog
 
 
 protocol FileTranslator {
-    var translator: Translator { get }
+    var service: TranslationService { get }
     var targetLanguages: Set<Language>? { get }
     var overwrite: Bool { get }
     var skipConfirmations: Bool { get }

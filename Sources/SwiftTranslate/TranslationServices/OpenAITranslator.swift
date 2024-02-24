@@ -52,7 +52,7 @@ struct OpenAITranslator {
     }
 }
 
-extension OpenAITranslator: Translator {
+extension OpenAITranslator: TranslationService {
     
     // MARK: Translate
     

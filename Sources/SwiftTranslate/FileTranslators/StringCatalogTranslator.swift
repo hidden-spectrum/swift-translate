@@ -13,16 +13,16 @@ struct StringCatalogTranslator: FileTranslator {
     let overwrite: Bool
     let skipConfirmations: Bool
     let targetLanguages: Set<Language>?
-    let translator: Translator
+    let service: TranslationService
     let verbose: Bool
     
     // MARK: Lifecycle
     
-    init(with translator: Translator, targetLanguages: Set<Language>?, overwrite: Bool, skipConfirmations: Bool, verbose: Bool) {
+    init(with translator: TranslationService, targetLanguages: Set<Language>?, overwrite: Bool, skipConfirmations: Bool, verbose: Bool) {
         self.skipConfirmations = skipConfirmations
         self.overwrite = overwrite
         self.targetLanguages = targetLanguages
-        self.translator = translator
+        self.service = translator
         self.verbose = verbose
     }
     
@@ -45,15 +45,14 @@ struct StringCatalogTranslator: FileTranslator {
     }
     
     private func loadStringCatalog(from url: URL) throws -> StringCatalog {
-        print("\nLoading catalog \(url.lastPathComponent) into memory...")
+        Log.info(newline: true, "Loading catalog \(url.lastPathComponent) into memory...")
         let catalog = try StringCatalog(url: url, configureWith: targetLanguages)
-        print("✅ Done".green, "(Found \(catalog.allKeys.count) keys targeting \(catalog.targetLanguages.count) languages for a total of \(catalog.localizableStringsCount) localizable strings)")
+        Log.info("Done (Found \(catalog.allKeys.count) keys targeting \(catalog.targetLanguages.count) languages for a total of \(catalog.localizableStringsCount) localizable strings)")
         return catalog
     }
     
     private func translate(key: String, in catalog: StringCatalog) async throws {
-        let newline = verbose ? "\n" : ""
-        print(newline + "Translating key `\(key.truncatedRemovingNewlines(to: 64))`")
+        Log.info(newline: verbose, "Translating key `\(key.truncatedRemovingNewlines(to: 64))`")        
         let localizableStrings = catalog.localizableStrings(for: key)
         
         for localizableString in localizableStrings {
@@ -62,13 +61,13 @@ struct StringCatalogTranslator: FileTranslator {
             
             if localizableString.state == .translated || isSource {
                 if verbose {
-                    let result = isSource ? localizableString.sourceKey : "[Already translated]".dim
+                    let result = isSource ? localizableString.sourceKey : "[Already translated]"
                     logTranslationResult(to: targetLanguage, result: result, isSource: isSource)
                 }
                 continue
             }
             do {
-                let translatedString = try await translator.translate(localizableString.sourceKey, to: targetLanguage, comment: localizableString.comment)
+                let translatedString = try await service.translate(localizableString.sourceKey, to: targetLanguage, comment: localizableString.comment)
                 localizableString.setTranslation(translatedString)
                 if verbose {
                     logTranslationResult(to: targetLanguage, result: translatedString.truncatedRemovingNewlines(to: 64), isSource: isSource)
@@ -94,8 +93,10 @@ struct StringCatalogTranslator: FileTranslator {
     }
     
     private func logTranslationResult(to language: Language, result: String, isSource: Bool) {
-        let languageCode = (language.rawValue + ":" as NSString).utf8String!
-        let logString = String(format: "- %-8s %@", languageCode, result)
-        print(isSource ? logString.dim : logString)
+        Log.structured(
+            level: isSource ? .info : .unimportant,
+            .init(width: 8, language.rawValue + ":"),
+            .init(result)
+        )
     }
 }

@@ -29,8 +29,7 @@ struct SwiftTranslatePlugin: CommandPlugin {
                 directoryPath: target.directory.string
             )
         }
-        
-        print("Done!")
+        Log.success("Done!")
     }
     
     private func preflight(with arguments: [String]) throws -> String {
