@@ -142,7 +142,7 @@ public final class StringCatalog {
             strings: entries
         )
         let encoder = JSONEncoder()
-        encoder.outputFormatting = .prettyPrinted
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         let data = try encoder.encode(catalog)
         
         let fileManager = FileManager.default
