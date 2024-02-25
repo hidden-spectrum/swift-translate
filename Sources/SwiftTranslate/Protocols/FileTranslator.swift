@@ -13,5 +13,5 @@ protocol FileTranslator {
     var skipConfirmations: Bool { get }
     var verbose: Bool { get }
     
-    func translate(fileAt fileUrl: URL) async throws
+    func translate(fileAt fileUrl: URL) async throws -> Int
 }

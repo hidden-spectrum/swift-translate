@@ -26,11 +26,15 @@ struct StringCatalogTranslator: FileTranslator {
         self.verbose = verbose
     }
     
-    func translate(fileAt fileUrl: URL) async throws {
+    func translate(fileAt fileUrl: URL) async throws -> Int {
         let catalog = try loadStringCatalog(from: fileUrl)
         
         if !skipConfirmations {
             verifyLargeTranslation(of: catalog.allKeys.count, to: catalog.targetLanguages.count)
+        }
+        
+        if catalog.allKeys.isEmpty {
+            return 0
         }
         
         for key in catalog.allKeys {
@@ -42,6 +46,7 @@ struct StringCatalogTranslator: FileTranslator {
             targetUrl = targetUrl.deletingPathExtension().appendingPathExtension("loc.xcstrings")
         }
         try catalog.write(to: targetUrl)
+        return catalog.allKeys.count
     }
     
     private func loadStringCatalog(from url: URL) throws -> StringCatalog {

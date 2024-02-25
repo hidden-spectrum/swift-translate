@@ -35,16 +35,16 @@ struct TranslationCoordinator {
     
     func translate() async throws {
         let startDate = Date()
-        var fileCount: Int = 1
+        var translatedKeysCount: Int = 1
         
         switch mode {
         case .fileOrDirectory(let fileOrDirectoryUrl, let targetLanguages, let overwrite):
-            fileCount = try await translateFiles(at: fileOrDirectoryUrl, to: targetLanguages, overwrite: overwrite)
+            translatedKeysCount = try await translateFiles(at: fileOrDirectoryUrl, to: targetLanguages, overwrite: overwrite)
         case .text(let string, let targetLanguages):
             try await translate(string, to: targetLanguages)
         }
-        if fileCount > 0 {
-            Log.success(newline: .after, startDate: startDate, "Done")
+        if translatedKeysCount > 0 {
+            Log.success(newline: .after, startDate: startDate, "Translated \(translatedKeysCount) key(s)")
         }
     }
     
@@ -78,10 +78,12 @@ struct TranslationCoordinator {
             skipConfirmations: skipConfirmation,
             verbose: verbose
         )
+        
+        var translatedKeys = 0
         for file in translatableFiles {
-            try await fileTranslator.translate(fileAt: file)
+            translatedKeys += try await fileTranslator.translate(fileAt: file)
         }
         
-        return translatableFiles.count
+        return translatedKeys
     }
 }
