@@ -19,7 +19,7 @@ struct _CatalogEntry: Codable {
     
     init(
         comment: String? = nil,
-        extractionState: ExtractionState? = .manual,
+        extractionState: ExtractionState?,
         localizations: CodableKeyDictionary<Language, _Localization>
     ) {
         self.comment = comment
@@ -29,9 +29,9 @@ struct _CatalogEntry: Codable {
 }
 
 extension _CatalogEntry {
-    init(from localizableStrings: [LocalizableString]) throws {
+    init(from stringsGroup: LocalizableStringGroup) throws {
         var localizations = CodableKeyDictionary<Language, _Localization>()
-        for localizableString in localizableStrings {
+        for localizableString in stringsGroup.strings {
             guard let translatedValue = localizableString.translatedValue else {
                 continue
             }
@@ -53,6 +53,6 @@ extension _CatalogEntry {
                 localization.addVariations(from: localizableString)
             }
         }
-        self.init(extractionState: .extractedWithValue, localizations: localizations)
+        self.init(extractionState: stringsGroup.extractionState, localizations: localizations)
     }
 }

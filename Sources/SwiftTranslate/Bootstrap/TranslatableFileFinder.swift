@@ -31,7 +31,8 @@ struct TranslatableFileFinder {
     func findTranslatableFiles() throws -> [URL] {
         var isDirectory: ObjCBool = false
         guard fileManager.fileExists(atPath: fileOrDirectoryURL.path, isDirectory: &isDirectory) else {
-            throw SwiftTranslateError.noTranslatableFilesFoundAt(fileOrDirectoryURL)
+            Log.warning("No translatable files found at path \(fileOrDirectoryURL.path)")
+            return []
         }
         
         if isDirectory.boolValue {
@@ -39,7 +40,8 @@ struct TranslatableFileFinder {
         } else if isTranslatable(fileOrDirectoryURL) {
             return [fileOrDirectoryURL]
         } else {
-            throw SwiftTranslateError.noTranslatableFilesFoundAt(fileOrDirectoryURL)
+            Log.warning("No translatable files found at path \(fileOrDirectoryURL.path)")
+            return []
         }
     }
     
@@ -59,7 +61,8 @@ struct TranslatableFileFinder {
             }
         }
         if translatableUrls.isEmpty {
-            throw SwiftTranslateError.noTranslatableFilesFoundAt(fileOrDirectoryURL)
+            Log.warning("No translatable files found at path \(fileOrDirectoryURL.path)")
+            return []
         }
         return translatableUrls
     }

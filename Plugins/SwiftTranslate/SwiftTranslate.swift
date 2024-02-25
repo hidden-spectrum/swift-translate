@@ -41,7 +41,7 @@ struct SwiftTranslatePlugin: CommandPlugin {
     }
     
     private func _performCommand(toolUrl: URL, apiKey: String, targetName: String, directoryPath: String) throws {
-        let swiftTranslateArgs = ["--api-key", apiKey, "--skip-confirmation", directoryPath]
+        let swiftTranslateArgs = ["--api-key", apiKey, "--skip-confirmation", "--overwrite", directoryPath]
         let process = try Process.run(toolUrl, arguments: swiftTranslateArgs)
         process.waitUntilExit()
         if process.terminationReason == .exit && process.terminationStatus == 0 {

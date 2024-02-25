@@ -25,7 +25,7 @@ public final class StringCatalog {
     
     // MARK: Public private(set)
     
-    public private(set) var localizableStrings: [String: [LocalizableString]] = [:]
+    public private(set) var localizableStringGroups: [String: LocalizableStringGroup] = [:]
     public private(set) var localizableStringsCount: Int = 0
     
     public private(set) var targetLanguages: Set<Language> = []
@@ -81,7 +81,7 @@ public final class StringCatalog {
             
             let localizableStrings = try localizableStrings(in: entry, for: key, referencing: sourceLanguageStrings)
             localizableStringsCount += localizableStrings.count
-            self.localizableStrings[key] = localizableStrings
+            self.localizableStringGroups[key] = LocalizableStringGroup(extractionState: entry.extractionState, strings: localizableStrings)
         }
     }
     
@@ -130,7 +130,7 @@ public final class StringCatalog {
     // MARK: - Accessors
     
     public func localizableStrings(for key: String) -> [LocalizableString] {
-        return localizableStrings[key] ?? []
+        return localizableStringGroups[key]?.strings ?? []
     }
     
     // MARK: - Create / Save Catalog
@@ -152,10 +152,10 @@ public final class StringCatalog {
         fileManager.createFile(atPath: url.path, contents: data)
     }
     
-    func buildCatalogEntries() throws -> [StringLiteralType: _CatalogEntry] {
-        var entries = [StringLiteralType: _CatalogEntry]()
-        for (key, localizableStrings) in localizableStrings {
-            entries[key] = try _CatalogEntry(from: localizableStrings)
+    func buildCatalogEntries() throws -> [String: _CatalogEntry] {
+        var entries = [String: _CatalogEntry]()
+        for (key, stringGroup) in localizableStringGroups {
+            entries[key] = try _CatalogEntry(from: stringGroup)
         }
         return entries
     }
