@@ -45,14 +45,14 @@ struct StringCatalogTranslator: FileTranslator {
     }
     
     private func loadStringCatalog(from url: URL) throws -> StringCatalog {
-        Log.info(newline: true, "Loading catalog \(url.lastPathComponent) into memory...")
+        Log.info(newline: .before, "Loading catalog \(url.path) into memory...")
         let catalog = try StringCatalog(url: url, configureWith: targetLanguages)
-        Log.info("Done (Found \(catalog.allKeys.count) keys targeting \(catalog.targetLanguages.count) languages for a total of \(catalog.localizableStringsCount) localizable strings)")
+        Log.info("Found \(catalog.allKeys.count) keys targeting \(catalog.targetLanguages.count) languages for a total of \(catalog.localizableStringsCount) localizable strings")
         return catalog
     }
     
     private func translate(key: String, in catalog: StringCatalog) async throws {
-        Log.info(newline: verbose, "Translating key `\(key.truncatedRemovingNewlines(to: 64))`")        
+        Log.info(newline: verbose ? .before : .none, "Translating key `\(key.truncatedRemovingNewlines(to: 64))`")
         let localizableStrings = catalog.localizableStrings(for: key)
         
         for localizableString in localizableStrings {

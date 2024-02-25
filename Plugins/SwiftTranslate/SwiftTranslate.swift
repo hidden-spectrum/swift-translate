@@ -36,17 +36,16 @@ struct SwiftTranslatePlugin: CommandPlugin {
         guard let apiKey = argumentExtractor.extractOption(named: "api-key").last else {
             throw SwiftTranslatePluginError.apiKeyMissing
         }
-        print("Translating string catalogs...")
         return apiKey
     }
     
     private func _performCommand(toolUrl: URL, apiKey: String, targetName: String, directoryPath: String) throws {
         let swiftTranslateArgs = ["--api-key", apiKey, "--skip-confirmation", "--overwrite", directoryPath]
+        
         let process = try Process.run(toolUrl, arguments: swiftTranslateArgs)
         process.waitUntilExit()
-        if process.terminationReason == .exit && process.terminationStatus == 0 {
-            print("Translated string catalogs for \(targetName)")
-        } else {
+        
+        if process.terminationReason != .exit || process.terminationStatus != 0  {
             let problem = "\(process.terminationReason):\(process.terminationStatus)"
             Diagnostics.error("Translating catalog failed: \(problem)")
         }

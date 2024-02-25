@@ -35,19 +35,23 @@ struct TranslationCoordinator {
     
     func translate() async throws {
         let startDate = Date()
+        var fileCount: Int = 1
+        
         switch mode {
         case .fileOrDirectory(let fileOrDirectoryUrl, let targetLanguages, let overwrite):
-            try await translateFiles(at: fileOrDirectoryUrl, to: targetLanguages, overwrite: overwrite)
+            fileCount = try await translateFiles(at: fileOrDirectoryUrl, to: targetLanguages, overwrite: overwrite)
         case .text(let string, let targetLanguages):
             try await translate(string, to: targetLanguages)
         }
-        Log.success(newline: true, startDate: startDate, "Done")
+        if fileCount > 0 {
+            Log.success(newline: .after, startDate: startDate, "Done")
+        }
     }
     
     // MARK: Translate Text
     
     private func translate(_ string: String, to targetLanguages: Set<Language>) async throws {
-        Log.info(newline: true, "Translating `", string, "`:")
+        Log.info(newline: .before, "Translating `", string, "`:")
         for language in targetLanguages {
             let translation = try await translator.translate(string, to: language, comment: nil)
             Log.structured(
@@ -59,9 +63,14 @@ struct TranslationCoordinator {
     
     // MARK: Translate Files
     
-    private func translateFiles(at url: URL, to targetLanguages: Set<Language>?, overwrite: Bool) async throws {
+    private func translateFiles(at url: URL, to targetLanguages: Set<Language>?, overwrite: Bool) async throws -> Int {
         let fileFinder = TranslatableFileFinder(fileOrDirectoryURL: url, type: .stringCatalog)
         let translatableFiles = try fileFinder.findTranslatableFiles()
+        
+        if translatableFiles.isEmpty {
+            return 0
+        }
+        
         let fileTranslator = StringCatalogTranslator(
             with: translator,
             targetLanguages: targetLanguages,
@@ -72,5 +81,7 @@ struct TranslationCoordinator {
         for file in translatableFiles {
             try await fileTranslator.translate(fileAt: file)
         }
+        
+        return translatableFiles.count
     }
 }

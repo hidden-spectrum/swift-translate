@@ -26,25 +26,45 @@ struct Log {
         }
     }
     
+    enum Newline {
+        case none
+        case before
+        case after
+        case both
+        
+        var prefix: String {
+            switch self {
+            case .none, .after: return ""
+            case .before, .both: return "\n"
+            }
+        }
+        var suffix: String {
+            switch self {
+            case .none, .before: return ""
+            case .after, .both: return "\n"
+            }
+        }
+    }
+    
     // MARK: Basic
     
-    static func unimportant(newline: Bool = false, _ message: String...) {
+    static func unimportant(newline: Newline = .none, _ message: String...) {
         _log(newline, .unimportant, message.joined())
     }
     
-    static func info(newline: Bool = false, _ message: String...) {
+    static func info(newline: Newline = .none, _ message: String...) {
         _log(newline, .info, message.joined())
     }
     
-    static func warning(newline: Bool = false, _ message: String...) {
+    static func warning(newline: Newline = .none, _ message: String...) {
         _log(newline, .warning, message.joined())
     }
     
-    static func error(newline: Bool = false, _ message: String...) {
+    static func error(newline: Newline = .none, _ message: String...) {
         _log(newline, .error, message.joined())
     }
     
-    static func success(newline: Bool = false, startDate: Date? = nil, _ message: String...) {
+    static func success(newline: Newline = .none, startDate: Date? = nil, _ message: String...) {
         if let startDate {
             timedResult(newline: newline, level: .success, startDate: startDate, message.joined())
         } else {
@@ -52,25 +72,24 @@ struct Log {
         }
     }
     
-    private static func _log(_ newline: Bool, _ level: Level, _ message: String) {
-        let newline = newline ? "\n" : ""
-        print(newline + level.format(message))
+    private static func _log(_ newline: Newline = .none, _ level: Level, _ message: String) {
+        print(newline.prefix + level.format(message) + newline.suffix)
     }
     
     // MARK: Error
     
-    static func error(newline: Bool = false, error: LocalizedError) {
+    static func error(newline: Newline = .none, error: LocalizedError) {
         Log.error(newline: newline, error.localizedDescription)
     }
     
     // MARK: Timed
     
-    static func timed(newline: Bool = false, level: Level = .info, _ message: String...) -> Date {
+    static func timed(newline: Newline = .none, level: Level = .info, _ message: String...) -> Date {
         _log(newline, level, message.joined())
         return Date()
     }
     
-    static func timedResult(newline: Bool = false, level: Level = .info, startDate: Date, _ message: String...) {
+    static func timedResult(newline: Newline = .none, level: Level = .info, startDate: Date, _ message: String...) {
         let timeString = " (" + String(format: "%.3f seconds", startDate.timeIntervalSinceNow * -1) + ")"
         _log(newline, level, message.joined() + timeString)
     }
@@ -104,6 +123,6 @@ struct Log {
             }
             formattedMessage += " " // add space between columns
         }
-        _log(false, level, formattedMessage.trimmingCharacters(in: .whitespaces))
+        _log(.none, level, formattedMessage.trimmingCharacters(in: .whitespaces))
     }
 }
