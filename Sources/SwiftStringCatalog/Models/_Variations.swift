@@ -26,7 +26,10 @@ struct _Variations: Codable {
 }
 
 extension _Variations: LocalizableStringConstructor {
-    func constructLocalizableStrings(context: LocalizableStringConstructionContext, targetLanguage: Language) throws -> [LocalizableString] {
+    func constructLocalizableStrings(
+        context: LocalizableStringConstructionContext,
+        targetLanguage: Language
+    ) throws -> [LocalizableString] {
         if let deviceVariations = device {
             return try deviceVariations.map { deviceCategory, variation in
                 let kind = LocalizableString.Kind.variation(.device(deviceCategory))
@@ -60,11 +63,17 @@ extension _Variations: LocalizableStringConstructor {
     }
     
     mutating func addVariation(from localizedString: LocalizableString) {
-        guard case .variation(let variation) = localizedString.kind else {
+        var unpackedVariation: LocalizableString.Variation
+        
+        if case .variation(let variation) = localizedString.kind {
+            unpackedVariation = variation
+        } else if case .replacement(let replacement) = localizedString.kind {
+            unpackedVariation = replacement.variation
+        } else {
             return
         }
         
-        switch variation {
+        switch unpackedVariation {
         case .device(let category):
             if device == nil {
                 device = CodableKeyDictionary()

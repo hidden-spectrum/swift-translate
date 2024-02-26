@@ -9,13 +9,13 @@ public final class LocalizableString {
     
     // MARK: Public
     
-    public let kind: Kind
     public let sourceKey: String
     public let targetLanguage: Language
     
     // MARK: Public private(set)
     
     public private(set) var comment: String?
+    public private(set) var kind: Kind
     public private(set) var translatedValue: String?
     public private(set) var state: TranslationState
     
@@ -36,14 +36,27 @@ public final class LocalizableString {
         self.kind = kind
     }
     
-    // MARK: Mutation
+    // MARK: Translation
     
     public func setTranslation(_ translation: String) {
         translatedValue = translation
         state = .translated
     }
     
-    // MARK: Helpers
+    // MARK: Utility
+    
+    func convertKindToSubstitution(argNum: Int, formatSpecifier: String) {
+        guard case .variation(let variationKind) = kind else {
+            return
+        }
+        kind = .replacement(
+            Replacement(
+                argNumber: argNum,
+                formatSpecifier: formatSpecifier,
+                variation: variationKind
+            )
+        )
+    }
     
     func emptyCopy(for targetLanguage: Language) -> LocalizableString {
         return LocalizableString(
@@ -59,13 +72,19 @@ public final class LocalizableString {
 public extension LocalizableString {
     enum Kind: Equatable {
         case standalone
-        case replacement
-        case variation(VariationKind)
+        case replacement(Replacement)
+        case variation(Variation)
     }
     
-    enum VariationKind: Equatable {
+    enum Variation: Equatable {
         case device(DeviceCategory)
         case plural(PluralQualifier)
+    }
+    
+    struct Replacement: Equatable {
+        let argNumber: Int
+        let formatSpecifier: String
+        let variation: Variation
     }
 }
 

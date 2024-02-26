@@ -37,7 +37,7 @@ extension _CatalogEntry {
             }
             
             let language = localizableString.targetLanguage
-            var localization = _Localization()
+            var localization =  localizations[language] ?? _Localization()
             
             defer {
                 localizations[language] = localization
@@ -48,7 +48,7 @@ extension _CatalogEntry {
                 localization.stringUnit = _StringUnit(state: localizableString.state, value: translatedValue)
                 continue
             case .replacement:
-                throw StringCatalog.Error.substitionsNotYetSupported
+                localization.addSubstitution(from: localizableString)
             case .variation:
                 localization.addVariations(from: localizableString)
             }

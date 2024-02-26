@@ -50,7 +50,7 @@ public final class StringCatalog {
             }
         }()
         
-        try loadAllLocalizableStrings(from: catalog)
+        try loadAllLocalizableStrings(from: catalog)        
     }
     
     public init(sourceLanguage: Language, targetLanguages: Set<Language> = []) {

@@ -17,7 +17,7 @@ struct _Localization: Codable {
 extension _Localization: LocalizableStringConstructor {
     func constructLocalizableStrings(context: LocalizableStringConstructionContext, targetLanguage: Language) throws -> [LocalizableString] {
         if let stringUnit {
-            return [
+            var localizableStrings = [
                 LocalizableString(
                     kind: .standalone,
                     sourceKey: try context.embeddedSourceKey(matching: .standalone, or: stringUnit.value),
@@ -26,8 +26,12 @@ extension _Localization: LocalizableStringConstructor {
                     state: stringUnit.state
                 )
             ]
-        } else if substitutions != nil {
-            throw StringCatalog.Error.substitionsNotYetSupported
+            if let substitutions {
+                localizableStrings += try substitutions.flatMap { key, substitution in
+                    try substitution.constructLocalizableStrings(context: context, targetLanguage: targetLanguage)
+                }
+            }
+            return localizableStrings
         } else if let variations {
             return try variations.constructLocalizableStrings(context: context, targetLanguage: targetLanguage)
         } else {
@@ -42,6 +46,23 @@ extension _Localization {
             variations = _Variations()
         }
         variations?.addVariation(from: localizedString)
+    }
+    
+    mutating func addSubstitution(from localizedString: LocalizableString) {
+        guard case .replacement(let replacement) = localizedString.kind else {
+            return
+        }
+        if substitutions == nil {
+            substitutions = [:]
+        }
+        var substitution = substitutions?[localizedString.sourceKey]
+            ?? _Substitution(
+                argNum: replacement.argNumber,
+                formatSpecifier: replacement.formatSpecifier,
+                variations: _Variations()
+            )
+        substitution.variations?.addVariation(from: localizedString)
+        substitutions?["arg\(replacement.argNumber)"] = substitution
     }
 }
 
