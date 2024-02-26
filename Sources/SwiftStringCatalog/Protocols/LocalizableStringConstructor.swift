@@ -6,5 +6,5 @@ import Foundation
 
 
 protocol LocalizableStringConstructor {
-    func constructLocalizableStrings(context: LocalizableStringConstructionContext, targetLanguage: Language) throws -> [LocalizableString]
+    func constructLocalizableStrings(with context: LocalizableStringConstructionContext) throws -> [LocalizableString]
 }

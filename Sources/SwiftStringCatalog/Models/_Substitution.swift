@@ -13,13 +13,10 @@ struct _Substitution: Codable {
 
 
 extension _Substitution: LocalizableStringConstructor {
-    func constructLocalizableStrings(context: LocalizableStringConstructionContext, targetLanguage: Language) throws -> [LocalizableString] {
+    func constructLocalizableStrings(with context: LocalizableStringConstructionContext) throws -> [LocalizableString] {
         if let variations {
-            let localizableStrings = try variations.constructLocalizableStrings(context: context, targetLanguage: targetLanguage)
-            localizableStrings.forEach {
-                $0.convertKindToSubstitution(argNum: argNum, formatSpecifier: formatSpecifier)
-            }
-            return localizableStrings
+            context.replacement = .init(argNumber: argNum, formatSpecifier: formatSpecifier, variation: nil)
+            return try variations.constructLocalizableStrings(with: context)
         } else {
             return []
         }

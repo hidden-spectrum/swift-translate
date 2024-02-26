@@ -88,8 +88,7 @@ public final class StringCatalog {
     private func sourceLanguageStrings(in entry: _CatalogEntry, for key: String) throws -> [LocalizableString] {
         if let localization = entry.localizations?[sourceLanguage] {
             return try localization.constructLocalizableStrings(
-                context: .isSource,
-                targetLanguage: sourceLanguage
+                with: .sourceLanguageContext(sourceLanguage: sourceLanguage)
             )
         } else {
             return [
@@ -111,11 +110,10 @@ public final class StringCatalog {
     ) throws -> [LocalizableString] {
         var localizableStrings = [LocalizableString]()
         
-        for language in targetLanguages {
+        for language in targetLanguages.filter({ $0 != sourceLanguage }) {
             if let localization = entry.localizations?[language] {
                 localizableStrings += try localization.constructLocalizableStrings(
-                    context: .needTranslationFromKeyIn(sourceLanguageStrings: sourceLanguageStrings),
-                    targetLanguage: language
+                    with: .targetLanguageContext(targetLanguage: language, sourceLanguageStrings: sourceLanguageStrings)
                 )
             } else {
                 localizableStrings += sourceLanguageStrings.map {

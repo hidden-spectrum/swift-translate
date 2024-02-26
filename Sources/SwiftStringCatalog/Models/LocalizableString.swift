@@ -84,7 +84,7 @@ public extension LocalizableString {
     struct Replacement: Equatable {
         let argNumber: Int
         let formatSpecifier: String
-        let variation: Variation
+        let variation: Variation?
     }
 }
 

@@ -26,33 +26,30 @@ struct _Variations: Codable {
 }
 
 extension _Variations: LocalizableStringConstructor {
-    func constructLocalizableStrings(
-        context: LocalizableStringConstructionContext,
-        targetLanguage: Language
-    ) throws -> [LocalizableString] {
+    func constructLocalizableStrings(with context: LocalizableStringConstructionContext) throws -> [LocalizableString] {
         if let deviceVariations = device {
             return try deviceVariations.map { deviceCategory, variation in
-                let kind = LocalizableString.Kind.variation(.device(deviceCategory))
+                let kind = context.constructKind(variation: .device(deviceCategory))
                 let stringUnit = variation.stringUnit
                 return LocalizableString(
                     kind: kind,
                     sourceKey: try context.embeddedSourceKey(matching: kind, or: stringUnit.value),
-                    targetLanguage: targetLanguage,
+                    targetLanguage: context.targetLanguage,
                     translatedValue: variation.stringUnit.value,
                     state: stringUnit.state
                 )
             }
         } else if let pluralVariations = plural {
             return pluralVariations.compactMap { qualifier, variation in
-                let kind = LocalizableString.Kind.variation(.plural(qualifier))
+                let kind = context.constructKind(variation: .plural(qualifier))
                 let stringUnit = variation.stringUnit
                 guard let sourceKey = try? context.embeddedSourceKey(matching: kind, or: stringUnit.value) else {
                     return nil
                 }
                 return LocalizableString(
-                    kind: .variation(.plural(qualifier)),
+                    kind: kind,
                     sourceKey: sourceKey,
-                    targetLanguage: targetLanguage,
+                    targetLanguage: context.targetLanguage,
                     translatedValue: variation.stringUnit.value,
                     state: variation.stringUnit.state
                 )
@@ -67,8 +64,8 @@ extension _Variations: LocalizableStringConstructor {
         
         if case .variation(let variation) = localizedString.kind {
             unpackedVariation = variation
-        } else if case .replacement(let replacement) = localizedString.kind {
-            unpackedVariation = replacement.variation
+        } else if case .replacement(let replacement) = localizedString.kind, let variation = replacement.variation {
+            unpackedVariation = variation
         } else {
             return
         }

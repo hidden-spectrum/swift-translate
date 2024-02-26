@@ -43,7 +43,7 @@ public extension Language {
 //            .dutch,
             .english,
 //            .finnish,
-            .french,
+//            .french,
             .german,
 //            .greek,
 //            .hebrew,

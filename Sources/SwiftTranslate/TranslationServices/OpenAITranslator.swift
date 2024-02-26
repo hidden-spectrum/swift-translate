@@ -30,6 +30,7 @@ struct OpenAITranslator {
             Translate the text between the backticks (```) from English to the language with ISO code \(targetLanguage.rawValue).
             DO NOT translate the prompt or any other text that does not fall within the backticks (```).
             DO NOT include the backticks in your response.
+            LEAVE in place "arg" placeholders (e.g. `%arg`, `@arg1`, etc.) and any other placeholders or format specifiers.
             """
         if let comment {
             prompt += "\nIMPORTANT: Take into account the following context when translating: \(comment)\n"
@@ -44,7 +45,7 @@ struct OpenAITranslator {
         return CompletionsQuery(
             model: model.rawValue,
             prompt: prompt,
-            temperature: 0.7,
+            temperature: 0.6,
             maxTokens: 2048,
             frequencyPenalty: 0,
             presencePenalty: 0
