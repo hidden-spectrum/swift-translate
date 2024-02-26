@@ -11,12 +11,12 @@ let package = Package(
     ],
     products: [
         .plugin(
-            name: "SwiftTranslatePlugin",
-            targets: ["SwiftTranslatePlugin"]
+            name: "SwiftTranslate",
+            targets: ["SwiftTranslate"]
         ),
         .executable(
             name: "swift-translate",
-            targets: ["SwiftTranslate"]
+            targets: ["swift-translate"]
         ),
         .library(
             name: "SwiftStringCatalog",
@@ -33,32 +33,33 @@ let package = Package(
         // Main Plugin
         
         .plugin(
-            name: "SwiftTranslatePlugin",
+            name: "SwiftTranslate",
             capability: .command(
                 intent: .custom(
-                    verb: "Swift Translate",
+                    verb: "swift-translate",
                     description: "Translates project String Catalogs using OpenAI's GPT 3.5 model"
                 ),
                 permissions: [
-                    .allowNetworkConnections(scope: .all(), reason: "Boop"),
-                    .writeToPackageDirectory(reason: "Boop"),
+                    .writeToPackageDirectory(reason: "Translates string catalogs in your project"),
+                    .allowNetworkConnections(scope: .all(ports: []), reason: "Needs access to OpenAI servers")
                 ]
             ),
             dependencies: [
-                .target(name: "SwiftTranslate")
+                .target(name: "swift-translate")
             ]
         ),
         
         // Libraries
         
         .executableTarget(
-            name: "SwiftTranslate",
+            name: "swift-translate",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "OpenAI", package: "OpenAI"),
                 .product(name: "Rainbow", package: "Rainbow"),
                 "SwiftStringCatalog"
-            ]
+            ],
+            path: "Sources/SwiftTranslate"
         ),
         
         .target(

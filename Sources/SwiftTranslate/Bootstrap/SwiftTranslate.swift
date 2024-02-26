@@ -19,17 +19,11 @@ struct SwiftTranslate: AsyncParsableCommand {
     )
     private var apiToken: String
     
-    @Option(
-        name: [.long, .short],
-        help: "Text to translate"
+    @Argument(
+        parsing: .remaining,
+        help: "File or directory containing string catalogs to translate"
     )
-    private var text: String?
-    
-    @Option(
-        name: [.customLong("catalog"), .customShort("c")],
-        help: "String catalog to translate"
-    )
-    private var stringCatalogPath: String?
+    private var fileOrDirectory: [String]
     
     @Option(
         name: [.customLong("lang"), .short],
@@ -38,16 +32,31 @@ struct SwiftTranslate: AsyncParsableCommand {
     private var language: Language?
     
     @Flag(
+        name: [.customLong("overwrite")],
+        help: "Overwrite string catalog files instead of creating a new file"
+    )
+    private var overwriteExistingCatalogs: Bool = false
+    
+    @Flag(
+        name: [.customLong("skip-confirmation"), .customShort("y")],
+        help: "Skips confirmation for translating large string files"
+    )
+    private var skipConfirmation: Bool = false
+    
+    @Option(
+        name: [.long, .short],
+        help: "Text to translate"
+    )
+    private var text: String?
+    
+    @Flag(
         name: [.customLong("all-languages")],
-        help: "Translate to all languages"
+        help: "Translate to all common languages (see CommonLanguage.swift)"
     )
     private var translateToAllLanguages: Bool = false
     
-    @Flag(
-        name: [.customLong("overwrite")],
-        help: "Overwrite the string catalog file instead of creating a new file"
-    )
-    private var overwriteExistingCatalog: Bool = false
+    @Flag(help: "Enables verbose log output")
+    private var verbose: Bool = false
     
     // MARK: Lifecycle
     
@@ -67,13 +76,22 @@ struct SwiftTranslate: AsyncParsableCommand {
                 throw ValidationError("Target language(s) is required for text translation")
             }
             mode = .text(text, targetLanguages)
-        } else if let stringCatalogPath {
-            mode = .stringCatalog(URL(fileURLWithPath: stringCatalogPath), targetLanguages, overwrite: overwriteExistingCatalog)
+        } else if let fileOrDirectory = fileOrDirectory.first {
+            mode = .fileOrDirectory(
+                URL(fileURLWithPath: fileOrDirectory),
+                targetLanguages,
+                overwrite: overwriteExistingCatalogs
+            )
         } else {
-            throw ValidationError("No target language(s) provided".red)
+            throw ValidationError("No text or string catalog file to translate provided")
         }
         
-        let coordinator = TranslationCoordinator(mode: mode, translator: translator)
+        let coordinator = TranslationCoordinator(
+            mode: mode,
+            translator: translator,
+            skipConfirmation: skipConfirmation,
+            verbose: verbose
+        )
         try await coordinator.translate()
     }
 }

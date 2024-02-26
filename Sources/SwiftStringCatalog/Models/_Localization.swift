@@ -15,21 +15,25 @@ struct _Localization: Codable {
 }
 
 extension _Localization: LocalizableStringConstructor {
-    func constructLocalizableStrings(context: LocalizableStringConstructionContext, targetLanguage: Language) throws -> [LocalizableString] {
+    func constructLocalizableStrings(with context: LocalizableStringConstructionContext) throws -> [LocalizableString] {
         if let stringUnit {
-            return [
+            var localizableStrings = [
                 LocalizableString(
                     kind: .standalone,
                     sourceKey: try context.embeddedSourceKey(matching: .standalone, or: stringUnit.value),
-                    targetLanguage: targetLanguage,
+                    targetLanguage: context.targetLanguage,
                     translatedValue: stringUnit.value,
                     state: stringUnit.state
                 )
             ]
-        } else if substitutions != nil {
-            throw StringCatalog.Error.substitionsNotYetSupported
+            if let substitutions {
+                localizableStrings += try substitutions.flatMap { key, substitution in
+                    try substitution.constructLocalizableStrings(with: context)
+                }
+            }
+            return localizableStrings
         } else if let variations {
-            return try variations.constructLocalizableStrings(context: context, targetLanguage: targetLanguage)
+            return try variations.constructLocalizableStrings(with: context)
         } else {
             return []
         }
@@ -43,19 +47,82 @@ extension _Localization {
         }
         variations?.addVariation(from: localizedString)
     }
+    
+    mutating func addSubstitution(from localizedString: LocalizableString) {
+        guard case .replacement(let replacement) = localizedString.kind else {
+            return
+        }
+        if substitutions == nil {
+            substitutions = [:]
+        }
+        let substitutionKey = "arg\(replacement.argNumber)"
+        var substitution = substitutions?[substitutionKey]
+            ?? _Substitution(
+                argNum: replacement.argNumber,
+                formatSpecifier: replacement.formatSpecifier,
+                variations: _Variations()
+            )
+        substitution.variations?.addVariation(from: localizedString)
+        substitutions?[substitutionKey] = substitution
+    }
 }
 
 
-enum LocalizableStringConstructionContext {
-    case isSource
-    case needTranslationFromKeyIn(sourceLanguageStrings: [LocalizableString])
+final class LocalizableStringConstructionContext {
+    
+    // MARK: Internal
+    
+    let isSource: Bool
+    let sourceLanguageStrings: [LocalizableString]
+    let targetLanguage: Language
+    
+    var replacement: LocalizableString.Replacement?
+    
+    // MARK: Lifecycle
+    
+    static func sourceLanguageContext(sourceLanguage: Language) -> Self {
+        return .init(
+            isSource: true,
+            targetLanguage: sourceLanguage,
+            sourceLanguageStrings: []
+        )
+    }
+    
+    static func targetLanguageContext(
+        targetLanguage: Language,
+        sourceLanguageStrings: [LocalizableString]
+    ) -> Self {
+        return .init(
+            isSource: false,
+            targetLanguage: targetLanguage,
+            sourceLanguageStrings: sourceLanguageStrings
+        )
+    }
+    
+    private init(isSource: Bool, targetLanguage: Language, sourceLanguageStrings: [LocalizableString]) {
+        self.isSource = true
+        self.targetLanguage = targetLanguage
+        self.sourceLanguageStrings = []
+    }
     
     func embeddedSourceKey(matching kind: LocalizableString.Kind, or givenSourceKey: String) throws -> String {
-        switch self {
-        case .isSource:
+        if isSource {
             return givenSourceKey
-        case .needTranslationFromKeyIn(let sourceLanguageStrings):
+        } else {
             return try sourceLanguageStrings.sourceKeyLookup(matchingKind: kind)
+        }
+    }
+    
+    func constructKind(variation: LocalizableString.Variation) -> LocalizableString.Kind {
+        if let replacement = replacement {
+            let updatedReplacement = LocalizableString.Replacement(
+                argNumber: replacement.argNumber,
+                formatSpecifier: replacement.formatSpecifier,
+                variation: variation
+            )
+            return .replacement(updatedReplacement)
+        } else {
+            return .variation(variation)
         }
     }
 }

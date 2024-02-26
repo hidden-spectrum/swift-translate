@@ -13,107 +13,77 @@ struct TranslationCoordinator {
     // MARK: Internal
     
     enum Mode {
-        case stringCatalog(URL, Set<Language>?, overwrite: Bool)
+        case fileOrDirectory(URL, Set<Language>?, overwrite: Bool)
         case text(String, Set<Language>)
     }
 
     let mode: Mode
-    let translator: Translator
+    let translator: TranslationService
+    let skipConfirmation: Bool
+    let verbose: Bool
 
     // MARK: Lifecycle
-
-    init(mode: Mode, translator: Translator) {
+    
+    init(mode: Mode, translator: TranslationService, skipConfirmation: Bool, verbose: Bool) {
         self.mode = mode
         self.translator = translator
+        self.skipConfirmation = skipConfirmation
+        self.verbose = verbose
     }
     
-    // MARK: Translation
+    // MARK: Main
     
     func translate() async throws {
         let startDate = Date()
+        var translatedKeysCount: Int = 1
+        
         switch mode {
-        case .stringCatalog(let catalog, let targetLanguages, let overwrite):
-            try await translateStringCatalog(catalog, to: targetLanguages, overwrite: overwrite)
+        case .fileOrDirectory(let fileOrDirectoryUrl, let targetLanguages, let overwrite):
+            translatedKeysCount = try await translateFiles(at: fileOrDirectoryUrl, to: targetLanguages, overwrite: overwrite)
         case .text(let string, let targetLanguages):
             try await translate(string, to: targetLanguages)
         }
-        print("\n✅ Done (\(startDate.timeIntervalSinceNow * -1) seconds)".green, "\n")
+        if translatedKeysCount > 0 {
+            Log.success(newline: .after, startDate: startDate, "Translated \(translatedKeysCount) key(s)")
+        }
     }
     
-    func translate(_ string: String, to targetLanguages: Set<Language>) async throws {
-        print("\nTranslating `\(string)`:")
+    // MARK: Translate Text
+    
+    private func translate(_ string: String, to targetLanguages: Set<Language>) async throws {
+        Log.info(newline: .before, "Translating `", string, "`:")
         for language in targetLanguages {
             let translation = try await translator.translate(string, to: language, comment: nil)
-            logTranslationResult(to: language, result: translation, isSource: false)
+            Log.structured(
+                .init(width: 8, language.rawValue + ":"),
+                .init(translation)
+            )
         }
     }
     
-    func translateStringCatalog(_ catalogUrl: URL, to targetLanguages: Set<Language>?, overwrite: Bool) async throws {
-        let catalog = try loadStringCatalog(from: catalogUrl, configureWith: targetLanguages)
-        try verifyLargeTranslation(of: catalog.allKeys.count, to: catalog.targetLanguages.count)
+    // MARK: Translate Files
+    
+    private func translateFiles(at url: URL, to targetLanguages: Set<Language>?, overwrite: Bool) async throws -> Int {
+        let fileFinder = TranslatableFileFinder(fileOrDirectoryURL: url, type: .stringCatalog)
+        let translatableFiles = try fileFinder.findTranslatableFiles()
         
-        for key in catalog.allKeys {
-            try await translate(key: key, in: catalog)
+        if translatableFiles.isEmpty {
+            return 0
         }
         
-        var targetUrl = catalogUrl
-        if !overwrite {
-            targetUrl = targetUrl.deletingPathExtension().appendingPathExtension("loc.xcstrings")
-        }
-        try catalog.write(to: targetUrl)
-    }
-    
-    // MARK: Input
-    
-    private func verifyLargeTranslation(of stringsCount: Int, to languageCount: Int) throws {
-        guard stringsCount * languageCount > 200 else {
-            return
-        }
-        print("\n?".yellow, "Are you sure you wish to translate \(stringsCount) keys into \(languageCount) languages? Y/n")
-        let yesNo = readLine()
-        guard yesNo == "Y" else {
-            print("Translation canceled 🫡".yellow)
-            exit(0)
-        }
-    }
-    
-    // MARK: String Catalog
-    
-    private func loadStringCatalog(from url: URL, configureWith targetLanguages: Set<Language>?) throws -> StringCatalog {
-        print("\nLoading catalog \(url.lastPathComponent) into memory...")
-        let catalog = try StringCatalog(url: url, configureWith: targetLanguages)
-        print("✅ Done".green, "(Found \(catalog.allKeys.count) keys targeting \(catalog.targetLanguages.count) languages for a total of \(catalog.localizableStringsCount) localizable strings)")
-        return catalog
-    }
-    
-    private func translate(key: String, in catalog: StringCatalog) async throws {
-        print("\nTranslating key `\(key.truncatedRemovingNewlines(to: 64))`:")
-        let localizableStrings = catalog.localizableStrings(for: key)
+        let fileTranslator = StringCatalogTranslator(
+            with: translator,
+            targetLanguages: targetLanguages,
+            overwrite: overwrite,
+            skipConfirmations: skipConfirmation,
+            verbose: verbose
+        )
         
-        for localizableString in localizableStrings {
-            let isSource = catalog.sourceLanguage == localizableString.targetLanguage
-            let targetLanguage = localizableString.targetLanguage
-            
-            if localizableString.state == .translated || isSource {
-                let result = isSource ? localizableString.sourceKey : "[Already translated]".dim
-                logTranslationResult(to: targetLanguage, result: result, isSource: isSource)
-                continue
-            }
-            do {
-                let translatedString = try await translator.translate(localizableString.sourceKey, to: targetLanguage, comment: localizableString.comment)
-                localizableString.setTranslation(translatedString)
-                logTranslationResult(to: targetLanguage, result: translatedString.truncatedRemovingNewlines(to: 64), isSource: isSource)
-            } catch {
-                logTranslationResult(to: targetLanguage, result: "[Error: \(error.localizedDescription)]".red, isSource: isSource)
-            }
+        var translatedKeys = 0
+        for file in translatableFiles {
+            translatedKeys += try await fileTranslator.translate(fileAt: file)
         }
-    }
-    
-    // MARK: Utilities
-    
-    private func logTranslationResult(to language: Language, result: String, isSource: Bool) {
-        let languageCode = (language.rawValue + ":" as NSString).utf8String!
-        let logString = String(format: "- %-8s %@", languageCode, result)
-        print(isSource ? logString.dim : logString)
+        
+        return translatedKeys
     }
 }
