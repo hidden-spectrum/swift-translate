@@ -110,7 +110,7 @@ public final class StringCatalog {
     ) throws -> [LocalizableString] {
         var localizableStrings = [LocalizableString]()
         
-        for language in targetLanguages.filter({ $0 != sourceLanguage }) {
+        for language in targetLanguages {
             if let localization = entry.localizations?[language] {
                 localizableStrings += try localization.constructLocalizableStrings(
                     with: .targetLanguageContext(targetLanguage: language, sourceLanguageStrings: sourceLanguageStrings)

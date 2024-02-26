@@ -55,14 +55,15 @@ extension _Localization {
         if substitutions == nil {
             substitutions = [:]
         }
-        var substitution = substitutions?[localizedString.sourceKey]
+        let substitutionKey = "arg\(replacement.argNumber)"
+        var substitution = substitutions?[substitutionKey]
             ?? _Substitution(
                 argNum: replacement.argNumber,
                 formatSpecifier: replacement.formatSpecifier,
                 variations: _Variations()
             )
         substitution.variations?.addVariation(from: localizedString)
-        substitutions?["arg\(replacement.argNumber)"] = substitution
+        substitutions?[substitutionKey] = substitution
     }
 }
 
