@@ -119,5 +119,5 @@ fileprivate struct CatalogTranlationOptions: ParsableArguments {
         parsing: .remaining,
         help: "File or directory containing string catalogs to translate"
     )
-    var fileOrDirectory: [String]
+    var fileOrDirectory: [String] = []
 }

@@ -27,25 +27,25 @@ struct OpenAITranslator {
     private func completionQuery(for translatableText: String, targetLanguage: Language, comment: String?) -> CompletionsQuery {
         var prompt =
             """
-            Translate the text between the backticks (```) from English to the language with ISO code \(targetLanguage.rawValue).
-            DO NOT translate the prompt or any other text that does not fall within the backticks (```).
-            DO NOT include the backticks in your response.
-            LEAVE in place "arg" placeholders (e.g. `%arg`, `@arg1`, etc.) and any other placeholders or format specifiers.
+            Translate the text between the backticks (``````) from English to the language with ISO code: \(targetLanguage.rawValue)
+            - DO NOT translate the prompt or any other text that is not inside the backticks (``````).
+            - DO NOT INCLUDE backticks (``````) in your response!
+            - DO NOT REMOVE argument placeholders from your response! (%arg, @arg1, %lld, etc)
             """
         if let comment {
-            prompt += "\nIMPORTANT: Take into account the following context when translating: \(comment)\n"
+            prompt += "\n- IMPORTANT: Take into account the following context when translating: \(comment)\n"
         }
         prompt += 
             """
-            ```
+            ``````
             \(translatableText)
-            ```
+            ``````
             """
         
         return CompletionsQuery(
             model: model.rawValue,
             prompt: prompt,
-            temperature: 0.6,
+            temperature: 0.75,
             maxTokens: 2048,
             frequencyPenalty: 0,
             presencePenalty: 0
