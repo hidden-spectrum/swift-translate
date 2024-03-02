@@ -16,12 +16,12 @@ https://github.com/hidden-spectrum/swift-translate/assets/469799/ae5066fa-336c-4
 - ✅ Support for complex string catalogs with plural & device variations or replacements
 - ✅ Translate brand new catalogs or fill in missing translations for existing cataloga
 - 🚧 Documentation ([#2](/../../issues/2))
-- 🚧 Unit tests ([#3)](/../../issues/3))
-- 🚧 Support GPT-4 models ([#20)](/../../issues/20))
-- ❌ Translate from non-English source language ([#23)](/../../issues/23))
-- ❌ Translate text files (useful for fastlane metadata) [(#12)](/../../issues/12))
-- ❌ "Confidence check": ask GPT to translate text back into source language to compare against the original string [(#14)](/../../issues/14))
-- ❌ Support for other translation services [(#21)](/../../issues/21))
+- 🚧 Unit tests ([#3](/../../issues/3))
+- 🚧 Support GPT-4 models ([#20](/../../issues/20))
+- ❌ Translate from non-English source language ([#23](/../../issues/23))
+- ❌ Translate text files (useful for fastlane metadata) ([#12](/../../issues/12))
+- ❌ "Confidence check": ask GPT to translate text back into source language to compare against the original string ([#14](/../../issues/14))
+- ❌ Support for other translation services ([#21](/../../issues/21))
 
 ## 🛑 Stop Here
 Before continuing, please read the following:
@@ -31,7 +31,7 @@ Before continuing, please read the following:
 - Hidden Spectrum is not liable for loss of data, file corruption, or inaccurate/offensive translations (or any subsequent bad app reviews due to aforementioned inaccuracies) 🙅🏻‍♂️
     
 **👉 Note:** By default, your catalogs *WILL NOT* be overwritten, instead a copy will be made with `.loc` extension.
-If you wish to overwrite your catalogs, be sure they are checked into your repository or backed up, and use the `--overwrite` CLI argument.
+If you wish to overwrite your catalogs, be sure they are checked into your repository or backed up, then use the `--overwrite` CLI argument.
 
 Ok, with that out of the way let's get into the fun stuff...
 
@@ -84,7 +84,7 @@ Ok, with that out of the way let's get into the fun stuff...
     ```shell
     swift package plugin swift-translate -k <your key here> <path/to/some/localization.xcstrings> --lang en de --verbose 
     ```
-    > **👉 Note:**: Be sure to include `en` or the original keys will not be included in the translated catalog (#22)
+    > **👉 Note:** Be sure to include `en` or the original keys will not be included in the translated catalog (#22)
 5. Enter `Y` when prompted for write access to your package folder and for outgoing network connections.
 6. After translation is finished, check for a new `YourFile.loc.xcstrings` file in the same directory as the original file.
 
@@ -93,7 +93,7 @@ Ok, with that out of the way let's get into the fun stuff...
 
 
 ## 💸 A Note on Cost
-The current model used in this project, GPT 3.5 Turbo, is extremely cheap. During development of this initial version we executed 3,736 API calls containing 157,734 tokens and our bill came out to just $0.26 USD 😄
+The current model used in this project, GPT 3.5 Turbo, is extremely cheap. During development of this initial version we executed 3,736 API requests containing 157,734 tokens and our bill came out to just $0.26 USD 😄
 
 
 ## 🙏 Help Wanted
