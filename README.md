@@ -1,5 +1,4 @@
-
-![Swift Translate Light](https://github.com/hidden-spectrum/swift-translate/assets/469799/18ee752f-5455-4d69-857f-1675c879db82)
+![Swift Translate](https://github.com/hidden-spectrum/swift-translate/assets/469799/1cf0355f-429b-4fa4-9fe1-0b8e777db63e)
 
 Swift Translate is a CLI tool and Swift Package Plugin that makes it easy to localize your app. It deconstructs your string catalogs and sends them to OpenAI's GPT-3.5-Turbo model for translation. See it in action:
 
