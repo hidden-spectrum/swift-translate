@@ -15,13 +15,13 @@ https://github.com/hidden-spectrum/swift-translate/assets/469799/ae5066fa-336c-4
 - ✅ Translate from English to ar, ca, zh-HK, hr, cs, da, nl, en, fi, fr, de, el, he, hi, hu, id, it, ja, ko, ms, nb, pl, pt-BR, pt-PT, ro, ru, sk, es, sv, th, tr
 - ✅ Support for complex string catalogs with plural & device variations or replacements
 - ✅ Translate brand new catalogs or fill in missing translations for existing cataloga
-- 🚧 Documentation (#2)
-- 🚧 Unit tests (#3)
-- 🚧 Support GPT-4 models (#20)
-- ❌ Translate from non-English source language (#23)
-- ❌ Translate text files (useful for fastlane metadata) (#12)
-- ❌ "Confidence check": ask GPT to translate text back into source language to compare against the original string (#14)
-- ❌ Support for other translation services (#21)
+- 🚧 Documentation ([#2](/../../issues/2))
+- 🚧 Unit tests ([#3)](/../../issues/3))
+- 🚧 Support GPT-4 models ([#20)](/../../issues/20))
+- ❌ Translate from non-English source language ([#23)](/../../issues/23))
+- ❌ Translate text files (useful for fastlane metadata) [(#12)](/../../issues/12))
+- ❌ "Confidence check": ask GPT to translate text back into source language to compare against the original string [(#14)](/../../issues/14))
+- ❌ Support for other translation services [(#21)](/../../issues/21))
 
 ## 🛑 Stop Here
 Before continuing, please read the following:
