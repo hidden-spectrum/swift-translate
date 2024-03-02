@@ -21,7 +21,7 @@ public struct Language: Codable, Equatable, Hashable, RawRepresentable {
         self.code = rawValue
     }
     
-    init(_ code: StringLiteralType) {
+    public init(_ code: StringLiteralType) {
         self.code = code
     }
     
