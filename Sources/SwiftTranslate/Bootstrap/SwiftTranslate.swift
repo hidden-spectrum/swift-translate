@@ -19,44 +19,39 @@ struct SwiftTranslate: AsyncParsableCommand {
     )
     private var apiToken: String
     
-    @Argument(
-        parsing: .remaining,
-        help: "File or directory containing string catalogs to translate"
+    @OptionGroup(
+        title: "Translate text"
     )
-    private var fileOrDirectory: [String]
+    private var textOptions: TextTranslationOptions
+    
+    @OptionGroup(
+        title: "Translate string catalogs"
+    )
+    private var catalogOptions: CatalogTranlationOptions
     
     @Option(
         name: [.customLong("lang"), .short],
-        help: "Target language"
+        parsing: .upToNextOption,
+        help: "Target language(s) or `all` for all common languages. Omitting this option will use existing langauges in the String Catalog(s)\n",
+        completion: .list(Language.allCommon.map(\.rawValue))
     )
-    private var language: Language?
-    
-    @Flag(
-        name: [.customLong("overwrite")],
-        help: "Overwrite string catalog files instead of creating a new file"
-    )
-    private var overwriteExistingCatalogs: Bool = false
+    private var languages: [Language] = [Language("__in_catalog")]
     
     @Flag(
         name: [.customLong("skip-confirmation"), .customShort("y")],
         help: "Skips confirmation for translating large string files"
     )
-    private var skipConfirmation: Bool = false
-    
-    @Option(
-        name: [.long, .short],
-        help: "Text to translate"
-    )
-    private var text: String?
+    var skipConfirmation: Bool = false
     
     @Flag(
-        name: [.customLong("all-languages")],
-        help: "Translate to all common languages (see CommonLanguage.swift)"
+        name: [.long, .short],
+        help: "Enables verbose log output"
     )
-    private var translateToAllLanguages: Bool = false
-    
-    @Flag(help: "Enables verbose log output")
     private var verbose: Bool = false
+    
+    // MARK: Private
+    
+    private static let languageList = [Language("all-common")] + Language.allCommon
     
     // MARK: Lifecycle
     
@@ -64,23 +59,29 @@ struct SwiftTranslate: AsyncParsableCommand {
         let translator = OpenAITranslator(with: apiToken)
         
         var targetLanguages: Set<Language>?
-        if let language {
-            targetLanguages = Set([language])
-        } else if translateToAllLanguages {
+        if languages.first?.rawValue == "__in_catalog" {
+            targetLanguages = nil
+        } else if languages.first?.rawValue == "all" {
             targetLanguages = Set(Language.allCommon)
+        } else {
+            let invalidLanguages = languages.filter({ !Language.allCommon.contains($0) }).map(\.rawValue)
+            guard invalidLanguages.isEmpty else {
+                throw ValidationError("Invalid language(s) provided: \(invalidLanguages.joined(separator: ", "))")
+            }
+            targetLanguages = Set(languages)
         }
         
         var mode: TranslationCoordinator.Mode
-        if let text {
+        if let text = textOptions.text {
             guard let targetLanguages else {
                 throw ValidationError("Target language(s) is required for text translation")
             }
             mode = .text(text, targetLanguages)
-        } else if let fileOrDirectory = fileOrDirectory.first {
+        } else if let fileOrDirectory = catalogOptions.fileOrDirectory.first {
             mode = .fileOrDirectory(
                 URL(fileURLWithPath: fileOrDirectory),
                 targetLanguages,
-                overwrite: overwriteExistingCatalogs
+                overwrite: catalogOptions.overwriteExisting
             )
         } else {
             throw ValidationError("No text or string catalog file to translate provided")
@@ -94,4 +95,29 @@ struct SwiftTranslate: AsyncParsableCommand {
         )
         try await coordinator.translate()
     }
+}
+
+
+fileprivate struct TextTranslationOptions: ParsableArguments {
+    
+    @Option(
+        name: [.long, .short],
+        help: "Text to translate"
+    )
+    var text: String?
+}
+
+fileprivate struct CatalogTranlationOptions: ParsableArguments {
+    
+    @Flag(
+        name: [.customLong("overwrite")],
+        help: "Overwrite string catalog files instead of creating a new file"
+    )
+    var overwriteExisting: Bool = false
+    
+    @Argument(
+        parsing: .remaining,
+        help: "File or directory containing string catalogs to translate"
+    )
+    var fileOrDirectory: [String]
 }
