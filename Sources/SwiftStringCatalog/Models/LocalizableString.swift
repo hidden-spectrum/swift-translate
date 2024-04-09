@@ -14,7 +14,6 @@ public final class LocalizableString {
     
     // MARK: Public private(set)
     
-    public private(set) var comment: String?
     public private(set) var kind: Kind
     public private(set) var translatedValue: String?
     public private(set) var state: TranslationState
@@ -30,7 +29,6 @@ public final class LocalizableString {
     ) {
         self.sourceKey = sourceKey
         self.targetLanguage = targetLanguage
-        self.comment = nil
         self.translatedValue = translatedValue
         self.state = state
         self.kind = kind
@@ -93,7 +91,6 @@ extension LocalizableString: Equatable {
         return lhs.kind == rhs.kind
             && lhs.sourceKey == rhs.sourceKey
             && lhs.targetLanguage == rhs.targetLanguage
-            && lhs.comment == rhs.comment
             && lhs.translatedValue == rhs.translatedValue
             && lhs.state == rhs.state
     }

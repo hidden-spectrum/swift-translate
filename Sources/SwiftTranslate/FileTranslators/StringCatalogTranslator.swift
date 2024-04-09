@@ -57,10 +57,12 @@ struct StringCatalogTranslator: FileTranslator {
     }
     
     private func translate(key: String, in catalog: StringCatalog) async throws {
-        Log.info(newline: verbose ? .before : .none, "Translating key `\(key.truncatedRemovingNewlines(to: 64))`")
-        let localizableStrings = catalog.localizableStrings(for: key)
+        guard let localizableStringGroup = catalog.localizableStringGroups[key] else {
+            return
+        }
+        Log.info(newline: verbose ? .before : .none, "Translating key `\(key.truncatedRemovingNewlines(to: 64))`\nComment: \(localizableStringGroup.comment ?? "n/a")")
         
-        for localizableString in localizableStrings {
+        for localizableString in localizableStringGroup.strings {
             let isSource = catalog.sourceLanguage == localizableString.targetLanguage
             let targetLanguage = localizableString.targetLanguage
             
@@ -74,7 +76,11 @@ struct StringCatalogTranslator: FileTranslator {
                 continue
             }
             do {
-                let translatedString = try await service.translate(localizableString.sourceKey, to: targetLanguage, comment: localizableString.comment)
+                let translatedString = try await service.translate(
+                    localizableString.sourceKey,
+                    to: targetLanguage,
+                    comment: localizableStringGroup.comment
+                )
                 localizableString.setTranslation(translatedString)
                 if verbose {
                     logTranslationResult(to: targetLanguage, result: translatedString.truncatedRemovingNewlines(to: 64), isSource: isSource)
