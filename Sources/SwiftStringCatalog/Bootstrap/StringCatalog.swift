@@ -81,7 +81,11 @@ public final class StringCatalog {
             
             let localizableStrings = try localizableStrings(in: entry, for: key, referencing: sourceLanguageStrings)
             localizableStringsCount += localizableStrings.count
-            self.localizableStringGroups[key] = LocalizableStringGroup(extractionState: entry.extractionState, strings: localizableStrings)
+            localizableStringGroups[key] = LocalizableStringGroup(
+                comment: entry.comment,
+                extractionState: entry.extractionState, 
+                strings: localizableStrings
+            )
         }
     }
     
@@ -121,14 +125,7 @@ public final class StringCatalog {
                 }
             }
         }
-        
         return localizableStrings
-    }
-    
-    // MARK: - Accessors
-    
-    public func localizableStrings(for key: String) -> [LocalizableString] {
-        return localizableStringGroups[key]?.strings ?? []
     }
     
     // MARK: - Create / Save Catalog

@@ -18,7 +18,7 @@ struct _CatalogEntry: Codable {
     // MARK: Lifecycle
     
     init(
-        comment: String? = nil,
+        comment: String?,
         extractionState: ExtractionState?,
         localizations: CodableKeyDictionary<Language, _Localization>
     ) {
@@ -52,7 +52,8 @@ extension _CatalogEntry {
             case .variation:
                 localization.addVariations(from: localizableString)
             }
+            
         }
-        self.init(extractionState: stringsGroup.extractionState, localizations: localizations)
+        self.init(comment: stringsGroup.comment, extractionState: stringsGroup.extractionState, localizations: localizations)
     }
 }

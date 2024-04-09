@@ -14,7 +14,7 @@ https://github.com/hidden-spectrum/swift-translate/assets/469799/ae5066fa-336c-4
 - ✅ Translate individual string catalogs or all catalogs in a folder
 - ✅ Translate from English to ar, ca, zh-HK, hr, cs, da, nl, en, fi, fr, de, el, he, hi, hu, id, it, ja, ko, ms, nb, pl, pt-BR, pt-PT, ro, ru, sk, es, sv, th, tr
 - ✅ Support for complex string catalogs with plural & device variations or replacements
-- ✅ Translate brand new catalogs or fill in missing translations for existing cataloga
+- ✅ Translate brand new catalogs or fill in missing translations for existing catalogs
 - 🚧 Documentation ([#2](/../../issues/2))
 - 🚧 Unit tests ([#3](/../../issues/3))
 - 🚧 Support GPT-4 models ([#20](/../../issues/20))
@@ -82,9 +82,8 @@ Ok, with that out of the way let's get into the fun stuff...
 3. Open terminal and `cd` to your package directory.
 4. Try translating a catalog in your package:
     ```shell
-    swift package plugin swift-translate -k <your key here> <path/to/some/localization.xcstrings> --lang en de --verbose 
+    swift package plugin swift-translate -k <your key here> <path/to/some/localization.xcstrings> --lang de --verbose 
     ```
-    > **👉 Note:** Be sure to include `en` or the original keys will not be included in the translated catalog (#22)
 5. Enter `Y` when prompted for write access to your package folder and for outgoing network connections.
 6. After translation is finished, check for a new `YourFile.loc.xcstrings` file in the same directory as the original file.
 

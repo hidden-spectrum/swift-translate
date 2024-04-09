@@ -68,6 +68,10 @@ struct SwiftTranslate: AsyncParsableCommand {
             guard invalidLanguages.isEmpty else {
                 throw ValidationError("Invalid language(s) provided: \(invalidLanguages.joined(separator: ", "))")
             }
+            var languages = languages
+            if !languages.contains(.english) {
+                languages.append(.english)
+            }
             targetLanguages = Set(languages)
         }
         
