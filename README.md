@@ -82,9 +82,8 @@ Ok, with that out of the way let's get into the fun stuff...
 3. Open terminal and `cd` to your package directory.
 4. Try translating a catalog in your package:
     ```shell
-    swift package plugin swift-translate -k <your key here> <path/to/some/localization.xcstrings> --lang en de --verbose 
+    swift package plugin swift-translate -k <your key here> <path/to/some/localization.xcstrings> --lang de --verbose 
     ```
-    > **👉 Note:** Be sure to include `en` or the original keys will not be included in the translated catalog ([#22](/../../issues/22))
 5. Enter `Y` when prompted for write access to your package folder and for outgoing network connections.
 6. After translation is finished, check for a new `YourFile.loc.xcstrings` file in the same directory as the original file.
 
