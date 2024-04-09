@@ -43,7 +43,7 @@ class StringCatalogTests: XCTestCase {
         let targetLanguages: Set<Language> = [.english, .french, .german, .italian]
         let stringCatalog = try StringCatalog(url: basicTestCatalog, configureWith: targetLanguages)
         
-        let localizableStrings = stringCatalog.localizableStrings(for: basicTestKey)
+        let localizableStrings = stringCatalog.localizableStringGroups[basicTestKey]?.strings ?? []
         
         XCTAssertEqual(localizableStrings.count, 4)
     }
