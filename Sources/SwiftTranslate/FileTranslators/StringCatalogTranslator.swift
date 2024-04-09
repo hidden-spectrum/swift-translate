@@ -60,7 +60,7 @@ struct StringCatalogTranslator: FileTranslator {
         guard let localizableStringGroup = catalog.localizableStringGroups[key] else {
             return
         }
-        Log.info(newline: verbose ? .before : .none, "Translating key `\(key.truncatedRemovingNewlines(to: 64))`\nComment: \(localizableStringGroup.comment ?? "n/a")")
+        Log.info(newline: verbose ? .before : .none, "Translating key `\(key.truncatedRemovingNewlines(to: 64))` " + "[Comment: \(localizableStringGroup.comment ?? "n/a")]".dim)
         
         for localizableString in localizableStringGroup.strings {
             let isSource = catalog.sourceLanguage == localizableString.targetLanguage
