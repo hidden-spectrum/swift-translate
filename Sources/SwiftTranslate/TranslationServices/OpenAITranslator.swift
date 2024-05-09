@@ -13,18 +13,22 @@ struct OpenAITranslator {
     // MARK: Private
     
     private let openAI: OpenAI
-    private let model: OpenAIModel
-    
+    private let model: Model
+
     // MARK: Lifecycle
     
-    init(with apiToken: String, model: OpenAIModel = .gpt3_5TurboInstruct) {
-        self.openAI = OpenAI(apiToken: apiToken)
+    init(with apiToken: String, model: Model = .gpt4) {
+        let configuration = OpenAI.Configuration(
+            token: apiToken,
+            timeoutInterval: 60
+        )
+        self.openAI = OpenAI(configuration: configuration)
         self.model = model
     }
     
     // MARK: Helpers
     
-    private func completionQuery(for translatableText: String, targetLanguage: Language, comment: String?) -> CompletionsQuery {
+    private func chatQuery(for translatableText: String, targetLanguage: Language, comment: String?) -> ChatQuery {
         var prompt =
             """
             Translate the text between the backticks (``````) from English to the language with ISO code: \(targetLanguage.rawValue)
@@ -41,14 +45,10 @@ struct OpenAITranslator {
             \(translatableText)
             ``````
             """
-        
-        return CompletionsQuery(
-            model: model.rawValue,
-            prompt: prompt,
-            temperature: 0.75,
-            maxTokens: 2048,
-            frequencyPenalty: 0,
-            presencePenalty: 0
+
+        return ChatQuery(
+            messages: [.user(.init(content: .string(prompt)))],
+            model: model
         )
     }
 }
@@ -58,10 +58,13 @@ extension OpenAITranslator: TranslationService {
     // MARK: Translate
     
     func translate(_ string: String, to targetLanguage: Language, comment: String?) async throws -> String {
-        let result = try await openAI.completions(
-            query: completionQuery(for: string, targetLanguage: targetLanguage, comment: comment)
+        guard !string.isEmpty else {
+            return string
+        }
+        let result = try await openAI.chats(
+            query: chatQuery(for: string, targetLanguage: targetLanguage, comment: comment)
         )
-        guard let translatedText = result.choices.first?.text else {
+        guard let translatedText = result.choices.first?.message.content?.string else {
             throw SwiftTranslateError.noTranslationReturned
         }
         return translatedText.trimmingCharacters(in: .whitespacesAndNewlines)
