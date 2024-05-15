@@ -8,4 +8,7 @@ import Foundation
 enum SwiftTranslateError: Error {
     case couldNotSearchDirectoryAt(URL)
     case noTranslationReturned
+    case unexpectedTranslationResponse
+    case failedToParseTranslationResponse(String)
+    case translationFailed
 }

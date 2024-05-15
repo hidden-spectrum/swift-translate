@@ -21,7 +21,7 @@ struct SwiftTranslate: AsyncParsableCommand {
 
     @Option(
         name: [.customLong("model"), .customShort("m")],
-        help: "OpenAI Model (e.g. \"gpt-4o\")"
+        help: "OpenAI Model (e.g. \"gpt-4o\", the model must support function calling, see: https://platform.openai.com/docs/guides/function-calling/supported-models)"
     )
     private var model: String = Model.gpt3_5Turbo
 
