@@ -18,7 +18,13 @@ struct SwiftTranslate: AsyncParsableCommand {
         help: "OpenAI API token"
     )
     private var apiToken: String
-    
+
+    @Option(
+        name: [.customLong("model"), .customShort("m")],
+        help: "OpenAI Model (e.g. \"gpt-4o\")"
+    )
+    private var model: String = Model.gpt3_5Turbo
+
     @OptionGroup(
         title: "Translate text"
     )
@@ -56,8 +62,9 @@ struct SwiftTranslate: AsyncParsableCommand {
     // MARK: Lifecycle
     
     func run() async throws {
-        let translator = OpenAITranslator(with: apiToken)
-        
+        let translator = OpenAITranslator(with: apiToken, model: model)
+        Log.info("Using model: \(model)")
+
         var targetLanguages: Set<Language>?
         if languages.first?.rawValue == "__in_catalog" {
             targetLanguages = nil

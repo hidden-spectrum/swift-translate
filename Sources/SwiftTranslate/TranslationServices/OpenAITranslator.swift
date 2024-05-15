@@ -17,7 +17,7 @@ struct OpenAITranslator {
 
     // MARK: Lifecycle
     
-    init(with apiToken: String, model: Model = .gpt4) {
+    init(with apiToken: String, model: Model) {
         let configuration = OpenAI.Configuration(
             token: apiToken,
             timeoutInterval: 60
