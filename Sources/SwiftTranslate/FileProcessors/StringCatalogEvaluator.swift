@@ -127,9 +127,16 @@ struct StringCatalogEvaluator {
     private func logResult(_ result: EvaluationResult, translation: String, in language: Language) {
         Log.structured(
             .init(width: 6, language.rawValue),
-            .init(width: 8, result.quality.description + ":"),
+            .init(width: 10, result.quality.description + ":"),
             .init(translation.truncatedRemovingNewlines(to: 64))
         )
+        if result.quality != .good {
+            Log.structured(
+                .init(width: 6, "-"),
+                .init(width: 10, "🤖 Reason:"),
+                .init(result.explanation)
+            )
+        }
     }
 
     private func logError(language: Language, error: Error) {
