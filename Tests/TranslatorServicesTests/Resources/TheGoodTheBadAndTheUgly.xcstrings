@@ -1,0 +1,117 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Good job! 👍 Keep up the great work. 😊" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bra jobbat! 🤞 Fortsätt så. 😊"
+          }
+        }
+      }
+    },
+    "Good job! Keep up the great work." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bra jobbat! Fortsätt så."
+          }
+        }
+      }
+    },
+    "Hello %@! You have %lld new messages." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hej %@! Du har nya meddelanden."
+          }
+        }
+      }
+    },
+    "Hello, how are you?" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hej, hur mår du?"
+          }
+        }
+      }
+    },
+    "It's a wonderful day!" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Det är en undebar dag!"
+          }
+        }
+      }
+    },
+    "Keep up the great work." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fortsätt med det stora arbetet."
+          }
+        }
+      }
+    },
+    "She said, \"It's a wonderful day!\"" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hon sa, \"Det är en underbar dag!"
+          }
+        }
+      }
+    },
+    "Today is the day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today is the day"
+          }
+        }
+      }
+    },
+    "Today's temperature " : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dagens temperatur"
+          }
+        }
+      }
+    },
+    "Welcome to this Fantastic App!" : {
+      "comment" : "The app name \"Fantastic App\" should not be translated",
+      "extractionState" : "manual",
+      "localizations" : {
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Välkommen till denna Fantastiska App!"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

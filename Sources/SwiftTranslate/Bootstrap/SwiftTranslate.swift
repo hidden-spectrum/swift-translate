@@ -34,7 +34,13 @@ struct SwiftTranslate: AsyncParsableCommand {
         title: "Translate string catalogs"
     )
     private var catalogOptions: CatalogTranlationOptions
-    
+
+    @Flag(
+        name: [.customLong("evaluate")],
+        help: "Evaluate the quality of the translations, marking poor and bad translations for review in the string catalog"
+    )
+    private var evaluateQuality: Bool = false
+
     @Option(
         name: [.customLong("lang"), .short],
         parsing: .upToNextOption,
@@ -82,14 +88,26 @@ struct SwiftTranslate: AsyncParsableCommand {
             targetLanguages = Set(languages)
         }
         
-        var mode: TranslationCoordinator.Mode
-        if let text = textOptions.text {
+        var action: ActionCoordinator.Action
+        if evaluateQuality {
+            guard textOptions.text == nil else {
+                throw ValidationError("Evaluating text is not supported")
+            }
+            guard let fileOrDirectory = catalogOptions.fileOrDirectory.first else {
+                throw ValidationError("A string catalog file or directory to evaluate must be provided")
+            }
+            action = .evaluateQuality(
+                URL(fileURLWithPath: fileOrDirectory),
+                targetLanguages,
+                overwrite: catalogOptions.overwriteExisting
+            )
+        } else if let text = textOptions.text {
             guard let targetLanguages else {
                 throw ValidationError("Target language(s) is required for text translation")
             }
-            mode = .text(text, targetLanguages)
+            action = .translateText(text, targetLanguages)
         } else if let fileOrDirectory = catalogOptions.fileOrDirectory.first {
-            mode = .fileOrDirectory(
+            action = .translateFileOrDirectory(
                 URL(fileURLWithPath: fileOrDirectory),
                 targetLanguages,
                 overwrite: catalogOptions.overwriteExisting
@@ -98,13 +116,13 @@ struct SwiftTranslate: AsyncParsableCommand {
             throw ValidationError("No text or string catalog file to translate provided")
         }
         
-        let coordinator = TranslationCoordinator(
-            mode: mode,
+        let coordinator = ActionCoordinator(
+            action: action,
             translator: translator,
             skipConfirmation: skipConfirmation,
             verbose: verbose
         )
-        try await coordinator.translate()
+        try await coordinator.process()
     }
 }
 

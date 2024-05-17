@@ -40,7 +40,11 @@ public final class LocalizableString {
         translatedValue = translation
         state = .translated
     }
-    
+
+    public func setNeedsReview() {
+        state = .needsReview
+    }
+
     // MARK: Utility
     
     func convertKindToSubstitution(argNum: Int, formatSpecifier: String) {

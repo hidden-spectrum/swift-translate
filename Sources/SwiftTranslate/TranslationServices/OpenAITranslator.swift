@@ -9,11 +9,9 @@ import SwiftStringCatalog
 
 
 struct OpenAITranslator {
-    
-    // MARK: Private
-    
-    private let openAI: OpenAI
-    private let model: Model
+
+    let openAI: OpenAI
+    let model: Model
 
     // MARK: Lifecycle
     
@@ -61,6 +59,7 @@ struct OpenAITranslator {
             tools: [.init(function: translateFunction)]
         )
     }
+
 }
 
 extension OpenAITranslator: TranslationService {
@@ -101,8 +100,10 @@ extension OpenAITranslator: TranslationService {
 
         return translationResponse.translation
     }
+
 }
 
+// TODO: Move
 extension String {
     func truncatedRemovingNewlines(to length: Int) -> String {
         let newlinesRemoved = replacingOccurrences(of: "\n", with: " ")
@@ -132,7 +133,7 @@ private let translateFunction = ChatQuery.ChatCompletionToolParam.FunctionDefini
             ),
             "targetLanguageCode": .init(
                 type: .string,
-                description: "The ISO 639-1 language code of the target language (e.g., 'sv' for Swedish)."
+                description: "The ISO 639-1 language code of the target language (e.g., 'it' for Italian)."
             ),
             "translation": .init(
                 type: .string,

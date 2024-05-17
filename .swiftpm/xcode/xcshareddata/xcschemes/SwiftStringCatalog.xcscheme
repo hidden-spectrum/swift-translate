@@ -33,6 +33,9 @@
             reference = "container:Tests/SwiftStringCatalogTests/SwiftStringCatalog.xctestplan"
             default = "YES">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:Tests/SwiftStringCatalog copy.xctestplan">
+         </TestPlanReference>
       </TestPlans>
    </TestAction>
    <LaunchAction

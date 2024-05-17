@@ -11,4 +11,5 @@ enum SwiftTranslateError: Error {
     case unexpectedTranslationResponse
     case failedToParseTranslationResponse(String)
     case translationFailed
+    case evaluationIsNotSupported
 }

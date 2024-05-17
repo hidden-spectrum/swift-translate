@@ -29,9 +29,7 @@ let package = Package(
         .package(url: "https://github.com/onevcat/Rainbow.git", .upToNextMajor(from: "4.0.0")),
     ],
     targets: [
-        
         // Main Plugin
-        
         .plugin(
             name: "SwiftTranslate",
             capability: .command(
@@ -48,9 +46,7 @@ let package = Package(
                 .target(name: "swift-translate")
             ]
         ),
-        
         // Libraries
-        
         .executableTarget(
             name: "swift-translate",
             dependencies: [
@@ -61,18 +57,24 @@ let package = Package(
             ],
             path: "Sources/SwiftTranslate"
         ),
-        
         .target(
             name: "SwiftStringCatalog"
         ),
-        
         // Tests
-        
         .testTarget(
             name: "SwiftStringCatalogTests",
             dependencies: ["SwiftStringCatalog"],
             exclude: ["SwiftStringCatalog.xctestplan"],
             resources: [.process("Resources")]
+        ),
+        .testTarget(
+            name: "TranslatorServicesTests",
+            dependencies: ["swift-translate"],
+            exclude: [
+                "TranslatorServicesTests.xctestplan",
+                "Resources/TheGoodTheBadAndTheUgly.xcstrings"
+            ],
+            resources: [.copy("Resources")]
         )
     ]
 )
