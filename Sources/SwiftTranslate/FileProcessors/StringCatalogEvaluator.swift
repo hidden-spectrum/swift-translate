@@ -33,28 +33,33 @@ struct StringCatalogEvaluator {
 
     func process(fileAt fileUrl: URL) async throws -> Int {
         let catalog = try loadStringCatalog(from: fileUrl)
-        let numberOfVerifiedStrings = try await evaluate(catalog: catalog)
 
         var targetUrl = fileUrl
         if !overwrite {
             targetUrl = targetUrl.deletingPathExtension().appendingPathExtension("loc.xcstrings")
         }
-        try catalog.write(to: targetUrl)
+
+        let numberOfVerifiedStrings = try await evaluate(
+            catalog: catalog,
+            savingPeriodicallyTo: targetUrl
+        )
 
         return numberOfVerifiedStrings
     }
 
     @discardableResult
-    func evaluate(catalog: StringCatalog) async throws -> Int {
+    func evaluate(catalog: StringCatalog, savingPeriodicallyTo fileURL: URL? = nil) async throws -> Int {
         if catalog.allKeys.isEmpty {
             return 0
         }
-        var numberOfVerifiedStrings = 0
+        var reviewedStringsCount = 0
         for key in catalog.allKeys {
-            numberOfVerifiedStrings += try await evaluate(key: key, in: catalog)
+            try await evaluate(key: key, in: catalog, reviewedStringsCount: &reviewedStringsCount, savingPeriodicallyTo: fileURL)
         }
-
-        return numberOfVerifiedStrings
+        if let fileURL {
+            try catalog.write(to: fileURL)
+        }
+        return reviewedStringsCount
     }
 
     private func loadStringCatalog(from url: URL) throws -> StringCatalog {
@@ -64,14 +69,18 @@ struct StringCatalogEvaluator {
         return catalog
     }
 
-    private func evaluate(key: String, in catalog: StringCatalog) async throws -> Int {
+    private func evaluate(
+        key: String,
+        in catalog: StringCatalog,
+        reviewedStringsCount: inout Int,
+        savingPeriodicallyTo fileURL: URL?
+    ) async throws {
         guard let localizableStringGroup = catalog.localizableStringGroups[key] else {
-            return 0
+            return
         }
 
         var hasLoggedWillEvaluate = false
 
-        var numberOfVerifiedStrings = 0
         for localizableString in localizableStringGroup.strings {
             let isSource = catalog.sourceLanguage == localizableString.targetLanguage
             let language = localizableString.targetLanguage
@@ -85,6 +94,7 @@ struct StringCatalogEvaluator {
                 continue
             }
 
+            // Only log the "Evaluating key" if there's actually a translation to evaluate
             if !hasLoggedWillEvaluate {
                 hasLoggedWillEvaluate = true
                 Log.info(newline: verbose ? .before : .none, "Evaluating key `\(key.truncatedRemovingNewlines(to: 64))` " + "[Comment: \(localizableStringGroup.comment ?? "n/a")]".dim)
@@ -101,12 +111,15 @@ struct StringCatalogEvaluator {
                 if result.quality == .good {
                     localizableString.setTranslated()
                 }
-                numberOfVerifiedStrings += 1
+                reviewedStringsCount += 1
             } catch {
                 logError(language: language, error: error)
             }
+
+            if let fileURL, reviewedStringsCount % 5 == 0 {
+                try catalog.write(to: fileURL)
+            }
         }
-        return numberOfVerifiedStrings
     }
 
     // MARK: Utilities
