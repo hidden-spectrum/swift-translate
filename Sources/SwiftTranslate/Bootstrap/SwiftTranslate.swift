@@ -15,6 +15,7 @@ struct SwiftTranslate: AsyncParsableCommand {
         abstract: "Swift Translate is a CLI tool and Swift Package Plugin that makes it easy to localize your app",
         subcommands: [
             TranslateCommand.self,
+            ReviewCommand.self,
             MarkNeedsReviewCommand.self
         ]
     )

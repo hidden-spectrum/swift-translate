@@ -68,7 +68,8 @@ struct StringCatalogEvaluator {
         guard let localizableStringGroup = catalog.localizableStringGroups[key] else {
             return 0
         }
-        Log.info(newline: verbose ? .before : .none, "Evaluating key `\(key.truncatedRemovingNewlines(to: 64))` " + "[Comment: \(localizableStringGroup.comment ?? "n/a")]".dim)
+
+        var hasLoggedWillEvaluate = false
 
         var numberOfVerifiedStrings = 0
         for localizableString in localizableStringGroup.strings {
@@ -78,10 +79,15 @@ struct StringCatalogEvaluator {
             guard
                 languages == nil || languages?.contains(language) == true,
                 !isSource,
-                localizableString.state == .translated,
+                localizableString.state == .needsReview,
                 let translation = localizableString.translatedValue
             else {
                 continue
+            }
+
+            if !hasLoggedWillEvaluate {
+                hasLoggedWillEvaluate = true
+                Log.info(newline: verbose ? .before : .none, "Evaluating key `\(key.truncatedRemovingNewlines(to: 64))` " + "[Comment: \(localizableStringGroup.comment ?? "n/a")]".dim)
             }
 
             do {
@@ -92,8 +98,8 @@ struct StringCatalogEvaluator {
                     comment: localizableStringGroup.comment
                 )
                 logResult(result, translation: translation, in: language)
-                if result.quality != .good {
-                    localizableString.setNeedsReview()
+                if result.quality == .good {
+                    localizableString.setTranslated()
                 }
                 numberOfVerifiedStrings += 1
             } catch {

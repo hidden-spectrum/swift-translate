@@ -41,6 +41,10 @@ public final class LocalizableString {
         state = .translated
     }
 
+    public func setTranslated() {
+        state = .translated
+    }
+
     public func setNeedsReview() {
         state = .needsReview
     }

@@ -15,11 +15,7 @@ struct ActionCoordinator {
     enum Action {
         case translateFileOrDirectory(URL, Set<Language>?, overwrite: Bool)
         case translateText(String, Set<Language>)
-        case evaluateQuality(
-            URL,
-            Set<Language>?,
-            overwrite: Bool
-        )
+        case reviewFileOrDirectory(URL, Set<Language>?, overwrite: Bool)
     }
 
     let action: Action
@@ -50,14 +46,16 @@ struct ActionCoordinator {
         case .translateText(let string, let targetLanguages):
             logPrefix = "Translated"
             try await translate(string, to: targetLanguages)
-        case .evaluateQuality(let url, let languages, let overwrite):
-            logPrefix = "Evaluated"
-            keysCount = try await evaluateQuality(of: url, languages: languages, overwrite: overwrite)
+        case .reviewFileOrDirectory(let url, let languages, let overwrite):
+            logPrefix = "Reviewed"
+            keysCount = try await reviewFiles(at: url, languages: languages, overwrite: overwrite)
+
+            if keysCount == 0 {
+                Log.info(newline: .both, "Found no keys marked as NEEDS REVIEW")
+            }
         }
         if keysCount > 0 {
             Log.success(newline: .after, startDate: startDate, "\(logPrefix) \(keysCount) key(s)")
-        } else {
-            Log.info(newline: .both, "\(logPrefix) \(keysCount) key(s)")
         }
     }
     
@@ -102,8 +100,8 @@ struct ActionCoordinator {
 
     // MARK: Evaluate translations
 
-    private func evaluateQuality(
-        of url: URL,
+    private func reviewFiles(
+        at url: URL,
         languages: Set<Language>?,
         overwrite: Bool
     ) async throws -> Int {

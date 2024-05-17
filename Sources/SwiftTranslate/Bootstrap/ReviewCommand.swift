@@ -1,5 +1,5 @@
 //
-//  TranslateCommand.swift
+//  ReviewCommand.swift
 //
 //
 //  Created by Jonas Bromö on 2024-05-17.
@@ -10,10 +10,11 @@ import Foundation
 import OpenAI
 import SwiftStringCatalog
 
-struct TranslateCommand: AsyncParsableCommand {
+struct ReviewCommand: AsyncParsableCommand {
 
     static var configuration = CommandConfiguration(
-        commandName: "translate"
+        commandName: "review",
+        abstract: "Review the quality of translations marked as NEEDS REVIEW. Marking good translations as translated/green."
     )
 
     // MARK: Command Line Options
@@ -29,11 +30,6 @@ struct TranslateCommand: AsyncParsableCommand {
         help: "OpenAI Model (e.g. \"gpt-4o\", the model must support function calling, see: https://platform.openai.com/docs/guides/function-calling/supported-models)"
     )
     private var model: String = Model.gpt3_5Turbo
-
-    @OptionGroup(
-        title: "Translate text"
-    )
-    private var textOptions: TextTranslationOptions
 
     @OptionGroup(
         title: "Translate string catalogs"
@@ -72,37 +68,21 @@ struct TranslateCommand: AsyncParsableCommand {
 
         let targetLanguages = try getTargetLanguages(from: languages)
 
-        var action: ActionCoordinator.Action
-        if let text = textOptions.text {
-            guard let targetLanguages else {
-                throw ValidationError("Target language(s) is required for text translation")
-            }
-            action = .translateText(text, targetLanguages)
-        } else if let fileOrDirectory = catalogOptions.fileOrDirectory.first {
-            action = .translateFileOrDirectory(
-                URL(fileURLWithPath: fileOrDirectory),
-                targetLanguages,
-                overwrite: catalogOptions.overwriteExisting
-            )
-        } else {
-            throw ValidationError("No text or string catalog file to translate provided")
+        guard let fileOrDirectory = catalogOptions.fileOrDirectory.first else {
+            throw ValidationError("A string catalog file or directory to evaluate must be provided")
         }
 
         let coordinator = ActionCoordinator(
-            action: action,
+            action: .reviewFileOrDirectory(
+                URL(fileURLWithPath: fileOrDirectory),
+                targetLanguages,
+                overwrite: catalogOptions.overwriteExisting
+            ),
             translator: translator,
             skipConfirmation: skipConfirmation,
             verbose: verbose
         )
         try await coordinator.process()
     }
-}
 
-fileprivate struct TextTranslationOptions: ParsableArguments {
-
-    @Option(
-        name: [.long, .short],
-        help: "Text to translate"
-    )
-    var text: String?
 }
