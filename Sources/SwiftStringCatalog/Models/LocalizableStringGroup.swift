@@ -24,4 +24,11 @@ public struct LocalizableStringGroup {
         self.extractionState = extractionState
         self.strings = strings
     }
+
+    // MARK: Getters
+
+    public func string(for language: Language) -> LocalizableString? {
+        strings.first(where: { $0.targetLanguage == language })
+    }
+
 }

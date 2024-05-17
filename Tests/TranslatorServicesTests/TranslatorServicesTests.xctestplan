@@ -1,0 +1,27 @@
+{
+  "configurations" : [
+    {
+      "id" : "5A6C3716-6F35-47F0-A937-636433F8131A",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "skippedTests" : [
+        "QualityEvaluationTests"
+      ],
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TranslatorServicesTests",
+        "name" : "TranslatorServicesTests"
+      }
+    }
+  ],
+  "version" : 1
+}
