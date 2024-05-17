@@ -57,7 +57,36 @@ public final class StringCatalog {
         self.sourceLanguage = sourceLanguage
         self.targetLanguages = targetLanguages
     }
-    
+
+    // MARK: Actions
+
+    @discardableResult
+    public func markNeedsReview(_ languagesOption: LanguagesOption) -> Int {
+        let languagesToMark: Set<Language>
+        switch languagesOption {
+        case .allCommon:
+            languagesToMark = Set(Language.allCommon)
+        case .allInStringCatalog:
+            languagesToMark = Set(targetLanguages)
+        case .languages(let languages):
+            languagesToMark = Set(languages)
+        }
+
+        var markedStringsCount = 0
+        for group in localizableStringGroups.values {
+            for string in group.strings {
+                guard languagesToMark.contains(string.targetLanguage) else {
+                    continue
+                }
+                if string.state == .translated {
+                    string.setNeedsReview()
+                    markedStringsCount += 1
+                }
+            }
+        }
+        return markedStringsCount
+    }
+
     // MARK: Loading
     
     private func detectedTargetLanguages(in catalog: _StringCatalog) -> Set<Language> {

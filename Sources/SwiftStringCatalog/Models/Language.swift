@@ -4,6 +4,9 @@
 
 import Foundation
 
+public enum LanguagesOption {
+    case allCommon, allInStringCatalog, languages([Language])
+}
 
 public struct Language: Codable, Equatable, Hashable, RawRepresentable {
     
