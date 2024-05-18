@@ -12,17 +12,26 @@ struct StringCatalogTranslator: FileTranslator {
     
     let overwrite: Bool
     let skipConfirmations: Bool
+    let setNeedsReviewAfterTranslating: Bool
     let targetLanguages: Set<Language>?
     let service: TranslationService
     let verbose: Bool
     
     // MARK: Lifecycle
     
-    init(with translator: TranslationService, targetLanguages: Set<Language>?, overwrite: Bool, skipConfirmations: Bool, verbose: Bool) {
+    init(
+        with translator: TranslationService,
+        targetLanguages: Set<Language>?,
+        overwrite: Bool,
+        skipConfirmations: Bool,
+        setNeedsReviewAfterTranslating: Bool,
+        verbose: Bool
+    ) {
         self.skipConfirmations = skipConfirmations
         self.overwrite = overwrite
         self.targetLanguages = targetLanguages
         self.service = translator
+        self.setNeedsReviewAfterTranslating = setNeedsReviewAfterTranslating
         self.verbose = verbose
     }
     
@@ -95,6 +104,10 @@ struct StringCatalogTranslator: FileTranslator {
                     comment: localizableStringGroup.comment
                 )
                 localizableString.setTranslation(translatedString)
+                if setNeedsReviewAfterTranslating {
+                    localizableString.setNeedsReview()
+                }
+
                 if verbose {
                     logTranslationResult(to: targetLanguage, result: translatedString.truncatedRemovingNewlines(to: 64), isSource: isSource)
                 }

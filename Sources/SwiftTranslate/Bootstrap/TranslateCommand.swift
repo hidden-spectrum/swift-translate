@@ -82,7 +82,8 @@ struct TranslateCommand: AsyncParsableCommand {
             action = .translateFileOrDirectory(
                 URL(fileURLWithPath: fileOrDirectory),
                 targetLanguages,
-                overwrite: catalogOptions.overwriteExisting
+                overwrite: catalogOptions.overwriteExisting,
+                setNeedsReviewAfterTranslating: catalogOptions.setNeedsReviewAfterTranslating
             )
         } else {
             throw ValidationError("No text or string catalog file to translate provided")

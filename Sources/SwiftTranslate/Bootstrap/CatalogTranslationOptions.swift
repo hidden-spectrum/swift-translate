@@ -15,6 +15,12 @@ struct CatalogTranslationOptions: ParsableArguments {
     )
     var overwriteExisting: Bool = false
 
+    @Flag(
+        name: [.customLong("set-needs-review")],
+        help: "Mark strings that are translated as NEEDS REVIEW. E.g. to allow reviewing their quality."
+    )
+    var setNeedsReviewAfterTranslating: Bool = false
+
     @Argument(
         parsing: .remaining,
         help: "File or directory containing string catalogs to translate"

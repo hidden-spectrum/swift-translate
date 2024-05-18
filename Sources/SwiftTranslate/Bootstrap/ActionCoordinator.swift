@@ -13,7 +13,12 @@ struct ActionCoordinator {
     // MARK: Internal
     
     enum Action {
-        case translateFileOrDirectory(URL, Set<Language>?, overwrite: Bool)
+        case translateFileOrDirectory(
+            URL,
+            Set<Language>?,
+            overwrite: Bool,
+            setNeedsReviewAfterTranslating: Bool
+        )
         case translateText(String, Set<Language>)
         case reviewFileOrDirectory(URL, Set<Language>?, overwrite: Bool)
     }
@@ -25,7 +30,12 @@ struct ActionCoordinator {
 
     // MARK: Lifecycle
     
-    init(action: Action, translator: TranslationService, skipConfirmation: Bool, verbose: Bool) {
+    init(
+        action: Action,
+        translator: TranslationService,
+        skipConfirmation: Bool,
+        verbose: Bool
+    ) {
         self.action = action
         self.translator = translator
         self.skipConfirmation = skipConfirmation
@@ -40,9 +50,14 @@ struct ActionCoordinator {
         let logPrefix: String
 
         switch action {
-        case .translateFileOrDirectory(let fileOrDirectoryUrl, let targetLanguages, let overwrite):
+        case .translateFileOrDirectory(let fileOrDirectoryUrl, let targetLanguages, let overwrite, let setNeedsReviewAfterTranslating):
             logPrefix = "Translated"
-            keysCount = try await translateFiles(at: fileOrDirectoryUrl, to: targetLanguages, overwrite: overwrite)
+            keysCount = try await translateFiles(
+                at: fileOrDirectoryUrl,
+                to: targetLanguages,
+                overwrite: overwrite,
+                setNeedsReviewAfterTranslating: setNeedsReviewAfterTranslating
+            )
         case .translateText(let string, let targetLanguages):
             logPrefix = "Translated"
             try await translate(string, to: targetLanguages)
@@ -74,7 +89,12 @@ struct ActionCoordinator {
     
     // MARK: Translate Files
     
-    private func translateFiles(at url: URL, to targetLanguages: Set<Language>?, overwrite: Bool) async throws -> Int {
+    private func translateFiles(
+        at url: URL,
+        to targetLanguages: Set<Language>?,
+        overwrite: Bool,
+        setNeedsReviewAfterTranslating: Bool
+    ) async throws -> Int {
         let fileFinder = TranslatableFileFinder(fileOrDirectoryURL: url, type: .stringCatalog)
         let translatableFiles = try fileFinder.findTranslatableFiles()
         
@@ -87,6 +107,7 @@ struct ActionCoordinator {
             targetLanguages: targetLanguages,
             overwrite: overwrite,
             skipConfirmations: skipConfirmation,
+            setNeedsReviewAfterTranslating: setNeedsReviewAfterTranslating,
             verbose: verbose
         )
         
