@@ -130,7 +130,7 @@ struct StringCatalogTranslator: FileTranslator {
         }
         print("\n?".yellow, "Are you sure you wish to translate \(stringsCount) keys into \(languageCount) languages? Y/n")
         let yesNo = readLine()
-        guard yesNo == "Y" else {
+        guard yesNo?.lowercased() == "y" || yesNo == "" else {
             print("Translation canceled 🫡".yellow)
             exit(0)
         }
