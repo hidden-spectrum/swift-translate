@@ -36,17 +36,25 @@ struct StringCatalogTranslator: FileTranslator {
         if catalog.allKeys.isEmpty {
             return 0
         }
-        
-        for key in catalog.allKeys {
-            try await translate(key: key, in: catalog)
-        }
-        
+
         var targetUrl = fileUrl
         if !overwrite {
             targetUrl = targetUrl.deletingPathExtension().appendingPathExtension("loc.xcstrings")
         }
+
+        var translatedStringsCount = 0
+        for key in catalog.allKeys {
+            try await translate(
+                key: key,
+                in: catalog,
+                translatedStringsCount: &translatedStringsCount,
+                savingPeriodicallyTo: targetUrl
+            )
+        }
+
         try catalog.write(to: targetUrl)
-        return catalog.allKeys.count
+
+        return translatedStringsCount
     }
     
     private func loadStringCatalog(from url: URL) throws -> StringCatalog {
@@ -56,7 +64,12 @@ struct StringCatalogTranslator: FileTranslator {
         return catalog
     }
     
-    private func translate(key: String, in catalog: StringCatalog) async throws {
+    private func translate(
+        key: String,
+        in catalog: StringCatalog,
+        translatedStringsCount: inout Int,
+        savingPeriodicallyTo fileURL: URL
+    ) async throws {
         guard let localizableStringGroup = catalog.localizableStringGroups[key] else {
             return
         }
@@ -85,8 +98,13 @@ struct StringCatalogTranslator: FileTranslator {
                 if verbose {
                     logTranslationResult(to: targetLanguage, result: translatedString.truncatedRemovingNewlines(to: 64), isSource: isSource)
                 }
+                translatedStringsCount += 1
             } catch {
                 logTranslationResult(to: targetLanguage, result: "[Error: \(error.localizedDescription)]".red, isSource: isSource)
+            }
+
+            if translatedStringsCount % 5 == 0 {
+                try catalog.write(to: fileURL)
             }
         }
     }
