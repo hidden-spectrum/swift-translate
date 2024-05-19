@@ -63,18 +63,26 @@ let package = Package(
         // Tests
         .testTarget(
             name: "SwiftStringCatalogTests",
-            dependencies: ["SwiftStringCatalog"],
-            exclude: ["SwiftStringCatalog.xctestplan"],
-            resources: [.process("Resources")]
+            dependencies: ["SwiftStringCatalog", "TestUtils"],
+            exclude: [
+                "SwiftStringCatalog.xctestplan",
+                "Resources/BasicCatalog.xcstrings"
+            ],
+            resources: [.copy("Resources")]
         ),
         .testTarget(
             name: "TranslatorServicesTests",
-            dependencies: ["swift-translate"],
+            dependencies: ["swift-translate", "TestUtils"],
             exclude: [
                 "TranslatorServicesTests.xctestplan",
                 "Resources/TheGoodTheBadAndTheUgly.xcstrings"
             ],
             resources: [.copy("Resources")]
-        )
+        ),
+        .target(
+            name: "TestUtils",
+            dependencies: [],
+            path: "Tests/Utils"
+        ),
     ]
 )

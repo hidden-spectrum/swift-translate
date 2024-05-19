@@ -5,13 +5,16 @@
 @testable import SwiftStringCatalog
 import Foundation
 import XCTest
-
+import TestUtils
 
 class StringCatalogTests: XCTestCase {
     
     // MARK: Private
     
-    let basicTestCatalog = Bundle.module.url(forResource: "BasicCatalog", withExtension: "json")!
+    let basicTestCatalog = try! FileManager.default.find(
+        "BasicCatalog.xcstrings",
+        in: Bundle.module.bundleURL
+    )
     let basicTestKey = "This is a test"
     
     // MARK: Basic Tests
@@ -47,4 +50,23 @@ class StringCatalogTests: XCTestCase {
         
         XCTAssertEqual(localizableStrings.count, 4)
     }
+
+    func testReadKey1() throws {
+        let catalog = try StringCatalog(url: basicTestCatalog)
+        let localizableString = catalog.localizableStringGroups["KEY_1"]?.string(for: .italian)
+
+        XCTAssertEqual(localizableString?.sourceKey, "KEY_1") // TODO: Fix failure, rename sourceKey -> sourceValue?
+        XCTAssertEqual(localizableString?.translatedValue, "Traduzione")
+        XCTAssertEqual(localizableString?.state, .translated)
+    }
+
+    func testReadTranslation() throws {
+        let catalog = try StringCatalog(url: basicTestCatalog)
+        let localizableString = catalog.localizableStringGroups["Translation"]?.string(for: .italian)
+
+        XCTAssertEqual(localizableString?.sourceKey, "Translation") // TODO: Fix failure, why is this the translated value ("Traduzione")?
+        XCTAssertEqual(localizableString?.translatedValue, "Traduzione")
+        XCTAssertEqual(localizableString?.state, .translated)
+    }
+
 }
