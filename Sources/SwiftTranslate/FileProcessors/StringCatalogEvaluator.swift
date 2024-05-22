@@ -102,7 +102,7 @@ struct StringCatalogEvaluator {
 
             do {
                 let result = try await service.evaluateQuality(
-                    key, // TODO: Why does localizableString.sourceKey contain the translated value?
+                    localizableString.sourceKey,
                     translation: translation,
                     in: language,
                     comment: localizableStringGroup.comment

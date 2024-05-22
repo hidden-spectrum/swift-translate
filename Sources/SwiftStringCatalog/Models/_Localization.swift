@@ -100,9 +100,9 @@ final class LocalizableStringConstructionContext {
     }
     
     private init(isSource: Bool, targetLanguage: Language, sourceLanguageStrings: [LocalizableString]) {
-        self.isSource = true
+        self.isSource = isSource
         self.targetLanguage = targetLanguage
-        self.sourceLanguageStrings = []
+        self.sourceLanguageStrings = sourceLanguageStrings
     }
     
     func embeddedSourceKey(matching kind: LocalizableString.Kind, or givenSourceKey: String) throws -> String {
