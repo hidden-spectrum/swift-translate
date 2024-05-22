@@ -107,7 +107,9 @@ struct StringCatalogEvaluator {
                     in: language,
                     comment: localizableStringGroup.comment
                 )
-                logResult(result, translation: translation, in: language)
+                if verbose {
+                    logResult(result, translation: translation, in: language)
+                }
                 if result.quality == .good {
                     localizableString.setTranslated()
                 }

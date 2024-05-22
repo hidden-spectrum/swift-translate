@@ -18,22 +18,13 @@ class QualityEvaluationTests: XCTestCase {
     var catalog: StringCatalog!
 
     override func setUp() async throws {
+        service = OpenAITranslator(with: try apiKey(), model: model)
+
         let stringCatalogURL = try FileManager.default.find(
             "TheGoodTheBadAndTheUgly.xcstrings",
             in: Bundle.module.bundleURL
         )
         catalog = try StringCatalog(url: stringCatalogURL)
-
-        // TODO: Is there a better way to read the api key?
-        let projectRootURL = try FileManager.default.findProjectRoot()
-        guard let apiKeyFileURL = projectRootURL?.appending(component: ".secret-openai-api-key") else {
-            Log.error("Please create a .secret-openai-api-key file in the project root (that contains the Package.swift) containing an OpenAI Api Key.")
-            throw CocoaError(.fileNoSuchFile)
-        }
-        let apiKey = try String(contentsOf: apiKeyFileURL, encoding: .utf8)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-
-        service = OpenAITranslator(with: apiKey, model: model)
     }
 
     func testNotGoodWrongEmoji() async throws {
@@ -86,6 +77,26 @@ class QualityEvaluationTests: XCTestCase {
         XCTAssertNotEqual(result.quality, .good, "The comment was ignored.")
     }
 
+    func testGoodEmpty() async throws {
+        let result = try await evaluate(.swedish, key: "")
+        XCTAssertEqual(result.quality, .good, "Empty string not evaluated correctly!")
+    }
+
+    func testGoodNewline() async throws {
+        let result = try await evaluate(.swedish, key: "\n")
+        XCTAssertEqual(result.quality, .good, "Newline not evaluated correctly!")
+    }
+
+    func testGoodSpecialCharacters() async throws {
+        let result = try await evaluate(.swedish, key: ") * ")
+        XCTAssertEqual(result.quality, .good, "Special characters not evaluated correctly!")
+    }
+
+    func testBadEqualsSign() async throws {
+        let result = try await evaluate(.swedish, key: " = ")
+        XCTAssertNotEqual(result.quality, .good, "Equals sign with unbalanced whitespace incorrectly evaluated as good")
+    }
+
     // MARK: - Helpers
 
     private func evaluate(_ language: Language, key: String) async throws -> EvaluationResult {
@@ -102,6 +113,18 @@ class QualityEvaluationTests: XCTestCase {
             comment: group.comment
         )
         return result
+    }
+
+    private func apiKey() throws -> String {
+        // TODO: Is there a better way to read the api key?
+        let projectRootURL = try FileManager.default.findProjectRoot()
+        guard let apiKeyFileURL = projectRootURL?.appending(component: ".secret-openai-api-key") else {
+            Log.error("Please create a .secret-openai-api-key file in the project root (that contains the Package.swift) containing an OpenAI Api Key.")
+            throw CocoaError(.fileNoSuchFile)
+        }
+        let apiKey = try String(contentsOf: apiKeyFileURL, encoding: .utf8)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return apiKey
     }
 
 }

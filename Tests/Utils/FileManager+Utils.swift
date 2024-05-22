@@ -33,8 +33,8 @@ public extension FileManager {
             let contentURL = directoryURL.appendingPathComponent(content)
             if content == filename {
                 return contentURL
-            } else {
-                return try find(filename, in: contentURL)
+            } else if let result = try _find(filename, in: contentURL) {
+                return result
             }
         }
         return nil

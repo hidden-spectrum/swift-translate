@@ -1,0 +1,45 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+      "extractionState" : "manual"
+    },
+    "\n" : {
+      "extractionState" : "manual"
+    },
+    " * " : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " * "
+          }
+        }
+      }
+    },
+    "(" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "("
+          }
+        }
+      }
+    },
+    ") * " : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ") * "
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

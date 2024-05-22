@@ -75,7 +75,8 @@ let package = Package(
             dependencies: ["swift-translate", "TestUtils"],
             exclude: [
                 "TranslatorServicesTests.xctestplan",
-                "Resources/TheGoodTheBadAndTheUgly.xcstrings"
+                "Resources/TheGoodTheBadAndTheUgly.xcstrings",
+                "Resources/Localizable.xcstrings"
             ],
             resources: [.copy("Resources")]
         ),

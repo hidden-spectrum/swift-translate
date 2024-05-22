@@ -29,23 +29,30 @@ struct OpenAITranslator {
     private func chatQuery(for inputText: String, targetLanguage: Language, comment: String?) -> ChatQuery {
         let systemPrompt = """
             You are a helpful assistant designed to output JSON.
-            Your task is to translate text.
-            If the input text contains argument placeholders (%arg, @arg1, %lld, etc), it's important they are preserved in the translated text.
             """
 
         var userPrompt =
             """
-            Translate the text between the backticks (``````) from English to the language with ISO 639-1 code: \(targetLanguage.rawValue).
+            Translate the source text within the 6 backticks (``````) into the language with ISO 639-1 code: \(targetLanguage.rawValue).
+
+            Instructions:
+            - Read the source text exactly as it appears wihtin the 6 backticks (``````).
+            - Don not include the 6 backticks (``````) in the translation.
+            - Provide a success or failure status indicating the translation outcome.
+
+            Requirements:
+            - Any argument placeholders (%arg, @arg1, %lld, etc) in the source must be still be present in the translation.
+            - Any leading or trailing whitespace in the source must be preserved in the translation.
             """
+
         if let comment {
             userPrompt += """
-                Take into account the following context when translating: \(comment)
+                - Take into account the following context when translating: \(comment)
                 """
         }
         userPrompt += """
-            ``````
-            \(inputText)
-            ``````
+            
+            Source (English): ``````\(inputText)``````
             """
 
         return ChatQuery(
@@ -67,7 +74,7 @@ extension OpenAITranslator: TranslationService {
     // MARK: Translate
     
     func translate(_ string: String, to targetLanguage: Language, comment: String?) async throws -> String {
-        guard !string.isEmpty else {
+        guard string.rangeOfCharacter(from: .letters) != nil else {
             return string
         }
 
@@ -92,7 +99,7 @@ extension OpenAITranslator: TranslationService {
                 from: data
             )
         } catch {
-            throw SwiftTranslateError.failedToParseTranslationResponse(error.localizedDescription)
+            throw SwiftTranslateError.failedToParseTranslationResponse((error as NSError).debugDescription)
         }
         guard translationResponse.status == .success else {
             throw SwiftTranslateError.translationFailed
@@ -119,17 +126,17 @@ extension String {
 /// - https://platform.openai.com/docs/guides/text-generation/json-mode
 private let translateFunction = ChatQuery.ChatCompletionToolParam.FunctionDefinition(
     name: "translate",
-    description: "Translate the input text to the specified language.",
+    description: "Translate the source text to the specified target language.",
     parameters: .init(
         type: .object,
         properties: [
-            "input": .init(
+            "source": .init(
                 type: .string,
                 description: "The text to be translated."
             ),
-            "inputLanguageCode": .init(
+            "sourceLanguageCode": .init(
                 type: .string,
-                description: "The ISO 639-1 language code of the input text (e.g., 'en' for English)."
+                description: "The ISO 639-1 language code of the source text (e.g., 'en' for English)."
             ),
             "targetLanguageCode": .init(
                 type: .string,
@@ -145,13 +152,13 @@ private let translateFunction = ChatQuery.ChatCompletionToolParam.FunctionDefini
                 enum: ["success", "failure"]
             )
         ],
-        required: ["input", "inputLanguageCode", "targetLanguageCode", "translation", "status"]
+        required: ["source", "sourceLanguageCode", "targetLanguageCode", "translation", "status"]
     )
 )
 
 private struct TranslationFunctionResponse: Codable {
-    let input: String
-    let inputLanguageCode: String
+    let source: String
+    let sourceLanguageCode: String
     let targetLanguageCode: String
     let translation: String
     let status: Status

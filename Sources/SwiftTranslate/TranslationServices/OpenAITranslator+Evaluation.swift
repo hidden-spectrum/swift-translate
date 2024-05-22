@@ -17,6 +17,12 @@ extension OpenAITranslator: EvaluationService {
         guard string.isEmpty == translation.isEmpty else {
             return EvaluationResult(quality: .bad, explanation: "")
         }
+        guard string.rangeOfCharacter(from: .letters) != nil else {
+            return EvaluationResult(
+                quality: string == translation ? .good : .bad,
+                explanation: ""
+            )
+        }
 
         let result = try await openAI.chats(
             query: chatQuery(for: string, translation: translation, targetLanguage: targetLanguage, comment: comment)
