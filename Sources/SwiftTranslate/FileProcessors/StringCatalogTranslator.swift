@@ -91,7 +91,7 @@ struct StringCatalogTranslator: FileTranslator {
             if localizableString.state == .translated || isSource {
                 if verbose {
                     let result = isSource 
-                        ? localizableString.sourceKey.truncatedRemovingNewlines(to: 64)
+                        ? localizableString.sourceValue.truncatedRemovingNewlines(to: 64)
                         : "[Already translated]".dim
                     logTranslationResult(to: targetLanguage, result: result, isSource: isSource)
                 }
@@ -99,7 +99,7 @@ struct StringCatalogTranslator: FileTranslator {
             }
             do {
                 let translatedString = try await service.translate(
-                    localizableString.sourceKey,
+                    localizableString.sourceValue,
                     to: targetLanguage,
                     comment: localizableStringGroup.comment
                 )

@@ -33,7 +33,7 @@ extension _Variations: LocalizableStringConstructor {
                 let stringUnit = variation.stringUnit
                 return LocalizableString(
                     kind: kind,
-                    sourceKey: try context.embeddedSourceKey(matching: kind, or: stringUnit.value),
+                    sourceValue: try context.embeddedSourceValue(matching: kind, or: stringUnit.value),
                     targetLanguage: context.targetLanguage,
                     translatedValue: variation.stringUnit.value,
                     state: stringUnit.state
@@ -43,12 +43,12 @@ extension _Variations: LocalizableStringConstructor {
             return pluralVariations.compactMap { qualifier, variation in
                 let kind = context.constructKind(variation: .plural(qualifier))
                 let stringUnit = variation.stringUnit
-                guard let sourceKey = try? context.embeddedSourceKey(matching: kind, or: stringUnit.value) else {
+                guard let sourceValue = try? context.embeddedSourceValue(matching: kind, or: stringUnit.value) else {
                     return nil
                 }
                 return LocalizableString(
                     kind: kind,
-                    sourceKey: sourceKey,
+                    sourceValue: sourceValue,
                     targetLanguage: context.targetLanguage,
                     translatedValue: variation.stringUnit.value,
                     state: variation.stringUnit.state

@@ -20,7 +20,7 @@ extension _Localization: LocalizableStringConstructor {
             var localizableStrings = [
                 LocalizableString(
                     kind: .standalone,
-                    sourceKey: try context.embeddedSourceKey(matching: .standalone, or: stringUnit.value),
+                    sourceValue: try context.embeddedSourceValue(matching: .standalone, or: stringUnit.value),
                     targetLanguage: context.targetLanguage,
                     translatedValue: stringUnit.value,
                     state: stringUnit.state
@@ -105,11 +105,11 @@ final class LocalizableStringConstructionContext {
         self.sourceLanguageStrings = sourceLanguageStrings
     }
     
-    func embeddedSourceKey(matching kind: LocalizableString.Kind, or givenSourceKey: String) throws -> String {
+    func embeddedSourceValue(matching kind: LocalizableString.Kind, or stringValue: String) throws -> String {
         if isSource {
-            return givenSourceKey
+            return stringValue
         } else {
-            return try sourceLanguageStrings.sourceKeyLookup(matchingKind: kind)
+            return try sourceLanguageStrings.sourceValueLookup(matchingKind: kind)
         }
     }
     

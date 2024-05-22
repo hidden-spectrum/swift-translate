@@ -34,7 +34,7 @@ class StringCatalogTests: XCTestCase {
             localizableStrings?.first,
             LocalizableString(
                 kind: .standalone,
-                sourceKey: basicTestKey,
+                sourceValue: basicTestKey,
                 targetLanguage: .english,
                 translatedValue: basicTestKey,
                 state: .translated
@@ -55,7 +55,7 @@ class StringCatalogTests: XCTestCase {
         let catalog = try StringCatalog(url: basicTestCatalog)
         let localizableString = catalog.localizableStringGroups["KEY_1"]?.string(for: .italian)
 
-        XCTAssertEqual(localizableString?.sourceKey, "KEY_1") // TODO: Fix failure, rename sourceKey -> sourceValue?
+        XCTAssertEqual(localizableString?.sourceValue, "Translation")
         XCTAssertEqual(localizableString?.translatedValue, "Traduzione")
         XCTAssertEqual(localizableString?.state, .translated)
     }
@@ -64,7 +64,7 @@ class StringCatalogTests: XCTestCase {
         let catalog = try StringCatalog(url: basicTestCatalog)
         let localizableString = catalog.localizableStringGroups["Translation"]?.string(for: .italian)
 
-        XCTAssertEqual(localizableString?.sourceKey, "Translation")
+        XCTAssertEqual(localizableString?.sourceValue, "Translation")
         XCTAssertEqual(localizableString?.translatedValue, "Traduzione")
         XCTAssertEqual(localizableString?.state, .translated)
     }

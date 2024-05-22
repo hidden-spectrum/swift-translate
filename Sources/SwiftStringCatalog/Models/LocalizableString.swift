@@ -9,7 +9,7 @@ public final class LocalizableString {
     
     // MARK: Public
     
-    public let sourceKey: String
+    public let sourceValue: String
     public let targetLanguage: Language
     
     // MARK: Public private(set)
@@ -22,12 +22,12 @@ public final class LocalizableString {
     
     init(
         kind: Kind,
-        sourceKey: String,
+        sourceValue: String,
         targetLanguage: Language,
         translatedValue: String?,
         state: TranslationState
     ) {
-        self.sourceKey = sourceKey
+        self.sourceValue = sourceValue
         self.targetLanguage = targetLanguage
         self.translatedValue = translatedValue
         self.state = state
@@ -67,7 +67,7 @@ public final class LocalizableString {
     func emptyCopy(for targetLanguage: Language) -> LocalizableString {
         return LocalizableString(
             kind: kind,
-            sourceKey: sourceKey,
+            sourceValue: sourceValue,
             targetLanguage: targetLanguage,
             translatedValue: nil,
             state: .new
@@ -97,7 +97,7 @@ public extension LocalizableString {
 extension LocalizableString: Equatable {
     public static func == (lhs: LocalizableString, rhs: LocalizableString) -> Bool {
         return lhs.kind == rhs.kind
-            && lhs.sourceKey == rhs.sourceKey
+            && lhs.sourceValue == rhs.sourceValue
             && lhs.targetLanguage == rhs.targetLanguage
             && lhs.translatedValue == rhs.translatedValue
             && lhs.state == rhs.state

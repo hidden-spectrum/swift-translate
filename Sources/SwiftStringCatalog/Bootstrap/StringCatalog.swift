@@ -127,7 +127,7 @@ public final class StringCatalog {
             return [
                 LocalizableString(
                     kind: .standalone,
-                    sourceKey: key,
+                    sourceValue: key,
                     targetLanguage: sourceLanguage,
                     translatedValue: key,
                     state: .translated

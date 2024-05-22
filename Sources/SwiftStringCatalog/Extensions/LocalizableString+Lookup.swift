@@ -6,19 +6,19 @@ import Foundation
 
 
 extension Array where Element == LocalizableString {
-    func sourceKeyLookup(matchingKind kind: LocalizableString.Kind) throws -> String {
+    func sourceValueLookup(matchingKind kind: LocalizableString.Kind) throws -> String {
         let filteredResults = filter { $0.kind == kind }
         guard let sourceLocalizableString = filteredResults.first else {
-            throw SourceKeyLookupError.notFound
+            throw SourceValueLookupError.notFound
         }
         guard filteredResults.count == 1 else {
-            throw SourceKeyLookupError.multipleFound
+            throw SourceValueLookupError.multipleFound
         }
-        return sourceLocalizableString.sourceKey
+        return sourceLocalizableString.sourceValue
     }
 }
 
-enum SourceKeyLookupError: Error {
+enum SourceValueLookupError: Error {
     case notFound
     case multipleFound
 }
