@@ -87,6 +87,20 @@ public final class StringCatalog {
         return markedStringsCount
     }
 
+    public func removeLanguages(_ languages: Set<Language>) -> Set<Language> {
+        localizableStringGroups = localizableStringGroups.mapValues {
+            LocalizableStringGroup(
+                comment: $0.comment,
+                extractionState: $0.extractionState,
+                strings: $0.strings.filter({ !languages.contains($0.targetLanguage) })
+            )
+        }
+        // Return the removed languages
+        let removed = targetLanguages.intersection(languages)
+        targetLanguages.subtract(languages)
+        return removed
+    }
+
     // MARK: Loading
     
     private func detectedTargetLanguages(in catalog: _StringCatalog) -> Set<Language> {
