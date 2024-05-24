@@ -97,23 +97,36 @@ struct StringCatalogTranslator: FileTranslator {
                 }
                 continue
             }
-            do {
-                let translatedString = try await service.translate(
-                    localizableString.sourceValue,
-                    to: targetLanguage,
-                    comment: localizableStringGroup.comment
-                )
-                localizableString.setTranslation(translatedString)
-                if setNeedsReviewAfterTranslating {
-                    localizableString.setNeedsReview()
-                }
+            
+            let numberOfRetries = 1
+            var failedAttempts = 0
+            while failedAttempts <= numberOfRetries {
+                do {
+                    let translatedString = try await service.translate(
+                        localizableString.sourceValue,
+                        to: targetLanguage,
+                        comment: localizableStringGroup.comment
+                    )
+                    localizableString.setTranslation(translatedString)
+                    if setNeedsReviewAfterTranslating {
+                        localizableString.setNeedsReview()
+                    }
 
-                if verbose {
-                    logTranslationResult(to: targetLanguage, result: translatedString.truncatedRemovingNewlines(to: 64), isSource: isSource)
+                    if verbose {
+                        logTranslationResult(to: targetLanguage, result: translatedString.truncatedRemovingNewlines(to: 64), isSource: isSource)
+                    }
+                    translatedStringsCount += 1
+                    break
+                } catch {
+                    failedAttempts += 1
+                    let result: String
+                    if failedAttempts <= numberOfRetries {
+                        result = "[Error: \(error.localizedDescription)] (retrying)".red
+                    } else {
+                        result = "[Error: \(error.localizedDescription)]".red
+                    }
+                    logTranslationResult(to: targetLanguage, result: result, isSource: isSource)
                 }
-                translatedStringsCount += 1
-            } catch {
-                logTranslationResult(to: targetLanguage, result: "[Error: \(error.localizedDescription)]".red, isSource: isSource)
             }
 
             if translatedStringsCount % 5 == 0 {
@@ -121,7 +134,7 @@ struct StringCatalogTranslator: FileTranslator {
             }
         }
     }
-    
+
     // MARK: Utilities
     
     private func verifyLargeTranslation(of stringsCount: Int, to languageCount: Int) {
