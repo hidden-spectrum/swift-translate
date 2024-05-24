@@ -16,7 +16,8 @@ struct SwiftTranslate: AsyncParsableCommand {
         subcommands: [
             TranslateCommand.self,
             ReviewCommand.self,
-            MarkNeedsReviewCommand.self
+            MarkNeedsReviewCommand.self,
+            LintCommand.self
         ]
     )
 

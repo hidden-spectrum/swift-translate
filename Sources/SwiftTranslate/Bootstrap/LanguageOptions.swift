@@ -16,15 +16,10 @@ func getTargetLanguages(from languages: [Language]) throws -> Set<Language>? {
     } else if languages.first?.rawValue == "all" {
         return Set(Language.allCommon)
     } else {
-        let invalidLanguages: [Language]
-        if #available(macOS 13, *) {
-            invalidLanguages = languages.filter { language in
-                Locale.Language(identifier: language.code).languageCode?.isISOLanguage != true
-            }
-        } else {
-            // This is not really a good check validation check as there's a lot more valid languages than allCommon.
-            invalidLanguages = languages.filter({ !Language.allCommon.contains($0) })
+        let invalidLanguages = languages.filter { language in
+            Locale.Language(identifier: language.code).languageCode?.isISOLanguage != true
         }
+
         guard invalidLanguages.isEmpty else {
             throw ValidationError("Invalid language(s) provided: \(invalidLanguages.map(\.rawValue).joined(separator: ", "))")
         }

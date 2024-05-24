@@ -7,7 +7,6 @@
 
 import Foundation
 
-@available(macOS 13.0, *)
 public extension FileManager {
 
     func find(_ filename: String, in directoryURL: URL) throws -> URL {

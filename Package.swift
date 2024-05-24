@@ -7,7 +7,7 @@ import PackageDescription
 let package = Package(
     name: "SwiftTranslate",
     platforms: [
-        .macOS(.v12)
+        .macOS(.v13)
     ],
     products: [
         .plugin(
