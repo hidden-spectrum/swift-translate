@@ -6,5 +6,6 @@ import Foundation
 
 
 public enum OpenAIModel: String {
-    case gpt3_5TurboInstruct = "gpt-3.5-turbo-instruct"
+    case gpt3_5Turbo = "gpt-3.5-turbo"
+    case gpt4o = "gpt-4o"
 }
