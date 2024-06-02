@@ -6,6 +6,8 @@ import Foundation
 
 
 enum SwiftTranslateError: Error {
+    case couldNotCreateGoogleTranslateURL
+    case couldNotDecodeTranslationResponse
     case couldNotSearchDirectoryAt(URL)
     case noTranslationReturned
 }

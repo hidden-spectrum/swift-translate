@@ -23,28 +23,65 @@ struct GoogleTranslator {
     // MARK: Utility
     
     func buildRequest(for translatableText: String, targetLanguage: Language) throws -> URLRequest {
-        var request = URLRequest(url: apiUrl)
+        var urlComponents = URLComponents()
+        urlComponents.scheme = "https"
+        urlComponents.host = "translation.googleapis.com"
+        urlComponents.path = "/language/translate/v2"
+        urlComponents.queryItems = [
+            URLQueryItem(name: "key", value: apiKey),
+            URLQueryItem(name: "source", value: Language.english.rawValue),
+            URLQueryItem(name: "q", value: translatableText),
+            URLQueryItem(name: "target", value: targetLanguage.rawValue),
+            URLQueryItem(name: "format", value: "text")
+        ]
+        guard let url = urlComponents.url else {
+            throw SwiftTranslateError.couldNotCreateGoogleTranslateURL
+        }
+        
+        var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        
-        let body = GoogleTranslationParameters(q: translatableText, target: targetLanguage.rawValue)
-        request.httpBody = try JSONSerialization.data(withJSONObject: body)
-        
         return request
     }
 }
 
 extension GoogleTranslator: TranslationService {
     func translate(_ string: String, to targetLanguage: Language, comment: String?) async throws -> String {
+        if targetLanguage == .english {
+            return string
+        }
+        
         let request = try buildRequest(for: string, targetLanguage: targetLanguage)
         let (data, _) = try await URLSession.shared.data(for: request)
-        return ""
+       
+        guard let response = try? JSONDecoder().decode(GoogleTranslationResponse.self, from: data) else {
+            throw SwiftTranslateError.couldNotDecodeTranslationResponse
+        }
+        guard let translation = response.data.translations.first else {
+            throw SwiftTranslateError.noTranslationReturned
+        }
+        
+        return translation.translatedText
     }
 }
 
 
 struct GoogleTranslationParameters: Encodable {
+    let key: String
+    let source: Language
     let q: String
     let target: String
+    let format = "text"
+}
+
+
+struct GoogleTranslationResponse: Decodable {
+    let data: Data
+    
+    struct Data: Decodable {
+        let translations: [Translation]
+        
+        struct Translation: Decodable {
+            let translatedText: String
+        }
+    }
 }
