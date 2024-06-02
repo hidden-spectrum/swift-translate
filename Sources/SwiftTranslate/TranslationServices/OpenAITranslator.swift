@@ -42,6 +42,8 @@ struct OpenAITranslator {
                 .user(.init(content: .string(translatableText))),
             ],
             model: model.rawValue,
+            frequencyPenalty: -2,
+            presencePenalty: -2,
             responseFormat: .text
         )
     }
