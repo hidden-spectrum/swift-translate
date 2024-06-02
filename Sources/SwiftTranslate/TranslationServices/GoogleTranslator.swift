@@ -65,15 +65,6 @@ extension GoogleTranslator: TranslationService {
 }
 
 
-struct GoogleTranslationParameters: Encodable {
-    let key: String
-    let source: Language
-    let q: String
-    let target: String
-    let format = "text"
-}
-
-
 struct GoogleTranslationResponse: Decodable {
     let data: Data
     
