@@ -25,7 +25,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
-        .package(url: "https://github.com/MacPaw/OpenAI.git", .upToNextMajor(from: "0.2.5")),
+        .package(url: "https://github.com/MacPaw/OpenAI.git", .upToNextMajor(from: "0.2.9")),
         .package(url: "https://github.com/onevcat/Rainbow.git", .upToNextMajor(from: "4.0.0")),
     ],
     targets: [
