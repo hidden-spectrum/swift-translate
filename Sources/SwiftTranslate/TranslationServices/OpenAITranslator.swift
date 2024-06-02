@@ -17,7 +17,7 @@ struct OpenAITranslator {
     
     // MARK: Lifecycle
     
-    init(with apiToken: String, model: OpenAIModel = .gpt3_5Turbo) {
+    init(with apiToken: String, model: OpenAIModel) {
         self.openAI = OpenAI(apiToken: apiToken)
         self.model = model
     }
@@ -55,11 +55,10 @@ extension OpenAITranslator: TranslationService {
         guard !string.isEmpty else {
             return string
         }
-        
         let result = try await openAI.chats(
             query: chatQuery(for: string, targetLanguage: targetLanguage, comment: comment)
         )
-        guard let translatedText = result.choices.first?.message.content?.string else {
+        guard let translatedText = result.choices.first?.message.content?.string, !translatedText.isEmpty else {
             throw SwiftTranslateError.noTranslationReturned
         }
         return translatedText
