@@ -20,13 +20,19 @@
 
     },
     "%lld of %lld files successfully converted" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "%lld of %lld files successfully converted"
+          }
+        }
+      }
     },
     "AAC (Universal)" : {
 
     },
     "AC_ALERT_APPLE_LOOPS_NOT_FOUND" : {
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringUnit" : {
