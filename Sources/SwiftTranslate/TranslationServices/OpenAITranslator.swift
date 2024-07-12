@@ -17,38 +17,34 @@ struct OpenAITranslator {
     
     // MARK: Lifecycle
     
-    init(with apiToken: String, model: OpenAIModel = .gpt3_5TurboInstruct) {
+    init(with apiToken: String, model: OpenAIModel) {
         self.openAI = OpenAI(apiToken: apiToken)
         self.model = model
     }
     
     // MARK: Helpers
     
-    private func completionQuery(for translatableText: String, targetLanguage: Language, comment: String?) -> CompletionsQuery {
-        var prompt =
+    private func chatQuery(for translatableText: String, targetLanguage: Language, comment: String?) -> ChatQuery {
+        
+        var systemPrompt =
             """
-            Translate the text between the backticks (``````) from English to the language with ISO code: \(targetLanguage.rawValue)
-            - DO NOT translate the prompt or any other text that is not inside the backticks (``````).
-            - DO NOT INCLUDE backticks (``````) in your response!
-            - DO NOT REMOVE argument placeholders from your response! (%arg, @arg1, %lld, etc)
+            You are a helpful assistant designed to translate the given text from English to the language with ISO 639-1 code: \(targetLanguage.rawValue)
+            If the input text contains argument placeholders (%arg, @arg1, %lld, etc), it's important they are preserved in the translated text.
+            You should not output anything other than the translated text.
             """
         if let comment {
-            prompt += "\n- IMPORTANT: Take into account the following context when translating: \(comment)\n"
+            systemPrompt += "\n- IMPORTANT: Take into account the following context when translating: \(comment)\n"
         }
-        prompt += 
-            """
-            ``````
-            \(translatableText)
-            ``````
-            """
         
-        return CompletionsQuery(
+        return ChatQuery(
+            messages: [
+                .system(.init(content: systemPrompt)),
+                .user(.init(content: .string(translatableText))),
+            ],
             model: model.rawValue,
-            prompt: prompt,
-            temperature: 0.75,
-            maxTokens: 2048,
-            frequencyPenalty: 0,
-            presencePenalty: 0
+            frequencyPenalty: -2,
+            presencePenalty: -2,
+            responseFormat: .text
         )
     }
 }
@@ -58,13 +54,16 @@ extension OpenAITranslator: TranslationService {
     // MARK: Translate
     
     func translate(_ string: String, to targetLanguage: Language, comment: String?) async throws -> String {
-        let result = try await openAI.completions(
-            query: completionQuery(for: string, targetLanguage: targetLanguage, comment: comment)
+        guard !string.isEmpty else {
+            return string
+        }
+        let result = try await openAI.chats(
+            query: chatQuery(for: string, targetLanguage: targetLanguage, comment: comment)
         )
-        guard let translatedText = result.choices.first?.text else {
+        guard let translatedText = result.choices.first?.message.content?.string, !translatedText.isEmpty else {
             throw SwiftTranslateError.noTranslationReturned
         }
-        return translatedText.trimmingCharacters(in: .whitespacesAndNewlines)
+        return translatedText
     }
 }
 

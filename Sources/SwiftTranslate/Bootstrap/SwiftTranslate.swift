@@ -12,12 +12,24 @@ import SwiftStringCatalog
 struct SwiftTranslate: AsyncParsableCommand {
     
     // MARK: Command Line Options
+    
+    @Option(
+        name: [.customLong("service"), .customShort("s")],
+        help: "Service to use. Either `openai` (default) or `google`"
+    )
+    private var service: TranslationServiceArgument = .openAI
 
     @Option(
         name: [.customLong("api-key"), .customShort("k")],
         help: "OpenAI API token"
     )
     private var apiToken: String
+    
+    @Option(
+        name: [.customLong("model"), .customShort("m")],
+        help: "OpenAI model to use. Either `gpt-3.5-turbo` (default) or `gpt-4o`. Ignored when using Google Translate"
+    )
+    private var model: OpenAIModel = .gpt3_5Turbo
     
     @OptionGroup(
         title: "Translate text"
@@ -56,7 +68,14 @@ struct SwiftTranslate: AsyncParsableCommand {
     // MARK: Lifecycle
     
     func run() async throws {
-        let translator = OpenAITranslator(with: apiToken)
+        var translator: TranslationService
+        
+        switch service {
+        case .google:
+            translator = GoogleTranslator(apiKey: apiToken)
+        case .openAI:
+            translator = OpenAITranslator(with: apiToken, model: model)
+        }
         
         var targetLanguages: Set<Language>?
         if languages.first?.rawValue == "__in_catalog" {
@@ -68,10 +87,6 @@ struct SwiftTranslate: AsyncParsableCommand {
             guard invalidLanguages.isEmpty else {
                 throw ValidationError("Invalid language(s) provided: \(invalidLanguages.joined(separator: ", "))")
             }
-            var languages = languages
-            if !languages.contains(.english) {
-                languages.append(.english)
-            }
             targetLanguages = Set(languages)
         }
         
@@ -82,6 +97,9 @@ struct SwiftTranslate: AsyncParsableCommand {
             }
             mode = .text(text, targetLanguages)
         } else if let fileOrDirectory = catalogOptions.fileOrDirectory.first {
+            if let unwrappedTargetLanguages = targetLanguages, !unwrappedTargetLanguages.contains(.english) {
+                targetLanguages?.insert(.english)
+            }
             mode = .fileOrDirectory(
                 URL(fileURLWithPath: fileOrDirectory),
                 targetLanguages,

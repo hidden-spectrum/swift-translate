@@ -1,0 +1,521 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "- or -" : {
+
+    },
+    "%lld additional files not shown" : {
+
+    },
+    "%lld audio files" : {
+
+    },
+    "%lld convertible audio files (%@)" : {
+
+    },
+    "%lld files converted with %lld warnings and %lld failures" : {
+
+    },
+    "%lld of %lld files processed" : {
+
+    },
+    "%lld of %lld files successfully converted" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "%lld of %lld files successfully converted"
+          }
+        }
+      }
+    },
+    "AAC (Universal)" : {
+
+    },
+    "AC_ALERT_APPLE_LOOPS_NOT_FOUND" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Apple Loops not found in default directory\n%@\nPlease select the folder manually"
+          }
+        }
+      }
+    },
+    "AC_ALERT_LARGE_BATCH_NO_DESTINATION" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure you want to convert %lld files in place instead of selecting a destination folder?  This will not overwrite your files."
+          }
+        }
+      }
+    },
+    "Add" : {
+
+    },
+    "ALAC (Apple Lossless Audio Codec)" : {
+
+    },
+    "Apple Loops not found at default directory" : {
+
+    },
+    "audioConverterQueue.lockedFileFormats" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " Get Pro for multi-file conversion and additional formats: %@"
+          }
+        }
+      }
+    },
+    "audioConverterQueue.supportedFileFormats" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supported file formats: %@"
+          }
+        }
+      }
+    },
+    "Best Quality" : {
+
+    },
+    "Bitrate" : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Change" : {
+
+    },
+    "Clear" : {
+
+    },
+    "Conversion canceled after %@" : {
+
+    },
+    "Conversion failed, click icon for more info" : {
+
+    },
+    "Conversion Options" : {
+
+    },
+    "Conversion to MP3 made possible by [LAME](https://lame.sourceforge.io)" : {
+
+    },
+    "Convert" : {
+
+    },
+    "Converted %lld files with %lld failures and %lld warnings in %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Converted %#@arg1@ with %#@arg2@ and %#@arg3@ in %4$@"
+          },
+          "substitutions" : {
+            "arg1" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg file"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg files"
+                    }
+                  }
+                }
+              }
+            },
+            "arg2" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg failure"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg failures"
+                    }
+                  }
+                }
+              }
+            },
+            "arg3" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg warning"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg warnings"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Converted %lld files with %lld failures in %@" : {
+      "comment" : "Number of files converted",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Converted %#@arg1@ with %#@arg2@ in %3$@"
+          },
+          "substitutions" : {
+            "arg1" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg file"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg files"
+                    }
+                  }
+                }
+              }
+            },
+            "arg2" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg failure"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg failures"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Converted %lld files with %lld warnings in %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Converted %#@arg1@ with %#@arg2@ in %3$@"
+          },
+          "substitutions" : {
+            "arg1" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg file"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg files"
+                    }
+                  }
+                }
+              }
+            },
+            "arg2" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg warning"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg warnings"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Converting..." : {
+
+    },
+    "Data format" : {
+
+    },
+    "Destination" : {
+
+    },
+    "Destination required for Apple Loops" : {
+
+    },
+    "Done" : {
+
+    },
+    "Failed to convert %lld files in %@" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Failed to convert %1$lld file in %2$@"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "Failed to convert %1$lld files in %2$@"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Fast Conversion" : {
+
+    },
+    "File Already Added" : {
+
+    },
+    "File already added to queue: %@" : {
+
+    },
+    "File already exists, skipping" : {
+
+    },
+    "Finished converting %lld files in %@" : {
+
+    },
+    "Flatten into target directory" : {
+
+    },
+    "Format" : {
+
+    },
+    "Highest possible from source file %lld" : {
+
+    },
+    "In order to convert one or more of your selected files, you must select a destination." : {
+
+    },
+    "Internal conversion tool failed to convert (Code: %i)" : {
+
+    },
+    "No Destination Set" : {
+
+    },
+    "No permission to write to directory" : {
+
+    },
+    "None (file will be placed in same folder)" : {
+
+    },
+    "Open System Settings" : {
+
+    },
+    "PCM 16-bit (Apple Platforms)" : {
+
+    },
+    "PCM 16-bit (Universal)" : {
+
+    },
+    "PCM 24-bit (Apple Platforms)" : {
+
+    },
+    "PCM 24-bit (Universal)" : {
+
+    },
+    "PCM 32-bit (Apple Platforms)" : {
+
+    },
+    "PCM 32-bit (Universal)" : {
+
+    },
+    "Results" : {
+
+    },
+    "runtime.fix" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "validate czech"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "validate this value in unit test"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "validate spanish"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "validate finnish"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "validate french"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "validate hungarian"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "validate italian"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "validate japanese"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "validate korean"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "validate dutch"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "validate portuguese"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "validate swedish"
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "validate english"
+          }
+        }
+      }
+    },
+    "Same as source file" : {
+
+    },
+    "Sample rate" : {
+
+    },
+    "Scanning folders..." : {
+
+    },
+    "Select" : {
+
+    },
+    "Select Apple Loops" : {
+
+    },
+    "Select Destination" : {
+
+    },
+    "Select file..." : {
+
+    },
+    "Select files or folders..." : {
+
+    },
+    "Select target format" : {
+
+    },
+    "Source Files" : {
+
+    },
+    "Successfully converted" : {
+
+    },
+    "To avoid having to select one in the future, please enable Full Disk Access in System Settings and then restart the application." : {
+
+    },
+    "User canceled conversion" : {
+
+    },
+    "User denied access to read file" : {
+
+    },
+    "Yes, Convert Files" : {
+
+    }
+  },
+  "version" : "1.0"
+}
