@@ -15,7 +15,7 @@ https://github.com/hidden-spectrum/swift-translate/assets/469799/ae5066fa-336c-4
 - ✅ Translate from English to ar, ca, zh-HK, hr, cs, da, nl, en, fi, fr, de, el, he, hi, hu, id, it, ja, ko, ms, nb, pl, pt-BR, pt-PT, ro, ru, sk, es, sv, th, tr
 - ✅ Support for complex string catalogs with plural & device variations or replacements
 - ✅ Translate brand new catalogs or fill in missing translations for existing catalogs
-- ✅ Supports ChatGPT (GPT-4o) and Google Translate (v2)
+- ✅ Supports ChatGPT (3.5-Turbo and 4o models) and Google Translate (v2)
 - 🚧 Documentation ([#2](/../../issues/2))
 - 🚧 Unit tests ([#3](/../../issues/3))
 - ❌ Translate from non-English source language ([#23](/../../issues/23))
