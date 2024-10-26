@@ -1,6 +1,6 @@
 ![Swift Translate](https://github.com/hidden-spectrum/swift-translate/assets/469799/1cf0355f-429b-4fa4-9fe1-0b8e777db63e)
 
-Swift Translate is a CLI tool and Swift Package Plugin that makes it easy to localize your app. It deconstructs your string catalogs and sends them to OpenAI's GPT-3.5-Turbo model for translation. See it in action:
+Swift Translate is a CLI tool and Swift Package Plugin that makes it easy to localize your app. It deconstructs your string catalogs and sends them to OpenAI's GPT-3.5-Turbo/GPT-4o models or Google Cloud Translate (v2) for translation. See it in action:
 
 https://github.com/hidden-spectrum/swift-translate/assets/469799/ae5066fa-336c-4bab-8f80-1ec5659008d9
 
@@ -8,7 +8,7 @@ https://github.com/hidden-spectrum/swift-translate/assets/469799/ae5066fa-336c-4
 - macOS 13+
 - Xcode 15+
 - Project utilizing [String Catalogs](https://developer.apple.com/videos/play/wwdc2023/10155/) for localization
-- [OpenAI API key](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key)
+- [OpenAI API key](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key) or [Google Cloud Translate (v2)](https://cloud.google.com/translate/docs/overview) API key
 
 ## ⭐️ Features
 - ✅ Translate individual string catalogs or all catalogs in a folder
@@ -88,10 +88,6 @@ Ok, with that out of the way let's get into the fun stuff...
 
 ### Option 3: Inside Xcode
 🚧 *Not yet supported*
-
-
-## 💸 A Note on Cost
-The current model used in this project, GPT 3.5 Turbo, is extremely cheap. During development of this initial version we executed 3,736 API requests containing 157,734 tokens and our bill came out to just $0.26 USD 😄
 
 
 ## 🙏 Help Wanted
