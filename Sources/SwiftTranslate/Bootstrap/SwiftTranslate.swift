@@ -21,7 +21,7 @@ struct SwiftTranslate: AsyncParsableCommand {
 
     @Option(
         name: [.customLong("api-key"), .customShort("k")],
-        help: "OpenAI API token"
+        help: "OpenAI or Google Cloud Translate (v2) API key"
     )
     private var apiToken: String
     
