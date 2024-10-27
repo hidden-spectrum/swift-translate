@@ -5,7 +5,7 @@
 import Foundation
 
 
-public struct Language: Codable, Equatable, Hashable, RawRepresentable {
+public struct Language: Codable, Equatable, Hashable, RawRepresentable, Sendable {
     
     // MARK: Public
     
