@@ -24,8 +24,8 @@ struct OpenAITranslator {
     
     // MARK: Helpers
     
-    private func chatQuery(for translatableText: String, targetLanguage: Language, comment: String?) -> ChatQuery {
-        
+    private func chatQuery(for translatableText: String, targetLanguage: Language, comment: String? = nil, baseTranslation: String? = nil) -> ChatQuery {
+
         var systemPrompt =
             """
             You are a helpful assistant designed to translate the given text from English to the language with ISO 639-1 code: \(targetLanguage.rawValue)
@@ -35,7 +35,10 @@ struct OpenAITranslator {
         if let comment {
             systemPrompt += "\n- IMPORTANT: Take into account the following context when translating: \(comment)\n"
         }
-        
+        if let baseTranslation {
+            systemPrompt += "\nUse the following already translated text \"\(baseTranslation)\" as starting point for your translation."
+        }
+
         return ChatQuery(
             messages: [
                 .system(.init(content: systemPrompt)),
@@ -53,7 +56,7 @@ extension OpenAITranslator: TranslationService {
     
     // MARK: Translate
     
-    func translate(_ string: String, to targetLanguage: Language, comment: String?) async throws -> String {
+    func translate(_ string: String, to targetLanguage: Language, comment: String?, baseTranslation: String?) async throws -> String {
         guard !string.isEmpty else {
             return string
         }

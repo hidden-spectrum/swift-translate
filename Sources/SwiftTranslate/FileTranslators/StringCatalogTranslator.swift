@@ -79,7 +79,8 @@ struct StringCatalogTranslator: FileTranslator {
                 let translatedString = try await service.translate(
                     localizableString.sourceKey,
                     to: targetLanguage,
-                    comment: localizableStringGroup.comment
+                    comment: localizableStringGroup.comment,
+                    baseTranslation: nil
                 )
                 localizableString.setTranslation(translatedString)
                 if verbose {

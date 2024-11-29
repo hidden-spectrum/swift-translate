@@ -8,5 +8,6 @@ import Foundation
 
 public enum TranslationServiceArgument: String, ExpressibleByArgument {
     case openAI = "openai"
-    case google = "google"
+    case google
+    case combined
 }

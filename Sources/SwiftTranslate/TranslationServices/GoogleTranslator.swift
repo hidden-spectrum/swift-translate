@@ -12,7 +12,6 @@ struct GoogleTranslator {
     // MARK: Private
     
     private let apiKey: String
-    private let apiUrl = URL(string: "https://translation.googleapis.com/language/translate/v2")!
     
     // MARK: Lifecycle
     
@@ -45,7 +44,7 @@ struct GoogleTranslator {
 }
 
 extension GoogleTranslator: TranslationService {
-    func translate(_ string: String, to targetLanguage: Language, comment: String?) async throws -> String {
+    func translate(_ string: String, to targetLanguage: Language, comment: String?, baseTranslation: String?) async throws -> String {
         if targetLanguage == .english {
             return string
         }
