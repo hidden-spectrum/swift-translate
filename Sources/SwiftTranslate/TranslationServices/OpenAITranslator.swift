@@ -14,12 +14,14 @@ struct OpenAITranslator {
     
     private let openAI: OpenAI
     private let model: OpenAIModel
-    
+    private let retries: Int
+
     // MARK: Lifecycle
     
-    init(with apiToken: String, model: OpenAIModel) {
+    init(with apiToken: String, model: OpenAIModel, retries: Int) {
         self.openAI = OpenAI(apiToken: apiToken)
         self.model = model
+        self.retries = retries
     }
     
     // MARK: Helpers
@@ -57,13 +59,20 @@ extension OpenAITranslator: TranslationService {
         guard !string.isEmpty else {
             return string
         }
-        let result = try await openAI.chats(
-            query: chatQuery(for: string, targetLanguage: targetLanguage, comment: comment)
-        )
-        guard let translatedText = result.choices.first?.message.content?.string, !translatedText.isEmpty else {
-            throw SwiftTranslateError.noTranslationReturned
-        }
-        return translatedText
+
+        var attempt = 0
+        repeat {
+            attempt += 1
+            let result = try? await openAI.chats(
+                query: chatQuery(for: string, targetLanguage: targetLanguage, comment: comment)
+            )
+            guard let result = result, let translatedText = result.choices.first?.message.content?.string, !translatedText.isEmpty else {
+                continue
+            }
+            return translatedText
+        } while attempt < retries
+
+        throw SwiftTranslateError.noTranslationReturned
     }
 }
 
