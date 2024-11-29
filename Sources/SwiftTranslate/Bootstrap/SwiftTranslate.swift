@@ -68,54 +68,58 @@ struct SwiftTranslate: AsyncParsableCommand {
     // MARK: Lifecycle
     
     func run() async throws {
-        var translator: TranslationService
-        
-        switch service {
-        case .google:
-            translator = GoogleTranslator(apiKey: apiToken)
-        case .openAI:
-            translator = OpenAITranslator(with: apiToken, model: model)
-        }
-        
-        var targetLanguages: Set<Language>?
-        if languages.first?.rawValue == "__in_catalog" {
-            targetLanguages = nil
-        } else if languages.first?.rawValue == "all" {
-            targetLanguages = Set(Language.allCommon)
-        } else {
-            let invalidLanguages = languages.filter({ !Language.allCommon.contains($0) }).map(\.rawValue)
-            guard invalidLanguages.isEmpty else {
-                throw ValidationError("Invalid language(s) provided: \(invalidLanguages.joined(separator: ", "))")
+        do {
+            var translator: TranslationService
+
+            switch service {
+                case .google:
+                    translator = GoogleTranslator(apiKey: apiToken)
+                case .openAI:
+                    translator = OpenAITranslator(with: apiToken, model: model)
             }
-            targetLanguages = Set(languages)
-        }
-        
-        var mode: TranslationCoordinator.Mode
-        if let text = textOptions.text {
-            guard let targetLanguages else {
-                throw ValidationError("Target language(s) is required for text translation")
+
+            var targetLanguages: Set<Language>?
+            if languages.first?.rawValue == "__in_catalog" {
+                targetLanguages = nil
+            } else if languages.first?.rawValue == "all" {
+                targetLanguages = Set(Language.allCommon)
+            } else {
+                let invalidLanguages = languages.filter({ !Language.allCommon.contains($0) }).map(\.rawValue)
+                guard invalidLanguages.isEmpty else {
+                    throw ValidationError("Invalid language(s) provided: \(invalidLanguages.joined(separator: ", "))")
+                }
+                targetLanguages = Set(languages)
             }
-            mode = .text(text, targetLanguages)
-        } else if let fileOrDirectory = catalogOptions.fileOrDirectory.first {
-            if let unwrappedTargetLanguages = targetLanguages, !unwrappedTargetLanguages.contains(.english) {
-                targetLanguages?.insert(.english)
+
+            var mode: TranslationCoordinator.Mode
+            if let text = textOptions.text {
+                guard let targetLanguages else {
+                    throw ValidationError("Target language(s) is required for text translation")
+                }
+                mode = .text(text, targetLanguages)
+            } else if let fileOrDirectory = catalogOptions.fileOrDirectory.first {
+                if let unwrappedTargetLanguages = targetLanguages, !unwrappedTargetLanguages.contains(.english) {
+                    targetLanguages?.insert(.english)
+                }
+                mode = .fileOrDirectory(
+                    URL(fileURLWithPath: fileOrDirectory),
+                    targetLanguages,
+                    overwrite: catalogOptions.overwriteExisting
+                )
+            } else {
+                throw ValidationError("No text or string catalog file to translate provided")
             }
-            mode = .fileOrDirectory(
-                URL(fileURLWithPath: fileOrDirectory),
-                targetLanguages,
-                overwrite: catalogOptions.overwriteExisting
+
+            let coordinator = TranslationCoordinator(
+                mode: mode,
+                translator: translator,
+                skipConfirmation: skipConfirmation,
+                verbose: verbose
             )
-        } else {
-            throw ValidationError("No text or string catalog file to translate provided")
+            try await coordinator.translate()
+        } catch {
+            print("\(error)".red)
         }
-        
-        let coordinator = TranslationCoordinator(
-            mode: mode,
-            translator: translator,
-            skipConfirmation: skipConfirmation,
-            verbose: verbose
-        )
-        try await coordinator.translate()
     }
 }
 
