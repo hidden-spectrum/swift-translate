@@ -13,11 +13,13 @@ struct GoogleTranslator {
     
     private let apiKey: String
     private let apiUrl = URL(string: "https://translation.googleapis.com/language/translate/v2")!
-    
+    private let timeoutInterval: TimeInterval
+
     // MARK: Lifecycle
     
-    init(apiKey: String) {
+    init(apiKey: String, timeoutInterval: Int) {
         self.apiKey = apiKey
+        self.timeoutInterval = TimeInterval(timeoutInterval)
     }
     
     // MARK: Utility
@@ -38,7 +40,7 @@ struct GoogleTranslator {
             throw SwiftTranslateError.couldNotCreateGoogleTranslateURL
         }
         
-        var request = URLRequest(url: url)
+        var request = URLRequest(url: url, timeoutInterval: timeoutInterval)
         request.httpMethod = "POST"
         return request
     }

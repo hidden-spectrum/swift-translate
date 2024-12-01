@@ -54,7 +54,13 @@ struct SwiftTranslate: AsyncParsableCommand {
         help: "Skips confirmation for translating large string files"
     )
     var skipConfirmation: Bool = false
-    
+
+    @Option(
+        name: [.customLong("timeout")],
+        help: "Timeout interval for OpenAI API requests"
+    )
+    private var timeoutInterval: Int = 60
+
     @Flag(
         name: [.long, .short],
         help: "Enables verbose log output"
@@ -72,9 +78,9 @@ struct SwiftTranslate: AsyncParsableCommand {
         
         switch service {
         case .google:
-            translator = GoogleTranslator(apiKey: apiToken)
+            translator = GoogleTranslator(apiKey: apiToken, timeoutInterval: timeoutInterval)
         case .openAI:
-            translator = OpenAITranslator(with: apiToken, model: model)
+            translator = OpenAITranslator(with: apiToken, model: model, timeoutInterval: timeoutInterval)
         }
         
         var targetLanguages: Set<Language>?
