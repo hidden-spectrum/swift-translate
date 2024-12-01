@@ -67,7 +67,7 @@ struct SwiftTranslate: AsyncParsableCommand {
     
     // MARK: Lifecycle
     
-    func run() async throws {
+    func run() async {
         do {
             var translator: TranslationService
 
