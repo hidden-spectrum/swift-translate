@@ -13,11 +13,11 @@ struct OpenAITranslator {
     // MARK: Private
     
     private let openAI: OpenAI
-    private let model: OpenAIModel
+    private let model: AIModel
     
     // MARK: Lifecycle
     
-    init(with apiToken: String, model: OpenAIModel) {
+    init(with apiToken: String, model: AIModel) {
         self.openAI = OpenAI(apiToken: apiToken)
         self.model = model
     }
