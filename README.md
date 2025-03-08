@@ -12,7 +12,7 @@ https://github.com/hidden-spectrum/swift-translate/assets/469799/ae5066fa-336c-4
 
 ## ⭐️ Features
 - ✅ Translate individual string catalogs or all catalogs in a folder
-- ✅ Translate from English to ar, ca, zh-HK, hr, cs, da, nl, en, fi, fr, de, el, he, hi, hu, id, it, ja, ko, ms, nb, pl, pt-BR, pt-PT, ro, ru, sk, es, sv, th, tr
+- ✅ Translate from English to ar, ca, zh-HK, zh-Hans, zh-Hant, hr, cs, da, nl, en, fi, fr, de, el, he, hi, hu, id, it, ja, ko, ms, nb, pl, pt-BR, pt-PT, ro, ru, sk, es, sv, th, tr
 - ✅ Support for complex string catalogs with plural & device variations or replacements
 - ✅ Translate brand new catalogs or fill in missing translations for existing catalogs
 - ✅ Supports ChatGPT (3.5-Turbo and 4o models) and Google Translate (v2)
