@@ -55,6 +55,12 @@ struct SwiftTranslate: AsyncParsableCommand {
     )
     var skipConfirmation: Bool = false
     
+    @Option(
+        name: [.customLong("retries"), .short],
+        help: "Retries for OpenAI API requests in case of errors. Ignored when using Google Translate"
+    )
+    private var requestRetry: Int = 1
+
     @Flag(
         name: [.long, .short],
         help: "Enables verbose log output"
@@ -67,15 +73,15 @@ struct SwiftTranslate: AsyncParsableCommand {
     
     // MARK: Lifecycle
     
-    func run() async {
+    func run() async throws {
         do {
             var translator: TranslationService
 
             switch service {
-                case .google:
-                    translator = GoogleTranslator(apiKey: apiToken)
-                case .openAI:
-                    translator = OpenAITranslator(with: apiToken, model: model)
+            case .google:
+                translator = GoogleTranslator(apiKey: apiToken)
+            case .openAI:
+                translator = OpenAITranslator(with: apiToken, model: model, retries: requestRetry)
             }
 
             var targetLanguages: Set<Language>?
@@ -122,7 +128,6 @@ struct SwiftTranslate: AsyncParsableCommand {
         }
     }
 }
-
 
 fileprivate struct TextTranslationOptions: ParsableArguments {
     
