@@ -79,7 +79,12 @@ struct StringCatalogTranslator: FileTranslator {
 
                 taskGroup.addTask {
                     do {
-                        let translatedString = try await service.translate(localizableString.sourceKey, to: targetLanguage, comment: localizableStringGroup.comment)
+                        let translatedString = try await service.translate(
+                            localizableString.sourceKey, 
+                            to: targetLanguage, 
+                            comment: localizableStringGroup.comment, 
+                            baseTranslation: nil
+                        )
                         localizableString.setTranslation(translatedString)
                         if verbose {
                             logTranslationResult(to: targetLanguage, result: translatedString.truncatedRemovingNewlines(to: 64), isSource: isSource)

@@ -53,7 +53,7 @@ struct TranslationCoordinator {
     private func translate(_ string: String, to targetLanguages: Set<Language>) async throws {
         Log.info(newline: .before, "Translating `", string, "`:")
         for language in targetLanguages {
-            let translation = try await translator.translate(string, to: language, comment: nil)
+            let translation = try await translator.translate(string, to: language, comment: nil, baseTranslation: nil)
             Log.structured(
                 .init(width: 8, language.rawValue + ":"),
                 .init(translation)

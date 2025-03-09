@@ -21,10 +21,11 @@ struct SwiftTranslate: AsyncParsableCommand {
 
     @Option(
         name: [.customLong("api-key"), .customShort("k")],
+        parsing: .upToNextOption,
         help: "OpenAI or Google Cloud Translate (v2) API key"
     )
-    private var apiToken: String
-    
+    private var apiToken: [String]
+
     @Option(
         name: [.customLong("model"), .customShort("m")],
         help: "OpenAI model to use. Either `gpt-3.5-turbo` (default) or `gpt-4o`. Ignored when using Google Translate"
@@ -78,11 +79,28 @@ struct SwiftTranslate: AsyncParsableCommand {
         
         switch service {
         case .google:
+            guard let apiToken = apiToken.first else {
+                throw ValidationError("Google Cloud Translate API key is required")
+            }
             translator = GoogleTranslator(apiKey: apiToken)
         case .openAI:
+            guard let apiToken = apiToken.first else {
+                throw ValidationError("OpenAI API key is required")
+            }
             translator = OpenAITranslator(with: apiToken, model: model, retries: requestRetry)
+        case .combined:
+            guard apiToken.count == 2 else {
+                throw ValidationError("Two API keys are required for combined translation")
+            }
+            let apiToken = apiToken.sorted { $0.count < $1.count }
+            let googleAPIToken = String(apiToken[0])
+            let openAIAPIToken = String(apiToken[1])
+            translator = CombinedTranslator(
+                google: GoogleTranslator(apiKey: googleAPIToken),
+                openAI: OpenAITranslator(with: openAIAPIToken, model: model, retries: requestRetry)
+            )
         }
-        
+
         var targetLanguages: Set<Language>?
         if languages.first?.rawValue == "__in_catalog" {
             targetLanguages = nil
