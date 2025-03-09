@@ -86,8 +86,8 @@ struct SwiftTranslate: AsyncParsableCommand {
             translator = GoogleTranslator(apiKey: apiToken)
         case .openAI:
             translator = OpenAITranslator(with: apiToken, model: model, retries: requestRetry)
-        case .googleAI:
-            translator = GoogleAITranslator(apiKey: apiToken, model: model)
+        case .gemini:
+            translator = GeminiTranslator(apiKey: apiToken, model: model)
         }
         
         var targetLanguages: Set<Language>?

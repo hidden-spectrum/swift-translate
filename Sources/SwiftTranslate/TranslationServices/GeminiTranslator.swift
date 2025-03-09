@@ -6,7 +6,7 @@ import Foundation
 import GoogleGenerativeAI
 import SwiftStringCatalog
 
-struct GoogleAITranslator {
+struct GeminiTranslator {
 
     // MARK: Private
 
@@ -21,7 +21,7 @@ struct GoogleAITranslator {
     }
 }
 
-extension GoogleAITranslator: TranslationService {
+extension GeminiTranslator: TranslationService {
     func translate(_ string: String, to targetLanguage: Language, comment: String?) async throws -> String {
         let generativeModel =
         GenerativeModel(
