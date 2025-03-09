@@ -54,6 +54,12 @@ struct SwiftTranslate: AsyncParsableCommand {
         help: "Skips confirmation for translating large string files"
     )
     var skipConfirmation: Bool = false
+    
+    @Option(
+        name: [.customLong("retries"), .short],
+        help: "Retries for OpenAI API requests in case of errors. Ignored when using Google Translate"
+    )
+    private var requestRetry: Int = 1
 
     @Option(
         name: [.customLong("timeout")],
@@ -80,7 +86,7 @@ struct SwiftTranslate: AsyncParsableCommand {
         case .google:
             translator = GoogleTranslator(apiKey: apiToken, timeoutInterval: timeoutInterval)
         case .openAI:
-            translator = OpenAITranslator(with: apiToken, model: model, timeoutInterval: timeoutInterval)
+            translator = OpenAITranslator(with: apiToken, model: model, timeoutInterval: timeoutInterval, retries: requestRetry)
         }
         
         var targetLanguages: Set<Language>?

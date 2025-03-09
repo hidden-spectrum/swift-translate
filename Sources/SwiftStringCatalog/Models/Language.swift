@@ -37,6 +37,8 @@ public extension Language {
             .arabic,
             .catalan,
             .chineseHongKong,
+            .chineseSimplified,
+            .chineseTraditional,
             .croatian,
             .czech,
             .danish,
@@ -71,6 +73,8 @@ public extension Language {
     static let arabic = Self("ar")
     static let catalan = Self("ca")
     static let chineseHongKong = Self("zh-HK")
+    static let chineseSimplified = Self("zh-Hans")
+    static let chineseTraditional = Self("zh-Hant")
     static let croatian = Self("hr")
     static let czech = Self("cs")
     static let danish = Self("da")
