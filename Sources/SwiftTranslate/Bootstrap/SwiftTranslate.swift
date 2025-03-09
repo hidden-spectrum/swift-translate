@@ -56,6 +56,12 @@ struct SwiftTranslate: AsyncParsableCommand {
     )
     var skipConfirmation: Bool = false
     
+    @Option(
+        name: [.customLong("retries"), .short],
+        help: "Retries for OpenAI API requests in case of errors. Ignored when using Google Translate"
+    )
+    private var requestRetry: Int = 1
+
     @Flag(
         name: [.long, .short],
         help: "Enables verbose log output"
@@ -81,7 +87,7 @@ struct SwiftTranslate: AsyncParsableCommand {
             guard let apiToken = apiToken.first else {
                 throw ValidationError("OpenAI API key is required")
             }
-            translator = OpenAITranslator(with: apiToken, model: model)
+            translator = OpenAITranslator(with: apiToken, model: model, retries: requestRetry)
         case .combined:
             guard apiToken.count == 2 else {
                 throw ValidationError("Two API keys are required for combined translation")
@@ -91,7 +97,7 @@ struct SwiftTranslate: AsyncParsableCommand {
             let openAIAPIToken = String(apiToken[1])
             translator = CombinedTranslator(
                 google: GoogleTranslator(apiKey: googleAPIToken),
-                openAI: OpenAITranslator(with: openAIAPIToken, model: model)
+                openAI: OpenAITranslator(with: openAIAPIToken, model: model, retries: requestRetry)
             )
         }
 

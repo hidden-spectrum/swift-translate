@@ -14,12 +14,14 @@ struct OpenAITranslator {
     
     private let openAI: OpenAI
     private let model: OpenAIModel
-    
+    private let retries: Int
+
     // MARK: Lifecycle
     
-    init(with apiToken: String, model: OpenAIModel) {
+    init(with apiToken: String, model: OpenAIModel, retries: Int) {
         self.openAI = OpenAI(apiToken: apiToken)
         self.model = model
+        self.retries = retries
     }
     
     // MARK: Helpers
@@ -28,12 +30,17 @@ struct OpenAITranslator {
 
         var systemPrompt =
             """
-            You are a helpful assistant designed to translate the given text from English to the language with ISO 639-1 code: \(targetLanguage.rawValue)
+            You are a helpful professional translator designated to translate text from English to the language with ISO 639-1 code: \(targetLanguage.rawValue)
             If the input text contains argument placeholders (%arg, @arg1, %lld, etc), it's important they are preserved in the translated text.
             You should not output anything other than the translated text.
+            Avoid using the same word more than once in a row.
+            Avoid using the same character more than 3 times in a row.
+            Trim extra spaces and the beginning and end of the translated text.
+            Do not provide blank translations. Do not hallucinate. Do not provide translations that are not faithful to the original text.
+            Put particular attention to languages that use different characters and symbols than English.
             """
         if let comment {
-            systemPrompt += "\n- IMPORTANT: Take into account the following context when translating: \(comment)\n"
+            systemPrompt += "\nTake into consideration the following context when translating, but do not completely change the translation because of it: \(comment)\n"
         }
         if let baseTranslation {
             systemPrompt += "\nUse the following already translated text \"\(baseTranslation)\" as starting point for your translation."
@@ -60,13 +67,20 @@ extension OpenAITranslator: TranslationService {
         guard !string.isEmpty else {
             return string
         }
-        let result = try await openAI.chats(
-            query: chatQuery(for: string, targetLanguage: targetLanguage, comment: comment)
-        )
-        guard let translatedText = result.choices.first?.message.content?.string, !translatedText.isEmpty else {
-            throw SwiftTranslateError.noTranslationReturned
-        }
-        return translatedText
+
+        var attempt = 0
+        repeat {
+            attempt += 1
+            let result = try? await openAI.chats(
+                query: chatQuery(for: string, targetLanguage: targetLanguage, comment: comment)
+            )
+            guard let result = result, let translatedText = result.choices.first?.message.content?.string, !translatedText.isEmpty else {
+                continue
+            }
+            return translatedText
+        } while attempt < retries
+
+        throw SwiftTranslateError.noTranslationReturned
     }
 }
 
