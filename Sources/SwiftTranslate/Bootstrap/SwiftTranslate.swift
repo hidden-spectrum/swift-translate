@@ -30,7 +30,7 @@ struct SwiftTranslate: AsyncParsableCommand {
         help: """
             AI model to use. 
             Either `gpt-3.5-turbo` (default) or `gpt-4o` for OpenAI.
-            Either `gemini-1.5-flash` or `gemini-2.0-flash-exp` for Google AI.
+            Either `gemini-1.5-flash` or `gemini-2.0-flash` for Google AI.
             Ignored when using Google Translate.
             """
     )
