@@ -9,4 +9,5 @@ import Foundation
 public enum TranslationServiceArgument: String, ExpressibleByArgument {
     case openAI = "openai"
     case google = "google"
+    case gemini = "gemini"
 }

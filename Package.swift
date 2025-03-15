@@ -27,6 +27,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMajor(from: "1.5.0")),
         .package(url: "https://github.com/MacPaw/OpenAI.git", .upToNextMajor(from: "0.3.0")),
         .package(url: "https://github.com/onevcat/Rainbow.git", .upToNextMajor(from: "4.0.0")),
+        .package(url: "https://github.com/google-gemini/generative-ai-swift", .upToNextMajor(from: "0.5.0")),
     ],
     targets: [
         
@@ -57,6 +58,7 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "OpenAI", package: "OpenAI"),
                 .product(name: "Rainbow", package: "Rainbow"),
+                .product(name: "GoogleGenerativeAI", package: "generative-ai-swift"),
                 "SwiftStringCatalog"
             ],
             path: "Sources/SwiftTranslate"
