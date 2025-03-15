@@ -63,7 +63,7 @@ struct SwiftTranslate: AsyncParsableCommand {
 
     @Option(
         name: [.customLong("timeout")],
-        help: "Timeout interval for OpenAI API requests"
+        help: "Timeout interval for API requests"
     )
     private var timeoutInterval: Int = 60
 
