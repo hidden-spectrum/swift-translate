@@ -61,6 +61,12 @@ struct SwiftTranslate: AsyncParsableCommand {
     )
     private var requestRetry: Int = 1
 
+    @Option(
+        name: [.customLong("timeout")],
+        help: "Timeout interval for API requests"
+    )
+    private var timeoutInterval: Int = 60
+
     @Flag(
         name: [.long, .short],
         help: "Enables verbose log output"
@@ -78,9 +84,9 @@ struct SwiftTranslate: AsyncParsableCommand {
         
         switch service {
         case .google:
-            translator = GoogleTranslator(apiKey: apiToken)
+            translator = GoogleTranslator(apiKey: apiToken, timeoutInterval: timeoutInterval)
         case .openAI:
-            translator = OpenAITranslator(with: apiToken, model: model, retries: requestRetry)
+            translator = OpenAITranslator(with: apiToken, model: model, timeoutInterval: timeoutInterval, retries: requestRetry)
         }
         
         var targetLanguages: Set<Language>?
