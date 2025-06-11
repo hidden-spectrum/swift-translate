@@ -11,6 +11,7 @@ public struct LocalizableStringGroup {
     
     public let comment: String?
     public let extractionState: ExtractionState?
+    public let generatesSymbol: Bool?
     public let shouldTranslate: Bool?
     public let strings: [LocalizableString]
     
@@ -19,11 +20,13 @@ public struct LocalizableStringGroup {
     init(
         comment: String?,
         extractionState: ExtractionState?,
+        generatesSymbol: Bool?,
         shouldTranslate: Bool?,
         strings: [LocalizableString]
     ) {
         self.comment = comment
         self.extractionState = extractionState
+        self.generatesSymbol = generatesSymbol
         self.shouldTranslate = shouldTranslate
         self.strings = strings
     }

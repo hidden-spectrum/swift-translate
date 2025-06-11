@@ -84,6 +84,7 @@ public final class StringCatalog {
             localizableStringGroups[key] = LocalizableStringGroup(
                 comment: entry.comment,
                 extractionState: entry.extractionState,
+                generatesSymbol: entry.generatesSymbol,
                 shouldTranslate: entry.shouldTranslate,
                 strings: localizableStrings
             )
