@@ -60,6 +60,12 @@ struct StringCatalogTranslator: FileTranslator {
         guard let localizableStringGroup = catalog.localizableStringGroups[key] else {
             return
         }
+        
+        if let shouldTranslate = localizableStringGroup.shouldTranslate, shouldTranslate == false {
+            Log.info(newline: verbose ? .before : .none, "Skipping key `\(key.truncatedRemovingNewlines(to: 64))` (marked Do Not Translate) " + "[Comment: \(localizableStringGroup.comment ?? "n/a")]".dim)
+            return
+        }
+        
         Log.info(newline: verbose ? .before : .none, "Translating key `\(key.truncatedRemovingNewlines(to: 64))` " + "[Comment: \(localizableStringGroup.comment ?? "n/a")]".dim)
 
         await withThrowingTaskGroup(of: Void.self) { taskGroup in
@@ -76,7 +82,7 @@ struct StringCatalogTranslator: FileTranslator {
                     }
                     continue
                 }
-
+                
                 taskGroup.addTask {
                     do {
                         let translatedString = try await service.translate(localizableString.sourceKey, to: targetLanguage, comment: localizableStringGroup.comment)

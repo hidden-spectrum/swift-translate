@@ -71,7 +71,7 @@ extension OpenAITranslator: TranslationService {
             let result = try? await openAI.chats(
                 query: chatQuery(for: string, targetLanguage: targetLanguage, comment: comment)
             )
-            guard let result = result, let translatedText = result.choices.first?.message.content?.string, !translatedText.isEmpty else {
+            guard let result = result, let translatedText = result.choices.first?.message.content, !translatedText.isEmpty else {
                 continue
             }
             return translatedText

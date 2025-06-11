@@ -12,6 +12,7 @@ struct _CatalogEntry: Codable {
     
     let comment: String?
     let extractionState: ExtractionState?
+    let shouldTranslate: Bool?
     
     var localizations: CodableKeyDictionary<Language, _Localization>?
     
@@ -20,10 +21,12 @@ struct _CatalogEntry: Codable {
     init(
         comment: String?,
         extractionState: ExtractionState?,
+        shouldTranslate: Bool?,
         localizations: CodableKeyDictionary<Language, _Localization>
     ) {
         self.comment = comment
         self.extractionState = extractionState
+        self.shouldTranslate = shouldTranslate
         self.localizations = localizations
     }
 }
@@ -54,6 +57,11 @@ extension _CatalogEntry {
             }
             
         }
-        self.init(comment: stringsGroup.comment, extractionState: stringsGroup.extractionState, localizations: localizations)
+        self.init(
+            comment: stringsGroup.comment,
+            extractionState: stringsGroup.extractionState,
+            shouldTranslate: stringsGroup.shouldTranslate,
+            localizations: localizations
+        )
     }
 }
