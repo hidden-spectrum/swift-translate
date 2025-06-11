@@ -22,7 +22,7 @@ struct _CatalogEntry: Codable {
         comment: String?,
         extractionState: ExtractionState?,
         shouldTranslate: Bool?,
-        localizations: CodableKeyDictionary<Language, _Localization>
+        localizations: CodableKeyDictionary<Language, _Localization>?
     ) {
         self.comment = comment
         self.extractionState = extractionState
@@ -61,7 +61,7 @@ extension _CatalogEntry {
             comment: stringsGroup.comment,
             extractionState: stringsGroup.extractionState,
             shouldTranslate: stringsGroup.shouldTranslate,
-            localizations: localizations
+            localizations: localizations.values.isEmpty ? nil : localizations
         )
     }
 }
