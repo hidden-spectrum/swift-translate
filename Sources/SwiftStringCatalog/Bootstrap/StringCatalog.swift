@@ -83,7 +83,9 @@ public final class StringCatalog {
             localizableStringsCount += localizableStrings.count
             localizableStringGroups[key] = LocalizableStringGroup(
                 comment: entry.comment,
-                extractionState: entry.extractionState, 
+                extractionState: entry.extractionState,
+                generatesSymbol: entry.generatesSymbol,
+                shouldTranslate: entry.shouldTranslate,
                 strings: localizableStrings
             )
         }

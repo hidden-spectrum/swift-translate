@@ -10,4 +10,5 @@ enum SwiftTranslateError: Error {
     case couldNotDecodeTranslationResponse
     case couldNotSearchDirectoryAt(URL)
     case noTranslationReturned
+    case unknown
 }
