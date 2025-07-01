@@ -15,9 +15,9 @@ struct _StringCatalog: Codable {
     
     // MARK: Lifecycle
     
-    init(sourceLanguage: Language, strings: [String: _CatalogEntry]) {
+    init(sourceLanguage: Language, strings: [String: _CatalogEntry], version: String) {
         self.sourceLanguage = sourceLanguage
         self.strings = strings
-        self.version = "1.0" // Only 1.0 supported
+        self.version = version
     }
 }
