@@ -9,13 +9,8 @@ public final class StringCatalog {
     
     // MARK: Public
     
-    public enum Error: Swift.Error {
-        case catalogVersionNotSupported(String)
-        case substitionsNotYetSupported
-    }
-    
     public let sourceLanguage: Language
-    public let version = "1.0" // Only version 1.0 supported for now
+    public let version: String
     
     public private(set) var allKeys = [String]()
     
@@ -36,10 +31,7 @@ public final class StringCatalog {
         let data = try Data(contentsOf: url)
         let decoder = JSONDecoder()
         let catalog = try decoder.decode(_StringCatalog.self, from: data)
-        if catalog.version != version {
-            throw Error.catalogVersionNotSupported(catalog.version)
-        }
-        
+        self.version = catalog.version
         self.allKeys = Array(catalog.strings.keys)
         self.sourceLanguage = catalog.sourceLanguage
         self.targetLanguages = {
@@ -53,9 +45,10 @@ public final class StringCatalog {
         try loadAllLocalizableStrings(from: catalog)        
     }
     
-    public init(sourceLanguage: Language, targetLanguages: Set<Language> = []) {
+    public init(sourceLanguage: Language, targetLanguages: Set<Language> = [], version: String = "1.0") {
         self.sourceLanguage = sourceLanguage
         self.targetLanguages = targetLanguages
+        self.version = version
     }
     
     // MARK: Loading
@@ -83,7 +76,9 @@ public final class StringCatalog {
             localizableStringsCount += localizableStrings.count
             localizableStringGroups[key] = LocalizableStringGroup(
                 comment: entry.comment,
-                extractionState: entry.extractionState, 
+                extractionState: entry.extractionState,
+                generatesSymbol: entry.generatesSymbol,
+                shouldTranslate: entry.shouldTranslate,
                 strings: localizableStrings
             )
         }
@@ -134,7 +129,8 @@ public final class StringCatalog {
         let entries = try buildCatalogEntries()
         let catalog = _StringCatalog(
             sourceLanguage: sourceLanguage,
-            strings: entries
+            strings: entries,
+            version: version
         )
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]

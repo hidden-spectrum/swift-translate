@@ -21,15 +21,15 @@ struct SwiftTranslate: AsyncParsableCommand {
 
     @Option(
         name: [.customLong("api-key"), .customShort("k")],
-        help: "OpenAI API token"
+        help: "OpenAI or Google Cloud Translate (v2) API key"
     )
     private var apiToken: String
     
     @Option(
         name: [.customLong("model"), .customShort("m")],
-        help: "OpenAI model to use. Either `gpt-3.5-turbo` (default) or `gpt-4o`. Ignored when using Google Translate"
+        help: "OpenAI model to use. Either `gpt-4o` (default) or gpt-4.1 series (standard, -mini, -nano). Ignored when using Google Translate"
     )
-    private var model: OpenAIModel = .gpt3_5Turbo
+    private var model: OpenAIModel = .gpt4o
     
     @OptionGroup(
         title: "Translate text"
@@ -55,6 +55,18 @@ struct SwiftTranslate: AsyncParsableCommand {
     )
     var skipConfirmation: Bool = false
     
+    @Option(
+        name: [.customLong("retries"), .short],
+        help: "Retries for OpenAI API requests in case of errors. Ignored when using Google Translate"
+    )
+    private var requestRetry: Int = 1
+
+    @Option(
+        name: [.customLong("timeout")],
+        help: "Timeout interval for API requests"
+    )
+    private var timeoutInterval: Int = 60
+
     @Flag(
         name: [.long, .short],
         help: "Enables verbose log output"
@@ -72,9 +84,9 @@ struct SwiftTranslate: AsyncParsableCommand {
         
         switch service {
         case .google:
-            translator = GoogleTranslator(apiKey: apiToken)
+            translator = GoogleTranslator(apiKey: apiToken, timeoutInterval: timeoutInterval)
         case .openAI:
-            translator = OpenAITranslator(with: apiToken, model: model)
+            translator = OpenAITranslator(with: apiToken, model: model, timeoutInterval: timeoutInterval, retries: requestRetry)
         }
         
         var targetLanguages: Set<Language>?

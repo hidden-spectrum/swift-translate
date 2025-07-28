@@ -1,6 +1,6 @@
 ![Swift Translate](https://github.com/hidden-spectrum/swift-translate/assets/469799/1cf0355f-429b-4fa4-9fe1-0b8e777db63e)
 
-Swift Translate is a CLI tool and Swift Package Plugin that makes it easy to localize your app. It deconstructs your string catalogs and sends them to OpenAI's GPT-3.5-Turbo model for translation. See it in action:
+Swift Translate is a CLI tool and Swift Package Plugin that makes it easy to localize your app. It deconstructs your string catalogs and sends them to OpenAI's GPT-4o / GPT-4.1 series models or Google Cloud Translate (v2) for translation. See it in action:
 
 https://github.com/hidden-spectrum/swift-translate/assets/469799/ae5066fa-336c-4bab-8f80-1ec5659008d9
 
@@ -8,14 +8,15 @@ https://github.com/hidden-spectrum/swift-translate/assets/469799/ae5066fa-336c-4
 - macOS 13+
 - Xcode 15+
 - Project utilizing [String Catalogs](https://developer.apple.com/videos/play/wwdc2023/10155/) for localization
-- [OpenAI API key](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key)
+- [OpenAI API key](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key) or [Google Cloud Translate (v2)](https://cloud.google.com/translate/docs/overview) API key
 
 ## ⭐️ Features
 - ✅ Translate individual string catalogs or all catalogs in a folder
-- ✅ Translate from English to ar, ca, zh-HK, hr, cs, da, nl, en, fi, fr, de, el, he, hi, hu, id, it, ja, ko, ms, nb, pl, pt-BR, pt-PT, ro, ru, sk, es, sv, th, tr
+- ✅ Translate from English to ar, ca, zh-HK, zh-Hans, zh-Hant, hr, cs, da, nl, en, fi, fr, de, el, he, hi, hu, id, it, ja, ko, ms, nb, pl, pt-BR, pt-PT, ro, ru, sk, es, sv, th, tr
 - ✅ Support for complex string catalogs with plural & device variations or replacements
 - ✅ Translate brand new catalogs or fill in missing translations for existing catalogs
-- ✅ Supports ChatGPT (GPT-4o) and Google Translate (v2)
+- ✅ Supports ChatGPT (4o and 4.1 series models) and Google Translate (v2)
+- ✅ Works with String Catalog formats from Xcode 15, 16, and 26 Beta
 - 🚧 Documentation ([#2](/../../issues/2))
 - 🚧 Unit tests ([#3](/../../issues/3))
 - ❌ Translate from non-English source language ([#23](/../../issues/23))
@@ -24,8 +25,7 @@ https://github.com/hidden-spectrum/swift-translate/assets/469799/ae5066fa-336c-4
 
 ## 🛑 Stop Here
 Before continuing, please read the following:
-- This project is in very early stages. 🐣
-- It is **NOT** recommended for production use. ⛔️ 
+- This project is still in development 🚧. While we use it in production for [Dextr](https://dextr.app), exercise caution when using it with your own projects.
 - Like any tool built on ChatGPT, responses may be inaccurate or broken completely. 🤪 
 - Hidden Spectrum is not liable for loss of data, file corruption, or inaccurate/offensive translations (or any subsequent bad app reviews due to aforementioned inaccuracies) 🙅🏻‍♂️
     
@@ -40,10 +40,10 @@ Ok, with that out of the way let's get into the fun stuff...
 **👉 Note:** While this plugin is still in development, this is the recommended way of trying it with your projects.
 
 1. Clone this repository or download a zip from GitHub.
-2. Open terminal and `cd` to the repo on your machine.
-3. Test your API key with a basic text translation:
+2. Open terminal and `cd` to the Swift Translate repo on your machine.
+3. Test your OpenAI API key with a basic text translation:
     ```shell
-    swift run swift-translate --verbose -k <your key here> --text "This is a test" --lang de
+    swift run swift-translate --verbose -k <your OpenAI key> --text "This is a test" --lang de
     ``` 
 4. You should see the following output:
 
@@ -88,10 +88,6 @@ Ok, with that out of the way let's get into the fun stuff...
 
 ### Option 3: Inside Xcode
 🚧 *Not yet supported*
-
-
-## 💸 A Note on Cost
-The current model used in this project, GPT 3.5 Turbo, is extremely cheap. During development of this initial version we executed 3,736 API requests containing 157,734 tokens and our bill came out to just $0.26 USD 😄
 
 
 ## 🙏 Help Wanted

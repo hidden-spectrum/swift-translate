@@ -1,6 +1,11 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Hidden Spectrum" : {
+      "comment" : "This should not be translated",
+      "extractionState" : "manual",
+      "shouldTranslate" : false
+    },
     "I really like tests!" : {
       "extractionState" : "manual",
       "localizations" : {

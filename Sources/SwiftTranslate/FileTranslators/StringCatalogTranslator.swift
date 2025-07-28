@@ -60,33 +60,40 @@ struct StringCatalogTranslator: FileTranslator {
         guard let localizableStringGroup = catalog.localizableStringGroups[key] else {
             return
         }
-        Log.info(newline: verbose ? .before : .none, "Translating key `\(key.truncatedRemovingNewlines(to: 64))` " + "[Comment: \(localizableStringGroup.comment ?? "n/a")]".dim)
         
-        for localizableString in localizableStringGroup.strings {
-            let isSource = catalog.sourceLanguage == localizableString.targetLanguage
-            let targetLanguage = localizableString.targetLanguage
-            
-            if localizableString.state == .translated || isSource {
-                if verbose {
-                    let result = isSource 
+        if let shouldTranslate = localizableStringGroup.shouldTranslate, shouldTranslate == false {
+            Log.info(newline: verbose ? .before : .none, "Skipping key `\(key.truncatedRemovingNewlines(to: 64))` (marked Do Not Translate) " + "[Comment: \(localizableStringGroup.comment ?? "n/a")]".dim)
+            return
+        }
+        
+        Log.info(newline: verbose ? .before : .none, "Translating key `\(key.truncatedRemovingNewlines(to: 64))` " + "[Comment: \(localizableStringGroup.comment ?? "n/a")]".dim)
+
+        await withThrowingTaskGroup(of: Void.self) { taskGroup in
+            for localizableString in localizableStringGroup.strings {
+                let isSource = catalog.sourceLanguage == localizableString.targetLanguage
+                let targetLanguage = localizableString.targetLanguage
+
+                if localizableString.state == .translated || isSource {
+                    if verbose {
+                        let result = isSource
                         ? localizableString.sourceKey.truncatedRemovingNewlines(to: 64)
                         : "[Already translated]".dim
-                    logTranslationResult(to: targetLanguage, result: result, isSource: isSource)
+                        logTranslationResult(to: targetLanguage, result: result, isSource: isSource)
+                    }
+                    continue
                 }
-                continue
-            }
-            do {
-                let translatedString = try await service.translate(
-                    localizableString.sourceKey,
-                    to: targetLanguage,
-                    comment: localizableStringGroup.comment
-                )
-                localizableString.setTranslation(translatedString)
-                if verbose {
-                    logTranslationResult(to: targetLanguage, result: translatedString.truncatedRemovingNewlines(to: 64), isSource: isSource)
+                
+                taskGroup.addTask {
+                    do {
+                        let translatedString = try await service.translate(localizableString.sourceKey, to: targetLanguage, comment: localizableStringGroup.comment)
+                        localizableString.setTranslation(translatedString)
+                        if verbose {
+                            logTranslationResult(to: targetLanguage, result: translatedString.truncatedRemovingNewlines(to: 64), isSource: isSource)
+                        }
+                    } catch {
+                        logTranslationResult(to: targetLanguage, result: "[Error: \(error.localizedDescription)]".red, isSource: isSource)
+                    }
                 }
-            } catch {
-                logTranslationResult(to: targetLanguage, result: "[Error: \(error.localizedDescription)]".red, isSource: isSource)
             }
         }
     }
