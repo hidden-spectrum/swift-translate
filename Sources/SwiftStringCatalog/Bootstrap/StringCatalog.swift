@@ -144,7 +144,6 @@ public final class StringCatalog {
     }
     
     func buildCatalogEntries() throws -> [String: _CatalogEntry] {
-//        let sortedGroups = localizableStringGroups.sorted { $0.key < $1.key }
         var entries = [String: _CatalogEntry]()
         for (key, stringGroup) in localizableStringGroups {
             entries[key] = try _CatalogEntry(from: stringGroup)
