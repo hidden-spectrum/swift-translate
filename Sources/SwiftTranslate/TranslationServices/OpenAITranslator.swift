@@ -45,12 +45,10 @@ struct OpenAITranslator {
         
         return ChatQuery(
             messages: [
-                .system(.init(content: systemPrompt)),
+                .system(.init(content: .textContent(systemPrompt))),
                 .user(.init(content: .string(translatableText))),
             ],
             model: model.rawValue,
-            frequencyPenalty: -2,
-            presencePenalty: -2,
             responseFormat: .text
         )
     }
