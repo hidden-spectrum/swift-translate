@@ -76,8 +76,8 @@ struct StringCatalogTranslator: FileTranslator {
                 if localizableString.state == .translated || isSource {
                     if verbose {
                         let result = isSource
-                        ? localizableString.sourceKey.truncatedRemovingNewlines(to: 64)
-                        : "[Already translated]".dim
+                            ? localizableString.sourceKey.truncatedRemovingNewlines(to: 64)
+                            : "[Already translated]".dim
                         logTranslationResult(to: targetLanguage, result: result, isSource: isSource)
                     }
                     continue
@@ -85,10 +85,15 @@ struct StringCatalogTranslator: FileTranslator {
                 
                 taskGroup.addTask {
                     do {
-                        let translatedString = try await service.translate(localizableString.sourceKey, to: targetLanguage, comment: localizableStringGroup.comment)
-                        localizableString.setTranslation(translatedString)
+                        let response = try await service.translate(localizableString.sourceKey, to: targetLanguage, comment: localizableStringGroup.comment)
+                        let translation = response.translation
+                        localizableString.setTranslation(
+                            translation,
+                            state: response.inputAmbiguous ? .needsReview : .translated
+                        )
                         if verbose {
-                            logTranslationResult(to: targetLanguage, result: translatedString.truncatedRemovingNewlines(to: 64), isSource: isSource)
+                            let truncatedTranslation = translation.truncatedRemovingNewlines(to: 64)
+                            logTranslationResult(to: targetLanguage, result: truncatedTranslation, isSource: isSource, needsReview: response.inputAmbiguous)
                         }
                     } catch {
                         logTranslationResult(to: targetLanguage, result: "[Error: \(error.localizedDescription)]".red, isSource: isSource)
@@ -112,9 +117,17 @@ struct StringCatalogTranslator: FileTranslator {
         }
     }
     
-    private func logTranslationResult(to language: Language, result: String, isSource: Bool) {
+    private func logTranslationResult(to language: Language, result: String, isSource: Bool, needsReview: Bool = false) {
+        var level: Log.Level = .info
+        var result = result
+        if isSource {
+            level = .unimportant
+        } else if needsReview {
+            level = .warning
+            result += "⚠️"
+        }
         Log.structured(
-            level: isSource ? .unimportant : .info,
+            level: level,
             .init(width: 8, language.rawValue + ":"),
             .init(result)
         )

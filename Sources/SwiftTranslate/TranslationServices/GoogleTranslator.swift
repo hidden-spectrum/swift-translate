@@ -47,9 +47,9 @@ struct GoogleTranslator {
 }
 
 extension GoogleTranslator: TranslationService {
-    func translate(_ string: String, to targetLanguage: Language, comment: String?) async throws -> String {
+    func translate(_ string: String, to targetLanguage: Language, comment: String?) async throws -> TranslationResponse {
         if targetLanguage == .english {
-            return string
+            return TranslationResponse(string)
         }
         
         let request = try buildRequest(for: string, targetLanguage: targetLanguage)
@@ -62,7 +62,7 @@ extension GoogleTranslator: TranslationService {
             throw SwiftTranslateError.noTranslationReturned
         }
         
-        return translation.translatedText
+        return TranslationResponse(translation.translatedText)
     }
 }
 

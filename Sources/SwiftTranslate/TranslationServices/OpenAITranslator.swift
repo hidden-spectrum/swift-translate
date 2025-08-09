@@ -1,5 +1,5 @@
 //
-//  Copyright © 2024 Hidden Spectrum, LLC.
+//  Copyright © 2024-2025 Hidden Spectrum, LLC.
 //
 
 import Foundation
@@ -68,26 +68,20 @@ struct OpenAITranslator {
             systemPrompt +=
                 """
                 
-                Finally, if the input text is too short to provide sufficient context for accurate translation, flag as such and provide a reason (in English) in the output.
+                Finally, if the input text is too short to provide sufficient context for accurate translation, flag as such and provide a reason (in English).
                 """
         }
         return systemPrompt
     }
 }
 
-extension OpenAITranslator {
-    struct TranslationResponse: JSONSchemaConvertible {
-        let translation: String
-        let inputAmbiguous: Bool
-        let ambiguityReason: String?
-        
-        static var example: OpenAITranslator.TranslationResponse {
-            return .init(
-                translation: "Löschen",
-                inputAmbiguous: true,
-                ambiguityReason: "There are multiple meanings for 'clear', including 'delete' and 'transparent'"
-            )
-        }
+extension TranslationResponse: JSONSchemaConvertible {
+    public static var example: Self {
+        return .init(
+            "Löschen",
+            inputAmbiguous: true,
+            ambiguityReason: "There are multiple meanings for 'clear', including 'delete' and 'transparent'"
+        )
     }
 }
 
@@ -95,9 +89,9 @@ extension OpenAITranslator: TranslationService {
     
     // MARK: Translate
     
-    func translate(_ string: String, to targetLanguage: Language, comment: String?) async throws -> String {
-        guard !string.isEmpty else {
-            return string
+    func translate(_ string: String, to targetLanguage: Language, comment: String?) async throws -> TranslationResponse {
+        if string.isEmpty {
+            return .init("", inputAmbiguous: true, ambiguityReason: "Empty string provided")
         }
         
         let query = responseQuery(for: string, targetLanguage: targetLanguage, comment: comment)
@@ -106,11 +100,7 @@ extension OpenAITranslator: TranslationService {
         for output in response.output {
             switch output {
             case .outputMessage(let message):
-                let translation = try getTranslation(from: message)
-                if translation.inputAmbiguous {
-                    print("⚠️ Input text is ambiguous: \(translation.ambiguityReason ?? "No reason provided")".yellow)
-                }
-                return translation.translation
+                return try getTranslation(from: message)
             default:
                 break
             }
