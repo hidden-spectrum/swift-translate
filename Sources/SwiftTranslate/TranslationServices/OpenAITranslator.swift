@@ -15,7 +15,7 @@ struct OpenAITranslator {
     private let openAI: OpenAI
     private let model: OpenAIModel
     private let retries: Int
-
+    
     // MARK: Lifecycle
     
     init(with apiToken: String, model: OpenAIModel, timeoutInterval: Int, retries: Int) {
@@ -26,31 +26,54 @@ struct OpenAITranslator {
     
     // MARK: Helpers
     
-    private func chatQuery(for translatableText: String, targetLanguage: Language, comment: String?) -> ChatQuery {
+    private func responseQuery(for translatableText: String, targetLanguage: Language, comment: String?) -> CreateModelResponseQuery {
+        let systemPrompt = systemPrompt(for: targetLanguage, comment: comment)
         
+        return CreateModelResponseQuery(
+            input: .textInput(translatableText),
+            model: model.rawValue,
+            instructions: systemPrompt,
+            text: .jsonSchema(
+                .init(
+                    name: "translation",
+                    schema: .derivedJsonSchema(TranslationResponse.self),
+                    description: nil,
+                    strict: true
+                )
+            )
+        )
+    }
+    
+    private func systemPrompt(for targetLanguage: Language, comment: String?) -> String {
         var systemPrompt =
             """
             You are a helpful professional translator designated to translate text from English to the language with ISO 639-1 code: \(targetLanguage.rawValue)
             If the input text contains argument placeholders (%arg, @arg1, %lld, etc), it's important they are preserved in the translated text.
-            You should not output anything other than the translated text.
-            Avoid using the same word more than once in a row.
-            Avoid using the same character more than 3 times in a row.
-            Trim extra spaces and the beginning and end of the translated text.
-            Do not provide blank translations. Do not hallucinate. Do not provide translations that are not faithful to the original text.
+            
+            The translated text should be faithful to the original text, maintaining its meaning, tone, and context.
+            Ensure capitalization, punctuation, and special characters are preserved in the translation.
             Put particular attention to languages that use different characters and symbols than English.
             """
         if let comment {
-            systemPrompt += "\nTake into consideration the following context when translating, but do not completely change the translation because of it: \(comment)\n"
+            systemPrompt +=
+            """
+            
+            Take into consideration the following developer comment when translating to help disambuigate words that may have multiple meanings:
+            \(comment)
+            """
         }
+        return systemPrompt
+    }
+}
+
+extension OpenAITranslator {
+    struct TranslationResponse: JSONSchemaConvertible {
+        let translation: String
+        let confidence: Double
         
-        return ChatQuery(
-            messages: [
-                .system(.init(content: .textContent(systemPrompt))),
-                .user(.init(content: .string(translatableText))),
-            ],
-            model: model.rawValue,
-            responseFormat: .text
-        )
+        static var example: OpenAITranslator.TranslationResponse {
+            return .init(translation: "Este texto fue traducido del inglés.", confidence: 0.95)
+        }
     }
 }
 
@@ -62,35 +85,40 @@ extension OpenAITranslator: TranslationService {
         guard !string.isEmpty else {
             return string
         }
-
-        var lastError: Error?
-        var attempt = 0
-        repeat {
-            attempt += 1
-            do {
-                let result = try await openAI.chats(
-                    query: chatQuery(for: string, targetLanguage: targetLanguage, comment: comment)
-                )
-                guard let translatedText = result.choices.first?.message.content, !translatedText.isEmpty else {
-                    lastError = SwiftTranslateError.noTranslationReturned
-                    continue
-                }
-                return translatedText
-            } catch {
-                lastError = error
-            }
-        } while attempt < retries
         
-        throw lastError ?? SwiftTranslateError.unknown
-    }
-}
-
-extension String {
-    func truncatedRemovingNewlines(to length: Int) -> String {
-        let newlinesRemoved = replacingOccurrences(of: "\n", with: " ")
-        guard newlinesRemoved.count > length else {
-            return self
+        let query = responseQuery(for: string, targetLanguage: targetLanguage, comment: comment)
+        let response = try await openAI.responses.createResponse(query: query)
+        
+        for output in response.output {
+            switch output {
+            case .outputMessage(let message):
+                let translation = try getTranslation(from: message)
+                print("OpenAI Translation Confidence: \(translation.confidence)".green)
+                return translation.translation
+            default:
+                break
+            }
         }
-        return String(newlinesRemoved.prefix(length) + "...")
+        
+        throw SwiftTranslateError.noOutputFromModel
+    }
+    
+    private func getTranslation(from message: OutputItem.Schemas.OutputMessage) throws -> TranslationResponse {
+        for content in message.content {
+            switch content {
+            case .OutputTextContent(let textContent):
+                return try decodeOutputText(textContent.text)
+            case .RefusalContent(let refusalContent):
+                throw SwiftTranslateError.translationRefused(reason: refusalContent.refusal)
+            }
+        }
+        throw SwiftTranslateError.noOutputFromModel
+    }
+    
+    private func decodeOutputText(_ text: String) throws -> TranslationResponse {
+        guard let data = text.data(using: .utf8) else {
+            throw SwiftTranslateError.invalidResponseData
+        }
+        return try JSONDecoder().decode(TranslationResponse.self, from: data)
     }
 }
