@@ -68,7 +68,8 @@ struct OpenAITranslator {
             systemPrompt +=
                 """
                 
-                Finally, if the input text is too short to provide sufficient context for accurate translation, flag as such and provide a reason (in English).
+                Finally, if the input text is too short to provide sufficient context for accurate translation, set `inputAmbiguous` to true and include the reason why in `ambiguityReason` (in English). 
+                You should still also return the attempted translation.
                 """
         }
         return systemPrompt

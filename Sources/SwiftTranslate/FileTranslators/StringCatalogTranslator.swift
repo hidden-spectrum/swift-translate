@@ -124,7 +124,6 @@ struct StringCatalogTranslator: FileTranslator {
             level = .unimportant
         } else if needsReview {
             level = .warning
-            result += "⚠️"
         }
         Log.structured(
             level: level,
