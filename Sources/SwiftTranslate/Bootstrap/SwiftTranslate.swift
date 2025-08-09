@@ -27,9 +27,9 @@ struct SwiftTranslate: AsyncParsableCommand {
     
     @Option(
         name: [.customLong("model"), .customShort("m")],
-        help: "OpenAI model to use. Ignored when using Google Translate"
+        help: "OpenAI model to use (default: gpt-5-mini). Ignored when using Google Translate"
     )
-    private var model: OpenAIModel = .gpt5
+    private var model: OpenAIModel = .gpt5_mini
     
     @OptionGroup(
         title: "Translate text"
