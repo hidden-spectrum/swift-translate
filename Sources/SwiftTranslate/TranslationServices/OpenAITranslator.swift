@@ -48,18 +48,22 @@ struct OpenAITranslator {
         var systemPrompt =
             """
             You are a helpful professional translator designated to translate text from English to the language with ISO 639-1 code: \(targetLanguage.rawValue)
+            
             If the input text contains argument placeholders (%arg, @arg1, %lld, etc), it's important they are preserved in the translated text.
             
-            The translated text should be faithful to the original text, maintaining its meaning, tone, and context.
             Ensure capitalization, punctuation, and special characters are preserved in the translation.
             Put particular attention to languages that use different characters and symbols than English.
+            DO NOT translate technical terms, acronyms, brand names, or proper nouns unless they are commonly translated in the target language.
+            
+            The translated text should be as concise as the original while maintaining the intended meaning and context.
             """
         if let comment {
             systemPrompt +=
             """
             
-            Take into consideration the following developer comment when translating to help disambuigate words that may have multiple meanings:
+            Finally, take into consideration the following developer comment when translating to help disambuigate words that may have multiple meanings:
             \(comment)
+            
             """
         }
         return systemPrompt
