@@ -51,20 +51,25 @@ struct OpenAITranslator {
             
             If the input text contains argument placeholders (%arg, @arg1, %lld, etc), it's important they are preserved in the translated text.
             
-            Ensure capitalization, punctuation, and special characters are preserved in the translation.
-            Put particular attention to languages that use different characters and symbols than English.
+            Ensure capitalization, punctuation, and special characters (or lack thereof) are consistent with the input text.
             DO NOT translate technical terms, acronyms, brand names, or proper nouns unless they are commonly translated in the target language.
             
-            The translated text should be as concise as the original while maintaining the intended meaning and context.
+            The translated text should be as concise as the input text while maintaining the intended meaning and context.
             """
         if let comment {
             systemPrompt +=
-            """
-            
-            Finally, take into consideration the following developer comment when translating to help disambuigate words that may have multiple meanings:
-            \(comment)
-            
-            """
+                """
+                
+                Finally, take into consideration the following developer comment when translating to help disambuigate words that may have multiple meanings:
+                \(comment)
+                
+                """
+        } else {
+            systemPrompt +=
+                """
+                
+                Finally, if the input text is too short to provide sufficient context for accurate translation, flag as such and provide a reason (in English) in the output.
+                """
         }
         return systemPrompt
     }
@@ -73,10 +78,15 @@ struct OpenAITranslator {
 extension OpenAITranslator {
     struct TranslationResponse: JSONSchemaConvertible {
         let translation: String
-        let confidence: Double
+        let inputAmbiguous: Bool
+        let ambiguityReason: String?
         
         static var example: OpenAITranslator.TranslationResponse {
-            return .init(translation: "Este texto fue traducido del inglés.", confidence: 0.95)
+            return .init(
+                translation: "Löschen",
+                inputAmbiguous: true,
+                ambiguityReason: "There are multiple meanings for 'clear', including 'delete' and 'transparent'"
+            )
         }
     }
 }
@@ -97,7 +107,9 @@ extension OpenAITranslator: TranslationService {
             switch output {
             case .outputMessage(let message):
                 let translation = try getTranslation(from: message)
-                print("OpenAI Translation Confidence: \(translation.confidence)".green)
+                if translation.inputAmbiguous {
+                    print("⚠️ Input text is ambiguous: \(translation.ambiguityReason ?? "No reason provided")".yellow)
+                }
                 return translation.translation
             default:
                 break
