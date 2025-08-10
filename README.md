@@ -25,7 +25,7 @@ https://github.com/hidden-spectrum/swift-translate/assets/469799/ae5066fa-336c-4
 
 ## 🛑 Stop Here
 Before continuing, please read the following:
-- This project is still in development 🚧. While we use it in production for [Dextr](https://dextr.app), exercise caution when using it with your own projects.
+- This project is still in development 🚧. While we use it in production for [Dextr](https://apps.apple.com/app/apple-store/id6462423477?pt=126513061&ct=HS-SwiftTranslate&mt=8), exercise caution when using it with your own projects.
 - Like any tool built on ChatGPT, responses may be inaccurate or broken completely. 🤪 
 - Hidden Spectrum is not liable for loss of data, file corruption, or inaccurate/offensive translations (or any subsequent bad app reviews due to aforementioned inaccuracies) 🙅🏻‍♂️
     
