@@ -84,22 +84,31 @@ struct StringCatalogTranslator: FileTranslator {
                 }
                 
                 taskGroup.addTask {
-                    do {
-                        let response = try await service.translate(localizableString.sourceKey, to: targetLanguage, comment: localizableStringGroup.comment)
-                        let translation = response.translation
-                        localizableString.setTranslation(
-                            translation,
-                            state: response.inputAmbiguous ? .needsReview : .translated
-                        )
-                        if verbose {
-                            let truncatedTranslation = translation.truncatedRemovingNewlines(to: 64)
-                            logTranslationResult(to: targetLanguage, result: truncatedTranslation, isSource: isSource, needsReview: response.inputAmbiguous)
-                        }
-                    } catch {
-                        logTranslationResult(to: targetLanguage, result: "[Error: \(error.localizedDescription)]".red, isSource: isSource)
-                    }
+                    await translationTask(
+                        for: localizableString,
+                        targeting: targetLanguage,
+                        isSource: isSource,
+                        comment: localizableStringGroup.comment
+                    )
                 }
             }
+        }
+    }
+    
+    private func translationTask(for localizableString: LocalizableString, targeting targetLanguage: Language, isSource: Bool, comment: String?) async {
+        do {
+            let response = try await service.translate(localizableString.sourceKey, to: targetLanguage, comment: comment)
+            let translation = response.translation
+            localizableString.setTranslation(
+                translation,
+                state: response.inputAmbiguous ? .needsReview : .translated
+            )
+            if verbose {
+                let truncatedTranslation = translation.truncatedRemovingNewlines(to: 64)
+                logTranslationResult(to: targetLanguage, result: truncatedTranslation, isSource: isSource, needsReview: response.inputAmbiguous)
+            }
+        } catch {
+            logTranslationResult(to: targetLanguage, result: "[Error: \(error.localizedDescription)]".red, isSource: isSource)
         }
     }
     
@@ -119,7 +128,6 @@ struct StringCatalogTranslator: FileTranslator {
     
     private func logTranslationResult(to language: Language, result: String, isSource: Bool, needsReview: Bool = false) {
         var level: Log.Level = .info
-        var result = result
         if isSource {
             level = .unimportant
         } else if needsReview {
