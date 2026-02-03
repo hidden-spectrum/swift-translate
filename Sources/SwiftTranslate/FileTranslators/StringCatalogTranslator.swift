@@ -73,7 +73,7 @@ struct StringCatalogTranslator: FileTranslator {
                 let isSource = catalog.sourceLanguage == localizableString.targetLanguage
                 let targetLanguage = localizableString.targetLanguage
 
-                if localizableString.state == .translated || isSource {
+                if localizableString.state == .translated || localizableString.state == .needsReview || isSource {
                     if verbose {
                         let result = isSource
                             ? localizableString.sourceKey.truncatedRemovingNewlines(to: 64)
