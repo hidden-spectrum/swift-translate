@@ -10,6 +10,7 @@ struct _Localization: Codable {
     // MARK: Internal
     
     var stringUnit: _StringUnit?
+    var stringSet: _StringSet?
     var substitutions: [String: _Substitution]?
     var variations: _Variations?
 }
@@ -32,6 +33,8 @@ extension _Localization: LocalizableStringConstructor {
                 }
             }
             return localizableStrings
+        } else if let stringSet {
+            return try stringSet.constructLocalizableStrings(with: context)
         } else if let variations {
             return try variations.constructLocalizableStrings(with: context)
         } else {
@@ -64,6 +67,19 @@ extension _Localization {
             )
         substitution.variations?.addVariation(from: localizedString)
         substitutions?[substitutionKey] = substitution
+    }
+    
+    mutating func addStringSetValue(from localizedString: LocalizableString) {
+        guard case .stringSet(let index) = localizedString.kind else {
+            return
+        }
+        guard let translatedValue = localizedString.translatedValue else {
+            return
+        }
+        if stringSet == nil {
+            stringSet = _StringSet(state: localizedString.state, values: [])
+        }
+        stringSet?.addValue(translatedValue, at: index, state: localizedString.state)
     }
 }
 
@@ -100,9 +116,9 @@ final class LocalizableStringConstructionContext {
     }
     
     private init(isSource: Bool, targetLanguage: Language, sourceLanguageStrings: [LocalizableString]) {
-        self.isSource = true
+        self.isSource = isSource
         self.targetLanguage = targetLanguage
-        self.sourceLanguageStrings = []
+        self.sourceLanguageStrings = sourceLanguageStrings
     }
     
     func embeddedSourceKey(matching kind: LocalizableString.Kind, or givenSourceKey: String) throws -> String {

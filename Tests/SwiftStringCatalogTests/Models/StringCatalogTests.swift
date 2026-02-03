@@ -12,7 +12,9 @@ class StringCatalogTests: XCTestCase {
     // MARK: Private
     
     let basicTestCatalog = Bundle.module.url(forResource: "BasicCatalog", withExtension: "json")!
+    let appShortcutsCatalog = Bundle.module.url(forResource: "AppShortcutsCatalog", withExtension: "json")!
     let basicTestKey = "This is a test"
+    let appShortcutsKey = "Add a ${applicationName} contact"
     
     // MARK: Basic Tests
     
@@ -46,5 +48,24 @@ class StringCatalogTests: XCTestCase {
         let localizableStrings = stringCatalog.localizableStringGroups[basicTestKey]?.strings ?? []
         
         XCTAssertEqual(localizableStrings.count, 4)
+    }
+    
+    func testLoad_AppShortcutsStringSet() throws {
+        let stringCatalog = try StringCatalog(url: appShortcutsCatalog)
+        
+        XCTAssertEqual(stringCatalog.sourceLanguage, .english)
+        
+        let sourceStrings = stringCatalog.sourceLanguageStrings[appShortcutsKey] ?? []
+        XCTAssertEqual(sourceStrings.count, 2)
+        XCTAssertEqual(sourceStrings[0].kind, .stringSet(index: 0))
+        XCTAssertEqual(sourceStrings[0].sourceKey, "Add a ${applicationName} contact")
+        XCTAssertEqual(sourceStrings[1].kind, .stringSet(index: 1))
+        XCTAssertEqual(sourceStrings[1].sourceKey, "Add a person in ${applicationName}")
+        
+        let groupedStrings = stringCatalog.localizableStringGroups[appShortcutsKey]?.strings ?? []
+        XCTAssertEqual(groupedStrings.count, 8)
+        
+        let germanStrings = groupedStrings.filter { $0.targetLanguage == .german }
+        XCTAssertEqual(germanStrings.count, 2)
     }
 }

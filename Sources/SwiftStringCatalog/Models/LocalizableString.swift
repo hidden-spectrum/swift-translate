@@ -70,6 +70,7 @@ public final class LocalizableString {
 public extension LocalizableString {
     enum Kind: Equatable {
         case standalone
+        case stringSet(index: Int)
         case replacement(Replacement)
         case variation(Variation)
     }

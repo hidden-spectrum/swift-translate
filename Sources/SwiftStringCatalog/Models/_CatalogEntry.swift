@@ -53,6 +53,9 @@ extension _CatalogEntry {
             case .standalone:
                 localization.stringUnit = _StringUnit(state: localizableString.state, value: translatedValue)
                 continue
+            case .stringSet:
+                localization.addStringSetValue(from: localizableString)
+                continue
             case .replacement:
                 localization.addSubstitution(from: localizableString)
             case .variation:
