@@ -6,6 +6,6 @@ import Foundation
 import SwiftStringCatalog
 
 
-public protocol TranslationService {
+public protocol TranslationService: Sendable {
     func translate(_ string: String, to targetLanguage: Language, comment: String?) async throws -> TranslationResponse
 }

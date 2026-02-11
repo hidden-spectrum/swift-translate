@@ -6,7 +6,7 @@ import Foundation
 import SwiftStringCatalog
 
 
-struct StringCatalogTranslator: FileTranslator {
+actor StringCatalogTranslator: FileTranslator {
     
     // MARK: Internal
     
@@ -84,7 +84,7 @@ struct StringCatalogTranslator: FileTranslator {
                 }
                 
                 taskGroup.addTask {
-                    await translationTask(
+                    await self.translationTask(
                         for: localizableString,
                         targeting: targetLanguage,
                         isSource: isSource,

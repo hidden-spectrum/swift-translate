@@ -6,7 +6,7 @@ import ArgumentParser
 import Foundation
 
 
-public enum OpenAIModel: String, ExpressibleByArgument {
+public enum OpenAIModel: String, ExpressibleByArgument, Sendable {
     case gpt5 = "gpt-5"
     case gpt5_mini = "gpt-5-mini"
     case gpt5_nano = "gpt-5-nano"

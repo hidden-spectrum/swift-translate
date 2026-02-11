@@ -5,7 +5,7 @@
 import Foundation
 
 
-public struct LocalizableStringGroup {
+public struct LocalizableStringGroup: Sendable {
 
     // MARK: Public
     
