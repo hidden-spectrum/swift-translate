@@ -25,7 +25,7 @@ https://github.com/hidden-spectrum/swift-translate/assets/469799/ae5066fa-336c-4
 
 ## 🛑 Stop Here
 Before continuing, please read the following:
-- This project is still in development 🚧. While we use it in production for [Dextr](https://apps.apple.com/app/apple-store/id6462423477?pt=126513061&ct=HS-SwiftTranslate&mt=8), exercise caution when using it with your own projects.
+- This project is still in development 🚧. While we use it in production for [Dextr](https://get.dextr.app/st), exercise caution when using it with your own projects.
 - Like any tool built on ChatGPT, responses may be inaccurate or broken completely. 🤪 
 - Hidden Spectrum is not liable for loss of data, file corruption, or inaccurate/offensive translations (or any subsequent bad app reviews due to aforementioned inaccuracies) 🙅🏻‍♂️
     
@@ -90,8 +90,37 @@ Ok, with that out of the way let's get into the fun stuff...
 🚧 *Not yet supported*
 
 
-## 🙏 Help Wanted
-If you're a GPT Guru, we'd love to hear from you about how we can improve our use of the OpenAI API. Open a ticket with your suggestions or [contact us](https://hiddenspectrum.io/contact) to get involved directly.
+## Our Apps Using Swift Translate
 
-## 🤝 Contributing
-We're still working out a proper process for contributing to this project. In the meantime, check out [open issues](https://github.com/hidden-spectrum/swift-translate/issues) to see where you may be able to help. If something isn't listed, feel free to open a ticket or PR and we'll take a look!
+<table>
+  <tr>
+    <td>
+      <a href="https://get.dextr.app/st">
+        <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/68/41/e8/6841e857-0eca-22da-7722-140bb2fd30d7/Placeholder.mill/400x400bb-75.webp" width="60" />
+      </a>
+    </td>
+    <td>
+      <a href="https://apps.apple.com/us/app/dextr-personal-social-crm/id6462423477">
+        <strong>Dextr</strong>
+      </a>
+      <br />
+      Personal and social CRM for tagging & organizing contacts, remembering who you've met, setting reminders to stay in touch, and more.
+    </td>
+    <td>iOS / iPadOS</td>
+  </tr>
+  <tr>
+    <td>
+      <a href="https://apps.apple.com/us/app/producer-toolkit/id6453160947">
+        <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/0e/7f/25/0e7f2531-5037-dfac-77b7-add9bc394823/AppIcon-0-85-220-6-0-0-2x-0-0.png/100x100bb.png" width="80" style="margin-left: -6px;" />
+      </a>
+    </td>
+    <td>
+      <a href="https://apps.apple.com/us/app/producer-toolkit/id6453160947">
+        <strong>Producer Toolkit</strong>
+      </a>
+      <br />
+      FREE toolkit for music producers and DJs with set time calculator, converters, reference charts, and more.
+    </td>
+    <td>macOS</td>
+  </tr>
+</table>
