@@ -6,7 +6,7 @@ import Foundation
 import SwiftStringCatalog
 
 
-actor StringCatalogTranslator: FileTranslator {
+struct StringCatalogTranslator: FileTranslator {
     
     // MARK: Internal
     
