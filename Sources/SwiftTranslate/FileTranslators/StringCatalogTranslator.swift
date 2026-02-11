@@ -66,6 +66,15 @@ struct StringCatalogTranslator: FileTranslator {
             return
         }
         
+        if localizableStringGroup.extractionState == .stale {
+            Log.info(
+                newline: verbose ? .before : .none,
+                "Skipping key `\(key.truncatedRemovingNewlines(to: 64))` (extraction state is stale) "
+                + "[Comment: \(localizableStringGroup.comment ?? "n/a")]".dim
+            )
+            return
+        }
+        
         Log.info(newline: verbose ? .before : .none, "Translating key `\(key.truncatedRemovingNewlines(to: 64))` " + "[Comment: \(localizableStringGroup.comment ?? "n/a")]".dim)
 
         await withThrowingTaskGroup(of: Void.self) { taskGroup in
