@@ -64,6 +64,7 @@ public extension Language {
             .russian,
             .slovak,
             .spanish,
+            .spanishLatinAmerica,
             .swedish,
             .thai,
             .turkish
@@ -100,6 +101,7 @@ public extension Language {
     static let russian = Self("ru")
     static let slovak = Self("sk")
     static let spanish = Self("es")
+    static let spanishLatinAmerica = Self("es-419")
     static let swedish = Self("sv")
     static let thai = Self("th")
     static let turkish = Self("tr")

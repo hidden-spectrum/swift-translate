@@ -5,7 +5,7 @@
 import Foundation
 
 
-public enum TranslationState: String, Codable, Equatable {
+public enum TranslationState: String, Codable, Equatable, Sendable {
     case new
     case needsReview = "needs_review"
     case stale

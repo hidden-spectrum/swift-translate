@@ -56,7 +56,7 @@ struct TranslationCoordinator {
             let translation = try await translator.translate(string, to: language, comment: nil)
             Log.structured(
                 .init(width: 8, language.rawValue + ":"),
-                .init(translation)
+                .init(translation.translation)
             )
         }
     }

@@ -66,6 +66,15 @@ struct StringCatalogTranslator: FileTranslator {
             return
         }
         
+        if localizableStringGroup.extractionState == .stale {
+            Log.info(
+                newline: verbose ? .before : .none,
+                "Skipping key `\(key.truncatedRemovingNewlines(to: 64))` (extraction state is stale) "
+                + "[Comment: \(localizableStringGroup.comment ?? "n/a")]".dim
+            )
+            return
+        }
+        
         Log.info(newline: verbose ? .before : .none, "Translating key `\(key.truncatedRemovingNewlines(to: 64))` " + "[Comment: \(localizableStringGroup.comment ?? "n/a")]".dim)
 
         await withThrowingTaskGroup(of: Void.self) { taskGroup in
@@ -73,28 +82,42 @@ struct StringCatalogTranslator: FileTranslator {
                 let isSource = catalog.sourceLanguage == localizableString.targetLanguage
                 let targetLanguage = localizableString.targetLanguage
 
-                if localizableString.state == .translated || isSource {
+                if localizableString.state == .translated || localizableString.state == .needsReview || isSource {
                     if verbose {
                         let result = isSource
-                        ? localizableString.sourceKey.truncatedRemovingNewlines(to: 64)
-                        : "[Already translated]".dim
+                            ? localizableString.sourceKey.truncatedRemovingNewlines(to: 64)
+                            : "[Already translated]".dim
                         logTranslationResult(to: targetLanguage, result: result, isSource: isSource)
                     }
                     continue
                 }
                 
                 taskGroup.addTask {
-                    do {
-                        let translatedString = try await service.translate(localizableString.sourceKey, to: targetLanguage, comment: localizableStringGroup.comment)
-                        localizableString.setTranslation(translatedString)
-                        if verbose {
-                            logTranslationResult(to: targetLanguage, result: translatedString.truncatedRemovingNewlines(to: 64), isSource: isSource)
-                        }
-                    } catch {
-                        logTranslationResult(to: targetLanguage, result: "[Error: \(error.localizedDescription)]".red, isSource: isSource)
-                    }
+                    await self.translationTask(
+                        for: localizableString,
+                        targeting: targetLanguage,
+                        isSource: isSource,
+                        comment: localizableStringGroup.comment
+                    )
                 }
             }
+        }
+    }
+    
+    private func translationTask(for localizableString: LocalizableString, targeting targetLanguage: Language, isSource: Bool, comment: String?) async {
+        do {
+            let response = try await service.translate(localizableString.sourceKey, to: targetLanguage, comment: comment)
+            let translation = response.translation
+            localizableString.setTranslation(
+                translation,
+                state: response.inputAmbiguous ? .needsReview : .translated
+            )
+            if verbose {
+                let truncatedTranslation = translation.truncatedRemovingNewlines(to: 64)
+                logTranslationResult(to: targetLanguage, result: truncatedTranslation, isSource: isSource, needsReview: response.inputAmbiguous)
+            }
+        } catch {
+            logTranslationResult(to: targetLanguage, result: "[Error: \(error.localizedDescription)]".red, isSource: isSource)
         }
     }
     
@@ -112,9 +135,15 @@ struct StringCatalogTranslator: FileTranslator {
         }
     }
     
-    private func logTranslationResult(to language: Language, result: String, isSource: Bool) {
+    private func logTranslationResult(to language: Language, result: String, isSource: Bool, needsReview: Bool = false) {
+        var level: Log.Level = .info
+        if isSource {
+            level = .unimportant
+        } else if needsReview {
+            level = .warning
+        }
         Log.structured(
-            level: isSource ? .unimportant : .info,
+            level: level,
             .init(width: 8, language.rawValue + ":"),
             .init(result)
         )
