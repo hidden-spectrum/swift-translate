@@ -5,7 +5,7 @@
 import Foundation
 
 
-public enum DeviceCategory: String, Codable {
+public enum DeviceCategory: String, Codable, Sendable {
     case iPad = "ipad"
     case iPhone = "iphone"
     case iPod = "ipod"

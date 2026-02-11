@@ -5,9 +5,10 @@
 import Foundation
 
 
-public enum ExtractionState: String, Codable {
+public enum ExtractionState: String, Codable, Sendable {
     case extractedWithValue = "extracted_with_value"
     case manual
     case migrated
+    case stale
     case unknown
 }

@@ -1,0 +1,221 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Add a ${applicationName} contact" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "de" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Fügen Sie einen ${applicationName} Kontakt hinzu",
+              "Fügen Sie eine Person in ${applicationName} hinzu"
+            ]
+          }
+        },
+        "en" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "Add a ${applicationName} contact",
+              "Add a person in ${applicationName}"
+            ]
+          }
+        },
+        "es-419" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Agregar un contacto de ${applicationName}",
+              "Agregar una persona en ${applicationName}"
+            ]
+          }
+        },
+        "it" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Aggiungi un contatto ${applicationName}",
+              "Aggiungi una persona in ${applicationName}"
+            ]
+          }
+        }
+      }
+    },
+    "Create an event in ${applicationName}" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "de" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Erstellen Sie ein Ereignis in ${applicationName}",
+              "Erstellen Sie ein ${applicationName}-Ereignis",
+              "Fügen Sie ein ${applicationName}-Ereignis hinzu"
+            ]
+          }
+        },
+        "en" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "Create an event in ${applicationName}",
+              "Create a ${applicationName} event",
+              "Add a ${applicationName} event",
+              "Add an event in ${applicationName}"
+            ]
+          }
+        },
+        "es-419" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Crear un evento en ${applicationName}",
+              "Crear un evento de ${applicationName}",
+              "Agregar un evento en ${applicationName}",
+              "Agregar un evento de ${applicationName}"
+            ]
+          }
+        },
+        "it" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Aggiungi un evento ${applicationName}",
+              "Aggiungi un evento in ${applicationName}",
+              "Aggiungi un evento ${applicationName}",
+              "Crea un evento ${applicationName}"
+            ]
+          }
+        }
+      }
+    },
+    "Open ${applicationName} keypad" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "de" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Öffnen Sie die Tastatur von ${applicationName}",
+              "Öffnen Sie die ${applicationName} Tastatur"
+            ]
+          }
+        },
+        "en" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "Open ${applicationName} keypad",
+              "Open the ${applicationName} keypad",
+              "Open the keypad in ${applicationName}"
+            ]
+          }
+        },
+        "es-419" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Abrir el teclado de ${applicationName}",
+              "Abrir teclado de ${applicationName}",
+              "Abrir el teclado en ${applicationName}"
+            ]
+          }
+        },
+        "it" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Apri la tastiera ${applicationName}",
+              "Apri la tastiera in ${applicationName}"
+            ]
+          }
+        }
+      }
+    },
+    "Open current ${applicationName} event" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "de" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Aktuelles ${applicationName} Ereignis öffnen",
+              "Aktuelles ${applicationName} Ereignis anzeigen"
+            ]
+          }
+        },
+        "en" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "Open current ${applicationName} event",
+              "Show current ${applicationName} event",
+              "View current ${applicationName} event"
+            ]
+          }
+        },
+        "es-419" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Abrir evento actual de ${applicationName}",
+              "Mostrar evento actual de ${applicationName}",
+              "Ver evento actual de ${applicationName}"
+            ]
+          }
+        },
+        "it" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Apri l'evento ${applicationName} corrente",
+              "Mostra l'evento ${applicationName} corrente",
+              "Visualizza l'evento ${applicationName} corrente"
+            ]
+          }
+        }
+      }
+    },
+    "View recently met in ${applicationName}" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "de" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Kürzlich getroffene Personen in ${applicationName} anzeigen"
+            ]
+          }
+        },
+        "en" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "View recently met in ${applicationName}",
+              "Show recently met in ${applicationName}"
+            ]
+          }
+        },
+        "es-419" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Ver personas conocidas recientemente en ${applicationName}",
+              "Mostrar personas conocidas recientemente en ${applicationName}"
+            ]
+          }
+        },
+        "it" : {
+          "stringSet" : {
+            "state" : "translated",
+            "values" : [
+              "Visualizza le persone incontrate di recente in ${applicationName}"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.1"
+}

@@ -5,7 +5,7 @@
 import Foundation
 
 
-public enum PluralQualifier: String, Codable {
+public enum PluralQualifier: String, Codable, Sendable {
     case zero
     case one
     case two

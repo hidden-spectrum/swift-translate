@@ -5,7 +5,7 @@
 import Foundation
 
 
-public final class LocalizableString {
+public final class LocalizableString: @unchecked Sendable {
     
     // MARK: Public
     
@@ -36,9 +36,9 @@ public final class LocalizableString {
     
     // MARK: Translation
     
-    public func setTranslation(_ translation: String) {
+    public func setTranslation(_ translation: String, state: TranslationState = .translated) {
         translatedValue = translation
-        state = .translated
+        self.state = state
     }
     
     // MARK: Utility
@@ -68,18 +68,19 @@ public final class LocalizableString {
 }
 
 public extension LocalizableString {
-    enum Kind: Equatable {
+    enum Kind: Equatable, Sendable {
         case standalone
+        case stringSet(index: Int)
         case replacement(Replacement)
         case variation(Variation)
     }
     
-    enum Variation: Equatable {
+    enum Variation: Equatable, Sendable {
         case device(DeviceCategory)
         case plural(PluralQualifier)
     }
     
-    struct Replacement: Equatable {
+    struct Replacement: Equatable, Sendable {
         let argNumber: Int
         let formatSpecifier: String
         let variation: Variation?
