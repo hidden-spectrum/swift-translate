@@ -27,9 +27,15 @@ struct SwiftTranslate: AsyncParsableCommand {
     
     @Option(
         name: [.customLong("model"), .customShort("m")],
-        help: "OpenAI model to use (default: gpt-5-mini). Ignored when using Google Translate"
+        help: "OpenAI model to use (default: gpt-5.4-mini). Ignored when using Google Translate"
     )
-    private var model: OpenAIModel = .gpt5_mini
+    private var model: OpenAIModel = .gpt5_4_mini
+    
+    @Option(
+        name: [.customLong("reasoning-effort")],
+        help: "OpenAI reasoning effort to use (default: minimal). Lower values are faster. Ignored when using Google Translate"
+    )
+    private var reasoningEffort: OpenAIReasoningEffort = .minimal
     
     @OptionGroup(
         title: "Translate text"
@@ -86,7 +92,13 @@ struct SwiftTranslate: AsyncParsableCommand {
         case .google:
             translator = GoogleTranslator(apiKey: apiToken, timeoutInterval: timeoutInterval)
         case .openAI:
-            translator = OpenAITranslator(with: apiToken, model: model, timeoutInterval: timeoutInterval, retries: requestRetry)
+            translator = OpenAITranslator(
+                with: apiToken,
+                model: model,
+                reasoningEffort: reasoningEffort,
+                timeoutInterval: timeoutInterval,
+                retries: requestRetry
+            )
         }
         
         var targetLanguages: Set<Language>?

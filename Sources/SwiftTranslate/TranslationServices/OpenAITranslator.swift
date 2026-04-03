@@ -14,13 +14,15 @@ struct OpenAITranslator {
     
     private let openAI: OpenAI
     private let model: OpenAIModel
+    private let reasoningEffort: OpenAIReasoningEffort
     private let retries: Int
     
     // MARK: Lifecycle
     
-    init(with apiToken: String, model: OpenAIModel, timeoutInterval: Int, retries: Int) {
+    init(with apiToken: String, model: OpenAIModel, reasoningEffort: OpenAIReasoningEffort, timeoutInterval: Int, retries: Int) {
         self.openAI = OpenAI(configuration: OpenAI.Configuration(token: apiToken, timeoutInterval: TimeInterval(timeoutInterval)))
         self.model = model
+        self.reasoningEffort = reasoningEffort
         self.retries = retries
     }
     
@@ -33,6 +35,7 @@ struct OpenAITranslator {
             input: .textInput(translatableText),
             model: model.rawValue,
             instructions: systemPrompt,
+            reasoning: .init(effort: reasoningEffort.sdkValue, summary: nil),
             text: .jsonSchema(
                 .init(
                     name: "translation",
