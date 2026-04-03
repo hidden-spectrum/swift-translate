@@ -8,15 +8,15 @@ import OpenAI
 
 
 public enum OpenAIReasoningEffort: String, ExpressibleByArgument, Sendable {
-    case minimal
+    case none
     case low
     case medium
     case high
     
     var sdkValue: Components.Schemas.ReasoningEffort {
         switch self {
-        case .minimal:
-            return .minimal
+        case .none:
+            return .none
         case .low:
             return .low
         case .medium:

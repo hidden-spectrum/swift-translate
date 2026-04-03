@@ -33,9 +33,9 @@ struct SwiftTranslate: AsyncParsableCommand {
     
     @Option(
         name: [.customLong("reasoning-effort")],
-        help: "OpenAI reasoning effort to use (default: minimal). Lower values are faster. Ignored when using Google Translate"
+        help: "OpenAI reasoning effort to use (default: none). Lower values are faster. Ignored when using Google Translate"
     )
-    private var reasoningEffort: OpenAIReasoningEffort = .minimal
+    private var reasoningEffort: OpenAIReasoningEffort = .none
     
     @OptionGroup(
         title: "Translate text"
