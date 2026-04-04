@@ -29,7 +29,7 @@ struct SwiftTranslate: AsyncParsableCommand {
         name: [.customLong("model"), .customShort("m")],
         help: """
             Model to use.
-            Defaults to `gpt-5.4-mini` for OpenAI and `gemini-2.0-flash` for Gemini.
+            Defaults to `gpt-5.4-mini` for OpenAI and `gemini-2.5-flash` for Gemini.
             Ignored when using Google Translate.
             """
     )
@@ -176,7 +176,7 @@ struct SwiftTranslate: AsyncParsableCommand {
 
     private func resolvedGeminiModel() throws -> GeminiModel {
         guard let model else {
-            return .gemini2_0Flash
+            return .gemini2_5Flash
         }
         guard let geminiModel = GeminiModel(rawValue: model) else {
             let openAIModels = OpenAIModel.allCases.map(\.rawValue).joined(separator: ", ")

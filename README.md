@@ -15,7 +15,7 @@ https://github.com/hidden-spectrum/swift-translate/assets/469799/ae5066fa-336c-4
 - ✅ Translate from English to ar, ca, zh-HK, zh-Hans, zh-Hant, hr, cs, da, nl, en, fi, fr, de, el, he, hi, hu, id, it, ja, ko, ms, nb, pl, pt-BR, pt-PT, ro, ru, sk, es, sv, th, tr
 - ✅ Support for complex string catalogs with plural & device variations or replacements
 - ✅ Translate brand new catalogs or fill in missing translations for existing catalogs
-- ✅ Supports ChatGPT (5.4 series models), Google Translate (v2), and Gemini (1.5 Flash and 2.0 Flash)
+- ✅ Supports ChatGPT (5.4 series models), Google Translate (v2), and Gemini (`gemini-2.5-flash` and `gemini-3-flash-preview`)
 - ✅ Works with String Catalog formats from Xcode 15, 16, and 26
 - 🚧 Documentation ([#2](/../../issues/2))
 - 🚧 Unit tests ([#3](/../../issues/3))

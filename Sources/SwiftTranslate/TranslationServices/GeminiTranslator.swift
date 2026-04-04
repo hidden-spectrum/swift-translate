@@ -35,12 +35,7 @@ struct GeminiTranslator {
             Ensure capitalization, punctuation, and special characters (or lack thereof) are consistent with the input text.
             DO NOT translate technical terms, acronyms, brand names, or proper nouns unless they are commonly translated in the target language.
 
-            Return only valid JSON matching this schema and nothing else:
-            {
-              "translation": "Translated text here",
-              "inputAmbiguous": false,
-              "ambiguityReason": null
-            }
+            Return only JSON matching the configured response schema.
             """
 
         if let comment {
@@ -77,20 +72,24 @@ struct GeminiTranslator {
         return prompt
     }
 
-    private func decodedResponseText(from rawText: String) throws -> TranslationResponse {
+    private var generationConfig: GenerationConfig {
+        GenerationConfig(
+            responseMIMEType: "application/json",
+            responseSchema: Schema(
+                type: .object,
+                properties: [
+                    "translation": Schema(type: .string, nullable: false),
+                    "inputAmbiguous": Schema(type: .boolean, nullable: false),
+                    "ambiguityReason": Schema(type: .string, nullable: true),
+                ],
+                requiredProperties: ["translation", "inputAmbiguous", "ambiguityReason"]
+            )
+        )
+    }
+
+    private func decodeResponseText(_ rawText: String) throws -> TranslationResponse {
         let trimmedText = rawText.trimmingCharacters(in: .whitespacesAndNewlines)
-        let jsonText: String
-
-        if trimmedText.hasPrefix("```") {
-            jsonText = trimmedText
-                .replacingOccurrences(of: "```json", with: "")
-                .replacingOccurrences(of: "```", with: "")
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-        } else {
-            jsonText = trimmedText
-        }
-
-        guard let data = jsonText.data(using: .utf8) else {
+        guard let data = trimmedText.data(using: .utf8) else {
             throw SwiftTranslateError.invalidResponseData
         }
         return try JSONDecoder().decode(TranslationResponse.self, from: data)
@@ -109,7 +108,8 @@ extension GeminiTranslator: TranslationService {
 
         let generativeModel = GenerativeModel(
             name: model.rawValue,
-            apiKey: apiKey
+            apiKey: apiKey,
+            generationConfig: generationConfig
         )
         let response = try await generativeModel.generateContent(prompt(for: string, targetLanguage: targetLanguage, comment: comment))
 
@@ -117,6 +117,6 @@ extension GeminiTranslator: TranslationService {
             throw SwiftTranslateError.noTranslationReturned
         }
 
-        return try decodedResponseText(from: responseText)
+        return try decodeResponseText(responseText)
     }
 }
