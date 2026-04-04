@@ -27,9 +27,15 @@ struct SwiftTranslate: AsyncParsableCommand {
     
     @Option(
         name: [.customLong("model"), .customShort("m")],
-        help: "OpenAI model to use (default: gpt-5-mini). Ignored when using Google Translate"
+        help: "OpenAI model to use (default: gpt-5.4-mini). Ignored when using Google Translate"
     )
-    private var model: OpenAIModel = .gpt5_mini
+    private var model: OpenAIModel = .gpt5_4_mini
+    
+    @Option(
+        name: [.customLong("reasoning-effort")],
+        help: "OpenAI reasoning effort to use (default: none). Lower values are faster. Ignored when using Google Translate"
+    )
+    private var reasoningEffort: OpenAIReasoningEffort = .none
     
     @OptionGroup(
         title: "Translate text"
@@ -54,6 +60,12 @@ struct SwiftTranslate: AsyncParsableCommand {
         help: "Skips confirmation for translating large string files"
     )
     var skipConfirmation: Bool = false
+
+    @Flag(
+        name: [.customLong("enable-confidence-review")],
+        help: "Asks the model to if it thinks translation may be ambiguous, and marks those translations as `needs_review`. Ignored when using Google Translate"
+    )
+    private var enableConfidenceReview: Bool = false
     
     @Option(
         name: [.customLong("retries"), .short],
@@ -86,7 +98,14 @@ struct SwiftTranslate: AsyncParsableCommand {
         case .google:
             translator = GoogleTranslator(apiKey: apiToken, timeoutInterval: timeoutInterval)
         case .openAI:
-            translator = OpenAITranslator(with: apiToken, model: model, timeoutInterval: timeoutInterval, retries: requestRetry)
+            translator = OpenAITranslator(
+                with: apiToken,
+                model: model,
+                reasoningEffort: reasoningEffort,
+                enableConfidenceReview: enableConfidenceReview,
+                timeoutInterval: timeoutInterval,
+                retries: requestRetry
+            )
         }
         
         var targetLanguages: Set<Language>?
@@ -124,6 +143,7 @@ struct SwiftTranslate: AsyncParsableCommand {
         let coordinator = TranslationCoordinator(
             mode: mode,
             translator: translator,
+            enableConfidenceReview: enableConfidenceReview,
             skipConfirmation: skipConfirmation,
             verbose: verbose
         )

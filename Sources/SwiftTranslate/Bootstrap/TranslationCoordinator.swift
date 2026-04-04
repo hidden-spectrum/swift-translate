@@ -19,14 +19,16 @@ struct TranslationCoordinator {
 
     let mode: Mode
     let translator: TranslationService
+    let enableConfidenceReview: Bool
     let skipConfirmation: Bool
     let verbose: Bool
 
     // MARK: Lifecycle
     
-    init(mode: Mode, translator: TranslationService, skipConfirmation: Bool, verbose: Bool) {
+    init(mode: Mode, translator: TranslationService, enableConfidenceReview: Bool, skipConfirmation: Bool, verbose: Bool) {
         self.mode = mode
         self.translator = translator
+        self.enableConfidenceReview = enableConfidenceReview
         self.skipConfirmation = skipConfirmation
         self.verbose = verbose
     }
@@ -75,6 +77,7 @@ struct TranslationCoordinator {
             with: translator,
             targetLanguages: targetLanguages,
             overwrite: overwrite,
+            enableConfidenceReview: enableConfidenceReview,
             skipConfirmations: skipConfirmation,
             verbose: verbose
         )
