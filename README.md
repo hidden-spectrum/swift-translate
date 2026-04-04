@@ -1,5 +1,7 @@
 ![Swift Translate](https://github.com/hidden-spectrum/swift-translate/assets/469799/1cf0355f-429b-4fa4-9fe1-0b8e777db63e)
 
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/hidden-spectrum/swift-translate?utm_source=oss&utm_medium=github&utm_campaign=hidden-spectrum%2Fswift-translate&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+
 Swift Translate is a CLI tool and Swift Package Plugin that makes it easy to localize your app. It deconstructs your string catalogs and sends them to OpenAI's GPT models, Google Cloud Translate (v2), or Gemini for translation. See it in action:
 
 https://github.com/hidden-spectrum/swift-translate/assets/469799/ae5066fa-336c-4bab-8f80-1ec5659008d9
