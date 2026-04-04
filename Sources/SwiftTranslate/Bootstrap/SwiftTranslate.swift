@@ -167,9 +167,7 @@ struct SwiftTranslate: AsyncParsableCommand {
             return .gpt5_4_mini
         }
         guard let openAIModel = OpenAIModel(rawValue: model) else {
-            let openAIModels = OpenAIModel.allCases.map(\.rawValue).joined(separator: ", ")
-            let geminiModels = GeminiModel.allCases.map(\.rawValue).joined(separator: ", ")
-            throw ValidationError("Invalid OpenAI model `\(model)`. OpenAI supports: \(openAIModels). Gemini models (\(geminiModels)) require `--service gemini`.")
+            throw ValidationError("Invalid OpenAI model `\(model)`. Use `--service gemini` for Gemini models.")
         }
         return openAIModel
     }
@@ -179,9 +177,7 @@ struct SwiftTranslate: AsyncParsableCommand {
             return .gemini2_5Flash
         }
         guard let geminiModel = GeminiModel(rawValue: model) else {
-            let openAIModels = OpenAIModel.allCases.map(\.rawValue).joined(separator: ", ")
-            let geminiModels = GeminiModel.allCases.map(\.rawValue).joined(separator: ", ")
-            throw ValidationError("Invalid Gemini model `\(model)`. Gemini supports: \(geminiModels). OpenAI models (\(openAIModels)) require `--service openai`.")
+            throw ValidationError("Invalid Gemini model `\(model)`. Use `--service openai` for OpenAI models.")
         }
         return geminiModel
     }
