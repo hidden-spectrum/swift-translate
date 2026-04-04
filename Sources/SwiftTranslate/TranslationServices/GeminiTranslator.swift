@@ -94,6 +94,31 @@ struct GeminiTranslator {
         }
         return try JSONDecoder().decode(TranslationResponse.self, from: data)
     }
+
+    private func mapProviderError(_ error: Error) -> Error {
+        guard case let .internalError(underlyingError) = error as? GenerateContentError else {
+            return error
+        }
+
+        let reflectedProperties = Mirror(reflecting: underlyingError).children
+        let httpResponseCode = reflectedProperties
+            .first(where: { $0.label == "httpResponseCode" })?
+            .value as? Int
+
+        guard httpResponseCode == 429 else {
+            return error
+        }
+
+        let message = reflectedProperties
+            .first(where: { $0.label == "message" })?
+            .value as? String ?? error.localizedDescription
+
+        return SwiftTranslateError.providerHTTPError(
+            provider: "Gemini",
+            statusCode: 429,
+            message: message
+        )
+    }
 }
 
 extension GeminiTranslator: TranslationService {
@@ -111,7 +136,12 @@ extension GeminiTranslator: TranslationService {
             apiKey: apiKey,
             generationConfig: generationConfig
         )
-        let response = try await generativeModel.generateContent(prompt(for: string, targetLanguage: targetLanguage, comment: comment))
+        let response: GenerateContentResponse
+        do {
+            response = try await generativeModel.generateContent(prompt(for: string, targetLanguage: targetLanguage, comment: comment))
+        } catch {
+            throw mapProviderError(error)
+        }
         
         guard let responseText = response.text else {
             throw SwiftTranslateError.noTranslationReturned
