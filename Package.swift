@@ -26,6 +26,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMajor(from: "1.5.0")),
         .package(url: "https://github.com/MacPaw/OpenAI.git", revision: "3f2cac98d3e98d6b4d90279bd737190fc343dbc4"),
+        .package(url: "https://github.com/google-gemini/generative-ai-swift", .upToNextMajor(from: "0.5.0")),
         .package(url: "https://github.com/onevcat/Rainbow.git", .upToNextMajor(from: "4.0.0")),
     ],
     targets: [
@@ -37,11 +38,11 @@ let package = Package(
             capability: .command(
                 intent: .custom(
                     verb: "swift-translate",
-                    description: "Translates project String Catalogs using OpenAI's GPT 3.5 model"
+                    description: "Translates project String Catalogs using supported translation services"
                 ),
                 permissions: [
                     .writeToPackageDirectory(reason: "Translates string catalogs in your project"),
-                    .allowNetworkConnections(scope: .all(ports: []), reason: "Needs access to OpenAI servers")
+                    .allowNetworkConnections(scope: .all(ports: []), reason: "Needs access to translation provider servers")
                 ]
             ),
             dependencies: [
@@ -55,6 +56,7 @@ let package = Package(
             name: "swift-translate",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "GoogleGenerativeAI", package: "generative-ai-swift"),
                 .product(name: "OpenAI", package: "OpenAI"),
                 .product(name: "Rainbow", package: "Rainbow"),
                 "SwiftStringCatalog"

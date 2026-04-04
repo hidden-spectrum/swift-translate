@@ -15,25 +15,29 @@ struct SwiftTranslate: AsyncParsableCommand {
     
     @Option(
         name: [.customLong("service"), .customShort("s")],
-        help: "Service to use. Either `openai` (default) or `google`"
+        help: "Service to use. Either `openai` (default), `google`, or `gemini`"
     )
     private var service: TranslationServiceArgument = .openAI
 
     @Option(
         name: [.customLong("api-key"), .customShort("k")],
-        help: "OpenAI or Google Cloud Translate (v2) API key"
+        help: "OpenAI, Google Cloud Translate (v2), or Gemini API key"
     )
     private var apiToken: String
     
     @Option(
         name: [.customLong("model"), .customShort("m")],
-        help: "OpenAI model to use (default: gpt-5.4-mini). Ignored when using Google Translate"
+        help: """
+            Model to use.
+            Defaults to `gpt-5.4-mini` for OpenAI and `gemini-2.5-flash` for Gemini.
+            Ignored when using Google Translate.
+            """
     )
-    private var model: OpenAIModel = .gpt5_4_mini
+    private var model: String?
     
     @Option(
         name: [.customLong("reasoning-effort")],
-        help: "OpenAI reasoning effort to use (default: none). Lower values are faster. Ignored when using Google Translate"
+        help: "OpenAI reasoning effort to use (default: none). Lower values are faster. Ignored when using Google Translate or Gemini"
     )
     private var reasoningEffort: OpenAIReasoningEffort = .none
     
@@ -63,16 +67,10 @@ struct SwiftTranslate: AsyncParsableCommand {
 
     @Flag(
         name: [.customLong("enable-confidence-review")],
-        help: "Asks the model to if it thinks translation may be ambiguous, and marks those translations as `needs_review`. Ignored when using Google Translate"
+        help: "Asks the model if it thinks translation may be ambiguous, and marks those translations as `needs_review`. Ignored when using Google Translate"
     )
     private var enableConfidenceReview: Bool = false
     
-    @Option(
-        name: [.customLong("retries"), .short],
-        help: "Retries for OpenAI API requests in case of errors. Ignored when using Google Translate"
-    )
-    private var requestRetry: Int = 1
-
     @Option(
         name: [.customLong("timeout")],
         help: "Timeout interval for API requests"
@@ -98,13 +96,21 @@ struct SwiftTranslate: AsyncParsableCommand {
         case .google:
             translator = GoogleTranslator(apiKey: apiToken, timeoutInterval: timeoutInterval)
         case .openAI:
+            let openAIModel = try resolvedOpenAIModel()
             translator = OpenAITranslator(
                 with: apiToken,
-                model: model,
+                model: openAIModel,
                 reasoningEffort: reasoningEffort,
                 enableConfidenceReview: enableConfidenceReview,
-                timeoutInterval: timeoutInterval,
-                retries: requestRetry
+                timeoutInterval: timeoutInterval
+            )
+        case .gemini:
+            let geminiModel = try resolvedGeminiModel()
+            translator = GeminiTranslator(
+                apiKey: apiToken,
+                model: geminiModel,
+                enableConfidenceReview: enableConfidenceReview,
+                timeoutInterval: timeoutInterval
             )
         }
         
@@ -148,6 +154,26 @@ struct SwiftTranslate: AsyncParsableCommand {
             verbose: verbose
         )
         try await coordinator.translate()
+    }
+
+    private func resolvedOpenAIModel() throws -> OpenAIModel {
+        guard let model else {
+            return .gpt5_4_mini
+        }
+        guard let openAIModel = OpenAIModel(rawValue: model) else {
+            throw ValidationError("Invalid OpenAI model `\(model)`. Use `--service gemini` for Gemini models.")
+        }
+        return openAIModel
+    }
+
+    private func resolvedGeminiModel() throws -> GeminiModel {
+        guard let model else {
+            return .gemini2_5Flash
+        }
+        guard let geminiModel = GeminiModel(rawValue: model) else {
+            throw ValidationError("Invalid Gemini model `\(model)`. Use `--service openai` for OpenAI models.")
+        }
+        return geminiModel
     }
 }
 
