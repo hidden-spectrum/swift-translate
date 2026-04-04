@@ -19,7 +19,13 @@ struct OpenAITranslator {
     
     // MARK: Lifecycle
     
-    init(with apiToken: String, model: OpenAIModel, reasoningEffort: OpenAIReasoningEffort, enableConfidenceReview: Bool, timeoutInterval: Int) {
+    init(
+        with apiToken: String,
+        model: OpenAIModel,
+        reasoningEffort: OpenAIReasoningEffort,
+        enableConfidenceReview: Bool,
+        timeoutInterval: Int
+    ) {
         self.openAI = OpenAI(configuration: OpenAI.Configuration(token: apiToken, timeoutInterval: TimeInterval(timeoutInterval)))
         self.model = model
         self.reasoningEffort = reasoningEffort

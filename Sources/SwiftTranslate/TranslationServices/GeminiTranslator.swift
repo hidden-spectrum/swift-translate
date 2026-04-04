@@ -18,7 +18,12 @@ struct GeminiTranslator {
     
     // MARK: Lifecycle
     
-    init(apiKey: String, model: GeminiModel, enableConfidenceReview: Bool, timeoutInterval: Int) {
+    init(
+        apiKey: String,
+        model: GeminiModel,
+        enableConfidenceReview: Bool,
+        timeoutInterval: Int
+    ) {
         self.apiKey = apiKey
         self.model = model
         self.enableConfidenceReview = enableConfidenceReview
