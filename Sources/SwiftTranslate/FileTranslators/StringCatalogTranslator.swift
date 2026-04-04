@@ -14,15 +14,17 @@ struct StringCatalogTranslator: FileTranslator {
     let skipConfirmations: Bool
     let targetLanguages: Set<Language>?
     let service: TranslationService
+    let enableConfidenceReview: Bool
     let verbose: Bool
     
     // MARK: Lifecycle
     
-    init(with translator: TranslationService, targetLanguages: Set<Language>?, overwrite: Bool, skipConfirmations: Bool, verbose: Bool) {
+    init(with translator: TranslationService, targetLanguages: Set<Language>?, overwrite: Bool, enableConfidenceReview: Bool, skipConfirmations: Bool, verbose: Bool) {
         self.skipConfirmations = skipConfirmations
         self.overwrite = overwrite
         self.targetLanguages = targetLanguages
         self.service = translator
+        self.enableConfidenceReview = enableConfidenceReview
         self.verbose = verbose
     }
     
@@ -108,13 +110,14 @@ struct StringCatalogTranslator: FileTranslator {
         do {
             let response = try await service.translate(localizableString.sourceKey, to: targetLanguage, comment: comment)
             let translation = response.translation
+            let needsReview = enableConfidenceReview && response.inputAmbiguous
             localizableString.setTranslation(
                 translation,
-                state: response.inputAmbiguous ? .needsReview : .translated
+                state: needsReview ? .needsReview : .translated
             )
             if verbose {
                 let truncatedTranslation = translation.truncatedRemovingNewlines(to: 64)
-                logTranslationResult(to: targetLanguage, result: truncatedTranslation, isSource: isSource, needsReview: response.inputAmbiguous)
+                logTranslationResult(to: targetLanguage, result: truncatedTranslation, isSource: isSource, needsReview: needsReview)
             }
         } catch {
             logTranslationResult(to: targetLanguage, result: "[Error: \(error.localizedDescription)]".red, isSource: isSource)

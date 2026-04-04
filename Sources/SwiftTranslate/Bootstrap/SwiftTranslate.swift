@@ -60,6 +60,12 @@ struct SwiftTranslate: AsyncParsableCommand {
         help: "Skips confirmation for translating large string files"
     )
     var skipConfirmation: Bool = false
+
+    @Flag(
+        name: [.customLong("enable-confidence-review")],
+        help: "Marks ambiguous model translations as `needs_review` in string catalogs"
+    )
+    private var enableConfidenceReview: Bool = false
     
     @Option(
         name: [.customLong("retries"), .short],
@@ -96,6 +102,7 @@ struct SwiftTranslate: AsyncParsableCommand {
                 with: apiToken,
                 model: model,
                 reasoningEffort: reasoningEffort,
+                enableConfidenceReview: enableConfidenceReview,
                 timeoutInterval: timeoutInterval,
                 retries: requestRetry
             )
@@ -136,6 +143,7 @@ struct SwiftTranslate: AsyncParsableCommand {
         let coordinator = TranslationCoordinator(
             mode: mode,
             translator: translator,
+            enableConfidenceReview: enableConfidenceReview,
             skipConfirmation: skipConfirmation,
             verbose: verbose
         )

@@ -15,14 +15,16 @@ struct OpenAITranslator {
     private let openAI: OpenAI
     private let model: OpenAIModel
     private let reasoningEffort: OpenAIReasoningEffort
+    private let enableConfidenceReview: Bool
     private let retries: Int
     
     // MARK: Lifecycle
     
-    init(with apiToken: String, model: OpenAIModel, reasoningEffort: OpenAIReasoningEffort, timeoutInterval: Int, retries: Int) {
+    init(with apiToken: String, model: OpenAIModel, reasoningEffort: OpenAIReasoningEffort, enableConfidenceReview: Bool, timeoutInterval: Int, retries: Int) {
         self.openAI = OpenAI(configuration: OpenAI.Configuration(token: apiToken, timeoutInterval: TimeInterval(timeoutInterval)))
         self.model = model
         self.reasoningEffort = reasoningEffort
+        self.enableConfidenceReview = enableConfidenceReview
         self.retries = retries
     }
     
@@ -66,17 +68,21 @@ struct OpenAITranslator {
                 
                 Finally, take into consideration the following developer comment when translating to help disambiguate words that may have multiple meanings:
                 \(comment)
+                """
+        }
+
+        if enableConfidenceReview {
+            systemPrompt +=
+                """
                 
-                If the input text is still too ambiguous to translate accurately, set `inputAmbiguous` to true and include the reason why in `ambiguityReason` (in English).
+                If the input text is ambiguous or lacks sufficient context to translate accurately, set `inputAmbiguous` to true and include the reason why in `ambiguityReason` (in English).
                 You should still also return the attempted translation.
-                
                 """
         } else {
             systemPrompt +=
                 """
                 
-                Finally, if the input text is too short to provide sufficient context for accurate translation, set `inputAmbiguous` to true and include the reason why in `ambiguityReason` (in English). 
-                You should still also return the attempted translation.
+                Always set `inputAmbiguous` to false and `ambiguityReason` to null.
                 """
         }
         return systemPrompt
