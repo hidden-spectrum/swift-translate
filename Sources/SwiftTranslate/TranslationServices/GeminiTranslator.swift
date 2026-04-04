@@ -96,6 +96,29 @@ struct GeminiTranslator {
     }
 
     private func mapProviderError(_ error: Error) -> Error {
+        if case let GenerateContentError.invalidAPIKey(message) = error {
+            return SwiftTranslateError.providerConfigurationIssue(provider: "Gemini", message: message)
+        }
+
+        if case GenerateContentError.unsupportedUserLocation = error {
+            return SwiftTranslateError.providerConfigurationIssue(
+                provider: "Gemini",
+                message: "User location is not supported for the Gemini API."
+            )
+        }
+
+        if case let GenerateContentError.promptBlocked(response) = error {
+            let reason = response.promptFeedback?.blockReason?.rawValue ?? "Prompt blocked"
+            return SwiftTranslateError.translationRefused(reason: reason)
+        }
+
+        if case let GenerateContentError.responseStoppedEarly(_, response) = error {
+            if let responseText = response.text, !responseText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                return error
+            }
+            return SwiftTranslateError.noTranslationReturned
+        }
+
         guard case let .internalError(underlyingError) = error as? GenerateContentError else {
             return error
         }

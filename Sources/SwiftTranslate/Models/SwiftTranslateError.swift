@@ -12,6 +12,7 @@ enum SwiftTranslateError: Error {
     case invalidResponseData
     case noOutputFromModel
     case noTranslationReturned
+    case providerConfigurationIssue(provider: String, message: String)
     case providerHTTPError(provider: String, statusCode: Int, message: String)
     case translationRefused(reason: String)
     case unknown
@@ -32,6 +33,8 @@ extension SwiftTranslateError: LocalizedError {
             return "No output was returned from the model."
         case .noTranslationReturned:
             return "No translation was returned."
+        case .providerConfigurationIssue(let provider, let message):
+            return "\(provider) configuration error: \(message)"
         case .providerHTTPError(let provider, let statusCode, let message):
             return "\(provider) HTTP \(statusCode): \(message)"
         case .translationRefused(let reason):
@@ -43,6 +46,8 @@ extension SwiftTranslateError: LocalizedError {
 
     var shouldAbortTranslation: Bool {
         switch self {
+        case .providerConfigurationIssue:
+            return true
         case .providerHTTPError(_, let statusCode, _):
             return statusCode == 429
         default:
