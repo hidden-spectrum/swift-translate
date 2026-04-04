@@ -63,7 +63,7 @@ struct SwiftTranslate: AsyncParsableCommand {
 
     @Flag(
         name: [.customLong("enable-confidence-review")],
-        help: "Marks ambiguous model translations as `needs_review` in string catalogs"
+        help: "Asks the model to if it thinks translation may be ambiguous, and marks those translations as `needs_review`. Ignored when using Google Translate"
     )
     private var enableConfidenceReview: Bool = false
     
