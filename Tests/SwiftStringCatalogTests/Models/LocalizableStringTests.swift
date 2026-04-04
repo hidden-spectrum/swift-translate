@@ -9,6 +9,34 @@ import Testing
 @Suite("LocalizableString")
 struct LocalizableStringTests {
 
+    @Test("Equatable compares all stored properties")
+    func equatable() {
+        let lhs = LocalizableString(
+            kind: .replacement(.init(argNumber: 2, formatSpecifier: "lld", variation: .plural(.other))),
+            sourceKey: "%arg cats",
+            targetLanguage: .german,
+            translatedValue: "%arg Katzen",
+            state: .needsReview
+        )
+        let rhs = LocalizableString(
+            kind: .replacement(.init(argNumber: 2, formatSpecifier: "lld", variation: .plural(.other))),
+            sourceKey: "%arg cats",
+            targetLanguage: .german,
+            translatedValue: "%arg Katzen",
+            state: .needsReview
+        )
+        let differentState = LocalizableString(
+            kind: .replacement(.init(argNumber: 2, formatSpecifier: "lld", variation: .plural(.other))),
+            sourceKey: "%arg cats",
+            targetLanguage: .german,
+            translatedValue: "%arg Katzen",
+            state: .translated
+        )
+        
+        #expect(lhs == rhs)
+        #expect(lhs != differentState)
+    }
+    
     @Test("setTranslation updates the translated value and state")
     func setTranslation() {
         let localizableString = LocalizableString(
