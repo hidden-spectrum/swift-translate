@@ -1,5 +1,5 @@
 //
-//  Copyright © 2024 Hidden Spectrum, LLC.
+//  Copyright © 2024-2026 Hidden Spectrum, LLC.
 //
 
 import Foundation

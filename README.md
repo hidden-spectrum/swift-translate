@@ -1,6 +1,8 @@
 ![Swift Translate](https://github.com/hidden-spectrum/swift-translate/assets/469799/1cf0355f-429b-4fa4-9fe1-0b8e777db63e)
 
-Swift Translate is a CLI tool and Swift Package Plugin that makes it easy to localize your app. It deconstructs your string catalogs and sends them to OpenAI's GPT models or Google Cloud Translate (v2) for translation. See it in action:
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/hidden-spectrum/swift-translate?utm_source=oss&utm_medium=github&utm_campaign=hidden-spectrum%2Fswift-translate&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+
+Swift Translate is a CLI tool and Swift Package Plugin that makes it easy to localize your app. It deconstructs your string catalogs and sends them to OpenAI's GPT models, Google Cloud Translate (v2), or Gemini for translation. See it in action:
 
 https://github.com/hidden-spectrum/swift-translate/assets/469799/ae5066fa-336c-4bab-8f80-1ec5659008d9
 
@@ -8,20 +10,19 @@ https://github.com/hidden-spectrum/swift-translate/assets/469799/ae5066fa-336c-4
 - macOS 13+
 - Xcode 15+
 - Project utilizing [String Catalogs](https://developer.apple.com/videos/play/wwdc2023/10155/) for localization
-- [OpenAI API key](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key) or [Google Cloud Translate (v2)](https://cloud.google.com/translate/docs/overview) API key
+- [OpenAI API key](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key), [Google Cloud Translate (v2)](https://cloud.google.com/translate/docs/overview) API key, or [Gemini API key](https://ai.google.dev/gemini-api/docs)
 
 ## ⭐️ Features
 - ✅ Translate individual string catalogs or all catalogs in a folder
 - ✅ Translate from English to ar, ca, zh-HK, zh-Hans, zh-Hant, hr, cs, da, nl, en, fi, fr, de, el, he, hi, hu, id, it, ja, ko, ms, nb, pl, pt-BR, pt-PT, ro, ru, sk, es, sv, th, tr
 - ✅ Support for complex string catalogs with plural & device variations or replacements
 - ✅ Translate brand new catalogs or fill in missing translations for existing catalogs
-- ✅ Supports ChatGPT (4o and 4.1 series models) and Google Translate (v2)
-- ✅ Works with String Catalog formats from Xcode 15, 16, and 26 Beta
+- ✅ Supports ChatGPT (5.4 series models), Google Translate (v2), and Gemini (`gemini-2.5-flash` and `gemini-3-flash-preview`)
+- ✅ Works with String Catalog formats from Xcode 15, 16, and 26
 - 🚧 Documentation ([#2](/../../issues/2))
 - 🚧 Unit tests ([#3](/../../issues/3))
 - ❌ Translate from non-English source language ([#23](/../../issues/23))
 - ❌ Translate text files (useful for fastlane metadata) ([#12](/../../issues/12))
-- ❌ "Confidence check": ask GPT to translate text back into source language to compare against the original string ([#14](/../../issues/14))
 
 ## 🛑 Stop Here
 Before continuing, please read the following:

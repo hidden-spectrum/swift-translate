@@ -1,5 +1,5 @@
 //
-//  Copyright © 2024-2025 Hidden Spectrum, LLC.
+//  Copyright © 2024-2026 Hidden Spectrum, LLC.
 //
 
 import Foundation
@@ -14,25 +14,38 @@ struct OpenAITranslator {
     
     private let openAI: OpenAI
     private let model: OpenAIModel
-    private let retries: Int
+    private let reasoningEffort: OpenAIReasoningEffort
+    private let enableConfidenceReview: Bool
     
     // MARK: Lifecycle
     
-    init(with apiToken: String, model: OpenAIModel, timeoutInterval: Int, retries: Int) {
+    init(
+        with apiToken: String,
+        model: OpenAIModel,
+        reasoningEffort: OpenAIReasoningEffort,
+        enableConfidenceReview: Bool,
+        timeoutInterval: Int
+    ) {
         self.openAI = OpenAI(configuration: OpenAI.Configuration(token: apiToken, timeoutInterval: TimeInterval(timeoutInterval)))
         self.model = model
-        self.retries = retries
+        self.reasoningEffort = reasoningEffort
+        self.enableConfidenceReview = enableConfidenceReview
     }
     
     // MARK: Helpers
     
     private func responseQuery(for translatableText: String, targetLanguage: Language, comment: String?) -> CreateModelResponseQuery {
-        let systemPrompt = systemPrompt(for: targetLanguage, comment: comment)
+        let systemPrompt = SystemPrompt(
+            targetLanguage: targetLanguage,
+            comment: comment,
+            enableConfidenceReview: enableConfidenceReview
+        )
         
         return CreateModelResponseQuery(
             input: .textInput(translatableText),
             model: model.rawValue,
-            instructions: systemPrompt,
+            instructions: systemPrompt.build(),
+            reasoning: .init(effort: reasoningEffort.sdkValue, summary: nil),
             text: .jsonSchema(
                 .init(
                     name: "translation",
@@ -44,40 +57,6 @@ struct OpenAITranslator {
         )
     }
     
-    private func systemPrompt(for targetLanguage: Language, comment: String?) -> String {
-        var systemPrompt =
-            """
-            You are a helpful professional translator designated to translate text from English to the language with the provided BCP-47 language tag: \(targetLanguage.rawValue)
-            
-            If the input text contains argument placeholders (e.g. %arg, @arg1, %lld, %@, %d, %ld, {0}, {name}, {{name}}, ${applicationName}), they must be preserved exactly in the translated text (do not translate, remove, or reorder).
-            
-            Ensure capitalization, punctuation, and special characters (or lack thereof) are consistent with the input text.
-            DO NOT translate technical terms, acronyms, brand names, or proper nouns unless they are commonly translated in the target language.
-            
-            Prefer natural, fluent translation for the target language and avoid unnecessary verbosity while maintaining the intended meaning and context.
-            Return only the JSON object matching the schema and nothing else.
-            """
-        if let comment {
-            systemPrompt +=
-                """
-                
-                Finally, take into consideration the following developer comment when translating to help disambiguate words that may have multiple meanings:
-                \(comment)
-                
-                If the input text is still too ambiguous to translate accurately, set `inputAmbiguous` to true and include the reason why in `ambiguityReason` (in English).
-                You should still also return the attempted translation.
-                
-                """
-        } else {
-            systemPrompt +=
-                """
-                
-                Finally, if the input text is too short to provide sufficient context for accurate translation, set `inputAmbiguous` to true and include the reason why in `ambiguityReason` (in English). 
-                You should still also return the attempted translation.
-                """
-        }
-        return systemPrompt
-    }
 }
 
 extension TranslationResponse: JSONSchemaConvertible {
@@ -100,7 +79,12 @@ extension OpenAITranslator: TranslationService {
         }
         
         let query = responseQuery(for: string, targetLanguage: targetLanguage, comment: comment)
-        let response = try await openAI.responses.createResponse(query: query)
+        let response: ResponseObject
+        do {
+            response = try await openAI.responses.createResponse(query: query)
+        } catch {
+            throw SwiftTranslateError(openAIError: error) ?? error
+        }
         
         for output in response.output {
             switch output {

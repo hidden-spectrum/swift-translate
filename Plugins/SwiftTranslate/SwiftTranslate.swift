@@ -8,14 +8,13 @@ import PackagePlugin
 
 @main
 struct SwiftTranslatePlugin: CommandPlugin {
-    
-    let fileManager = FileManager.default
-    
+
     func performCommand(context: PluginContext, arguments: [String]) async throws {
         let apiKey = try preflight(with: arguments)
+        let enableConfidenceReview = confidenceReviewEnabled(with: arguments)
         
         let swiftTranslate = try context.tool(named: "swift-translate")
-        let swiftTranslateUrl = URL(fileURLWithPath: swiftTranslate.path.string)
+        let swiftTranslateUrl = swiftTranslate.url
         let targets = context.package.targets
         
         for target in targets {
@@ -25,8 +24,8 @@ struct SwiftTranslatePlugin: CommandPlugin {
             try _performCommand(
                 toolUrl: swiftTranslateUrl,
                 apiKey: apiKey,
-                targetName: target.name,
-                directoryPath: target.directory.string
+                enableConfidenceReview: enableConfidenceReview,
+                directoryUrl: target.directoryURL
             )
         }
     }
@@ -38,9 +37,18 @@ struct SwiftTranslatePlugin: CommandPlugin {
         }
         return apiKey
     }
+
+    private func confidenceReviewEnabled(with arguments: [String]) -> Bool {
+        var argumentExtractor = ArgumentExtractor(arguments)
+        return argumentExtractor.extractFlag(named: "enable-confidence-review") > 0
+    }
     
-    private func _performCommand(toolUrl: URL, apiKey: String, targetName: String, directoryPath: String) throws {
-        let swiftTranslateArgs = ["--api-key", apiKey, "--skip-confirmation", "--overwrite", directoryPath]
+    private func _performCommand(toolUrl: URL, apiKey: String, enableConfidenceReview: Bool, directoryUrl: URL) throws {
+        var swiftTranslateArgs = ["--api-key", apiKey, "--skip-confirmation", "--overwrite"]
+        if enableConfidenceReview {
+            swiftTranslateArgs.append("--enable-confidence-review")
+        }
+        swiftTranslateArgs.append(directoryUrl.path)
         
         let process = try Process.run(toolUrl, arguments: swiftTranslateArgs)
         process.waitUntilExit()
@@ -58,14 +66,15 @@ import XcodeProjectPlugin
 extension SwiftTranslatePlugin: XcodeCommandPlugin {
     func performCommand(context: XcodePluginContext, arguments: [String]) throws {
         let apiKey = try preflight(with: arguments)
+        let enableConfidenceReview = confidenceReviewEnabled(with: arguments)
         let swiftTranslate = try context.tool(named: "swift-translate")
-        let swiftTranslateUrl = URL(fileURLWithPath: swiftTranslate.path.string)
+        let swiftTranslateUrl = swiftTranslate.url
 
         try _performCommand(
             toolUrl: swiftTranslateUrl,
             apiKey: apiKey,
-            targetName: context.xcodeProject.displayName,
-            directoryPath: context.xcodeProject.directory.string
+            enableConfidenceReview: enableConfidenceReview,
+            directoryUrl: context.xcodeProject.directoryURL
         )
     }
 }

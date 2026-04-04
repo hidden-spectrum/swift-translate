@@ -14,15 +14,17 @@ struct StringCatalogTranslator: FileTranslator {
     let skipConfirmations: Bool
     let targetLanguages: Set<Language>?
     let service: TranslationService
+    let enableConfidenceReview: Bool
     let verbose: Bool
     
     // MARK: Lifecycle
     
-    init(with translator: TranslationService, targetLanguages: Set<Language>?, overwrite: Bool, skipConfirmations: Bool, verbose: Bool) {
+    init(with translator: TranslationService, targetLanguages: Set<Language>?, overwrite: Bool, enableConfidenceReview: Bool, skipConfirmations: Bool, verbose: Bool) {
         self.skipConfirmations = skipConfirmations
         self.overwrite = overwrite
         self.targetLanguages = targetLanguages
         self.service = translator
+        self.enableConfidenceReview = enableConfidenceReview
         self.verbose = verbose
     }
     
@@ -77,7 +79,7 @@ struct StringCatalogTranslator: FileTranslator {
         
         Log.info(newline: verbose ? .before : .none, "Translating key `\(key.truncatedRemovingNewlines(to: 64))` " + "[Comment: \(localizableStringGroup.comment ?? "n/a")]".dim)
 
-        await withThrowingTaskGroup(of: Void.self) { taskGroup in
+        try await withThrowingTaskGroup(of: Void.self) { taskGroup in
             for localizableString in localizableStringGroup.strings {
                 let isSource = catalog.sourceLanguage == localizableString.targetLanguage
                 let targetLanguage = localizableString.targetLanguage
@@ -93,7 +95,7 @@ struct StringCatalogTranslator: FileTranslator {
                 }
                 
                 taskGroup.addTask {
-                    await self.translationTask(
+                    try await self.translationTask(
                         for: localizableString,
                         targeting: targetLanguage,
                         isSource: isSource,
@@ -101,22 +103,36 @@ struct StringCatalogTranslator: FileTranslator {
                     )
                 }
             }
+
+            do {
+                while try await taskGroup.next() != nil {}
+            } catch {
+                taskGroup.cancelAll()
+                throw error
+            }
         }
     }
     
-    private func translationTask(for localizableString: LocalizableString, targeting targetLanguage: Language, isSource: Bool, comment: String?) async {
+    private func translationTask(for localizableString: LocalizableString, targeting targetLanguage: Language, isSource: Bool, comment: String?) async throws {
         do {
             let response = try await service.translate(localizableString.sourceKey, to: targetLanguage, comment: comment)
             let translation = response.translation
+            let needsReview = enableConfidenceReview && response.inputAmbiguous
             localizableString.setTranslation(
                 translation,
-                state: response.inputAmbiguous ? .needsReview : .translated
+                state: needsReview ? .needsReview : .translated
             )
             if verbose {
                 let truncatedTranslation = translation.truncatedRemovingNewlines(to: 64)
-                logTranslationResult(to: targetLanguage, result: truncatedTranslation, isSource: isSource, needsReview: response.inputAmbiguous)
+                logTranslationResult(to: targetLanguage, result: truncatedTranslation, isSource: isSource, needsReview: needsReview)
             }
+        } catch is CancellationError {
+            return
         } catch {
+            if let swiftTranslateError = error as? SwiftTranslateError, swiftTranslateError.shouldAbortTranslation {
+                logTranslationResult(to: targetLanguage, result: "[Fatal: \(swiftTranslateError.localizedDescription)]".red, isSource: isSource)
+                throw swiftTranslateError
+            }
             logTranslationResult(to: targetLanguage, result: "[Error: \(error.localizedDescription)]".red, isSource: isSource)
         }
     }
