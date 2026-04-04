@@ -1,5 +1,5 @@
 //
-//  Copyright © 2024-2025 Hidden Spectrum, LLC.
+//  Copyright © 2024-2026 Hidden Spectrum, LLC.
 //
 
 import Foundation
@@ -16,16 +16,14 @@ struct OpenAITranslator {
     private let model: OpenAIModel
     private let reasoningEffort: OpenAIReasoningEffort
     private let enableConfidenceReview: Bool
-    private let retries: Int
     
     // MARK: Lifecycle
     
-    init(with apiToken: String, model: OpenAIModel, reasoningEffort: OpenAIReasoningEffort, enableConfidenceReview: Bool, timeoutInterval: Int, retries: Int) {
+    init(with apiToken: String, model: OpenAIModel, reasoningEffort: OpenAIReasoningEffort, enableConfidenceReview: Bool, timeoutInterval: Int) {
         self.openAI = OpenAI(configuration: OpenAI.Configuration(token: apiToken, timeoutInterval: TimeInterval(timeoutInterval)))
         self.model = model
         self.reasoningEffort = reasoningEffort
         self.enableConfidenceReview = enableConfidenceReview
-        self.retries = retries
     }
     
     // MARK: Helpers
@@ -109,7 +107,12 @@ extension OpenAITranslator: TranslationService {
         }
         
         let query = responseQuery(for: string, targetLanguage: targetLanguage, comment: comment)
-        let response = try await openAI.responses.createResponse(query: query)
+        let response: ResponseObject
+        do {
+            response = try await openAI.responses.createResponse(query: query)
+        } catch {
+            throw SwiftTranslateError(openAIError: error) ?? error
+        }
         
         for output in response.output {
             switch output {

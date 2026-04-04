@@ -1,5 +1,5 @@
 //
-//  Copyright © 2024-2025 Hidden Spectrum, LLC.
+//  Copyright © 2026 Hidden Spectrum, LLC.
 //
 
 import Foundation
@@ -14,13 +14,15 @@ struct GeminiTranslator {
     private let apiKey: String
     private let model: GeminiModel
     private let enableConfidenceReview: Bool
+    private let timeoutInterval: TimeInterval
     
     // MARK: Lifecycle
     
-    init(apiKey: String, model: GeminiModel, enableConfidenceReview: Bool) {
+    init(apiKey: String, model: GeminiModel, enableConfidenceReview: Bool, timeoutInterval: Int) {
         self.apiKey = apiKey
         self.model = model
         self.enableConfidenceReview = enableConfidenceReview
+        self.timeoutInterval = TimeInterval(timeoutInterval)
     }
     
     // MARK: Helpers
@@ -94,54 +96,6 @@ struct GeminiTranslator {
         }
         return try JSONDecoder().decode(TranslationResponse.self, from: data)
     }
-
-    private func mapProviderError(_ error: Error) -> Error {
-        if case let GenerateContentError.invalidAPIKey(message) = error {
-            return SwiftTranslateError.providerConfigurationIssue(provider: "Gemini", message: message)
-        }
-
-        if case GenerateContentError.unsupportedUserLocation = error {
-            return SwiftTranslateError.providerConfigurationIssue(
-                provider: "Gemini",
-                message: "User location is not supported for the Gemini API."
-            )
-        }
-
-        if case let GenerateContentError.promptBlocked(response) = error {
-            let reason = response.promptFeedback?.blockReason?.rawValue ?? "Prompt blocked"
-            return SwiftTranslateError.translationRefused(reason: reason)
-        }
-
-        if case let GenerateContentError.responseStoppedEarly(_, response) = error {
-            if let responseText = response.text, !responseText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                return error
-            }
-            return SwiftTranslateError.noTranslationReturned
-        }
-
-        guard case let .internalError(underlyingError) = error as? GenerateContentError else {
-            return error
-        }
-
-        let reflectedProperties = Mirror(reflecting: underlyingError).children
-        let httpResponseCode = reflectedProperties
-            .first(where: { $0.label == "httpResponseCode" })?
-            .value as? Int
-
-        guard httpResponseCode == 429 else {
-            return error
-        }
-
-        let message = reflectedProperties
-            .first(where: { $0.label == "message" })?
-            .value as? String ?? error.localizedDescription
-
-        return SwiftTranslateError.providerHTTPError(
-            provider: "Gemini",
-            statusCode: 429,
-            message: message
-        )
-    }
 }
 
 extension GeminiTranslator: TranslationService {
@@ -157,19 +111,20 @@ extension GeminiTranslator: TranslationService {
         let generativeModel = GenerativeModel(
             name: model.rawValue,
             apiKey: apiKey,
-            generationConfig: generationConfig
+            generationConfig: generationConfig,
+            requestOptions: RequestOptions(timeout: timeoutInterval)
         )
         let response: GenerateContentResponse
         do {
             response = try await generativeModel.generateContent(prompt(for: string, targetLanguage: targetLanguage, comment: comment))
         } catch {
-            throw mapProviderError(error)
+            throw SwiftTranslateError(geminiError: error) ?? error
         }
-        
+
         guard let responseText = response.text else {
             throw SwiftTranslateError.noTranslationReturned
         }
-        
+
         return try decodeResponseText(responseText)
     }
 }

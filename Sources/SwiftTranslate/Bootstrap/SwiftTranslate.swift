@@ -72,12 +72,6 @@ struct SwiftTranslate: AsyncParsableCommand {
     private var enableConfidenceReview: Bool = false
     
     @Option(
-        name: [.customLong("retries"), .short],
-        help: "Retries for OpenAI API requests in case of errors. Ignored when using Google Translate or Gemini"
-    )
-    private var requestRetry: Int = 1
-
-    @Option(
         name: [.customLong("timeout")],
         help: "Timeout interval for API requests"
     )
@@ -108,15 +102,15 @@ struct SwiftTranslate: AsyncParsableCommand {
                 model: openAIModel,
                 reasoningEffort: reasoningEffort,
                 enableConfidenceReview: enableConfidenceReview,
-                timeoutInterval: timeoutInterval,
-                retries: requestRetry
+                timeoutInterval: timeoutInterval
             )
         case .gemini:
             let geminiModel = try resolvedGeminiModel()
             translator = GeminiTranslator(
                 apiKey: apiToken,
                 model: geminiModel,
-                enableConfidenceReview: enableConfidenceReview
+                enableConfidenceReview: enableConfidenceReview,
+                timeoutInterval: timeoutInterval
             )
         }
         
