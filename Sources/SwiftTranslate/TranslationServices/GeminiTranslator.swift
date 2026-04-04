@@ -1,5 +1,5 @@
 //
-//  Copyright © 2026 Hidden Spectrum, LLC.
+//  Copyright © 2024-2026 Hidden Spectrum, LLC.
 //
 
 import Foundation
@@ -32,65 +32,30 @@ struct GeminiTranslator {
     
     // MARK: Helpers
     
-    private func prompt(for translatableText: String, targetLanguage: Language, comment: String?) -> String {
-        var prompt =
-            """
-            You are a helpful professional translator designated to translate text from English to the language with the provided BCP-47 language tag: \(targetLanguage.rawValue)
-            
-            If the input text contains argument placeholders (e.g. %arg, @arg1, %lld, %@, %d, %ld, {0}, {name}, {{name}}, ${applicationName}), they must be preserved exactly in the translated text (do not translate, remove, or reorder).
-            
-            Ensure capitalization, punctuation, and special characters (or lack thereof) are consistent with the input text.
-            DO NOT translate technical terms, acronyms, brand names, or proper nouns unless they are commonly translated in the target language.
-            
-            Return only JSON matching the configured response schema.
-            """
+    private func generativeModel(for targetLanguage: Language, comment: String?) -> GenerativeModel {
+        let systemPrompt = SystemPrompt(
+            targetLanguage: targetLanguage,
+            comment: comment,
+            enableConfidenceReview: enableConfidenceReview
+        )
         
-        if let comment {
-            prompt +=
-                """
-                
-                Finally, take into consideration the following developer comment when translating to help disambiguate words that may have multiple meanings:
-                \(comment)
-                """
-        }
-        
-        if enableConfidenceReview {
-            prompt +=
-                """
-                
-                If the input text is ambiguous or lacks sufficient context to translate accurately, set `inputAmbiguous` to true and include the reason why in `ambiguityReason` (in English).
-                You should still also return the attempted translation.
-                """
-        } else {
-            prompt +=
-                """
-                
-                Always set `inputAmbiguous` to false and `ambiguityReason` to null.
-                """
-        }
-        
-        prompt +=
-            """
-            
-            Text to translate:
-            \(translatableText)
-            """
-        
-        return prompt
-    }
-    
-    private var generationConfig: GenerationConfig {
-        GenerationConfig(
-            responseMIMEType: "application/json",
-            responseSchema: Schema(
-                type: .object,
-                properties: [
-                    "translation": Schema(type: .string, nullable: false),
-                    "inputAmbiguous": Schema(type: .boolean, nullable: false),
-                    "ambiguityReason": Schema(type: .string, nullable: true),
-                ],
-                requiredProperties: ["translation", "inputAmbiguous", "ambiguityReason"]
-            )
+        return GenerativeModel(
+            name: model.rawValue,
+            apiKey: apiKey,
+            generationConfig: .init(
+                responseMIMEType: "application/json",
+                responseSchema: Schema(
+                    type: .object,
+                    properties: [
+                        "translation": Schema(type: .string, nullable: false),
+                        "inputAmbiguous": Schema(type: .boolean, nullable: false),
+                        "ambiguityReason": Schema(type: .string, nullable: true),
+                    ],
+                    requiredProperties: ["translation", "inputAmbiguous", "ambiguityReason"]
+                )
+            ),
+            systemInstruction: systemPrompt.build(),
+            requestOptions: RequestOptions(timeout: timeoutInterval)
         )
     }
     
@@ -104,6 +69,9 @@ struct GeminiTranslator {
 }
 
 extension GeminiTranslator: TranslationService {
+    
+    // MARK: Translate
+    
     func translate(_ string: String, to targetLanguage: Language, comment: String?) async throws -> TranslationResponse {
         if string.isEmpty {
             return .init("", inputAmbiguous: true, ambiguityReason: "Empty string provided")
@@ -113,15 +81,10 @@ extension GeminiTranslator: TranslationService {
             return .init(string)
         }
         
-        let generativeModel = GenerativeModel(
-            name: model.rawValue,
-            apiKey: apiKey,
-            generationConfig: generationConfig,
-            requestOptions: RequestOptions(timeout: timeoutInterval)
-        )
+        let generativeModel = generativeModel(for: targetLanguage, comment: comment)
         let response: GenerateContentResponse
         do {
-            response = try await generativeModel.generateContent(prompt(for: string, targetLanguage: targetLanguage, comment: comment))
+            response = try await generativeModel.generateContent(string)
         } catch {
             throw SwiftTranslateError(geminiError: error) ?? error
         }
