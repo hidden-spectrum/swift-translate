@@ -29,7 +29,7 @@ struct SwiftTranslate: AsyncParsableCommand {
         name: [.customLong("model"), .customShort("m")],
         help: """
             Model to use.
-            Defaults to `gpt-5.4-mini` for OpenAI and `gemini-2.5-flash` for Gemini.
+            Defaults to `gpt-5.6-terra` for OpenAI and `gemini-2.5-flash` for Gemini.
             Ignored when using Google Translate.
             """
     )
@@ -158,7 +158,7 @@ struct SwiftTranslate: AsyncParsableCommand {
 
     private func resolvedOpenAIModel() throws -> OpenAIModel {
         guard let model else {
-            return .gpt5_4_mini
+            return .gpt5_6_terra
         }
         guard let openAIModel = OpenAIModel(rawValue: model) else {
             throw ValidationError("Invalid OpenAI model `\(model)`. Use `--service gemini` for Gemini models.")
